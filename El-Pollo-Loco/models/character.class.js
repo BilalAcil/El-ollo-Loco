@@ -18,6 +18,19 @@ class Character extends MovableObject {
     'img/2_character_pepe/1_idle/idle/I-10.png'
   ];
 
+  IMAGES_LONG_IDLE = [
+    'img/2_character_pepe/1_idle/long_idle/I-11.png',
+    'img/2_character_pepe/1_idle/long_idle/I-12.png',
+    'img/2_character_pepe/1_idle/long_idle/I-13.png',
+    'img/2_character_pepe/1_idle/long_idle/I-14.png',
+    'img/2_character_pepe/1_idle/long_idle/I-15.png',
+    'img/2_character_pepe/1_idle/long_idle/I-16.png',
+    'img/2_character_pepe/1_idle/long_idle/I-17.png',
+    'img/2_character_pepe/1_idle/long_idle/I-18.png',
+    'img/2_character_pepe/1_idle/long_idle/I-19.png',
+    'img/2_character_pepe/1_idle/long_idle/I-20.png'
+  ];
+
   IMAGES_WALKING = [
     'img/2_character_pepe/2_walk/W-21.png',
     'img/2_character_pepe/2_walk/W-22.png',
@@ -68,6 +81,7 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES_LONG_IDLE); // Long Idle Bilder laden
     this.applyGravity();
     this.atEndboss = false;
     this.animate();
@@ -75,6 +89,8 @@ class Character extends MovableObject {
     this.showIdle = false;
     this.lastMoveTime = Date.now();
     this.idleAnimationStarted = false;
+    this.longIdleActive = false; // Neue Eigenschaft für Long Idle
+    this.longIdleInterval = null; // Für die Long Idle Animation
   }
 
 
@@ -88,13 +104,6 @@ class Character extends MovableObject {
     };
   }
 
-  // isAboveGround() {
-  //   return this.y < 150; // Anpassen an deine Bodenhöhe
-  // }
-
-  // isFalling() {
-  //   return this.speedY < 0;
-  // }
 
   // Und die drawFrame Methode anpassen
   drawFrame(ctx) {
@@ -109,6 +118,7 @@ class Character extends MovableObject {
     }
   }
 
+
   animate() {
     // Bewegung und Kamera
     setInterval(() => {
@@ -122,6 +132,7 @@ class Character extends MovableObject {
       if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
         this.otherDirection = false;
+        this.handleMovement();
       }
       if (
         this.world.keyboard.LEFT &&
@@ -130,16 +141,12 @@ class Character extends MovableObject {
       ) {
         this.moveLeft();
         this.otherDirection = true;
+        this.handleMovement();
       }
 
       if (this.world.keyboard.SPACE && !this.isAboveGround()) {
         this.jump();
-      }
-
-      // Bewegungs-Erkennung
-      if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.SPACE) {
-        this.lastMoveTime = Date.now();
-        this.idleAnimationStarted = false;
+        this.handleMovement();
       }
 
       // Endboss-Bereich aktivieren
@@ -162,28 +169,63 @@ class Character extends MovableObject {
       const idleTime = Date.now() - this.lastMoveTime;
 
       if (this.isDead()) {
+        this.stopLongIdleAnimation();
         this.playAnimation(this.IMAGES_DEAD);
       } else if (this.isHurt()) {
+        this.stopLongIdleAnimation();
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
+        this.stopLongIdleAnimation();
         this.playAnimation(this.IMAGES_JUMPING);
       } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+        this.stopLongIdleAnimation();
         this.playAnimation(this.IMAGES_WALKING);
-      } else if (idleTime > 10000) { // Nach 10 Sekunden
-        // Komplette Idle-Animation abspielen und bei letztem Bild stehen bleiben
+      } else if (idleTime > 12000) { // Nach 12 Sekunden zu Long Idle wechseln
+        if (!this.longIdleActive) {
+          this.startLongIdleAnimation();
+        }
+      } else if (idleTime > 10000) { // Nach 10 Sekunden normale Idle
         if (!this.idleAnimationStarted) {
           this.playIdleAnimation();
         }
       } else {
         // Einzelnes Idle-Bild anzeigen
+        this.stopLongIdleAnimation();
         this.loadImage(this.IMAGES_IDLE[0]);
       }
     }, 50);
   }
 
-  setIdleImage() {
-    this.loadImage(this.idleImage);
-    this.showIdle = true;
+  handleMovement() {
+    this.lastMoveTime = Date.now();
+    this.idleAnimationStarted = false;
+    this.stopLongIdleAnimation();
+  }
+
+  startLongIdleAnimation() {
+    this.longIdleActive = true;
+    this.idleAnimationStarted = false;
+    let currentImageIndex = 0;
+
+    this.longIdleInterval = setInterval(() => {
+      // Prüfen ob Bewegung stattfindet
+      if (Date.now() - this.lastMoveTime < 12000) {
+        this.stopLongIdleAnimation();
+        return;
+      }
+
+      // Long Idle Animation in Schleife abspielen
+      this.loadImage(this.IMAGES_LONG_IDLE[currentImageIndex]);
+      currentImageIndex = (currentImageIndex + 1) % this.IMAGES_LONG_IDLE.length;
+    }, 200); // Geschwindigkeit der Long Idle Animation anpassen
+  }
+
+  stopLongIdleAnimation() {
+    if (this.longIdleInterval) {
+      clearInterval(this.longIdleInterval);
+      this.longIdleInterval = null;
+    }
+    this.longIdleActive = false;
   }
 
   playIdleAnimation() {
@@ -191,8 +233,8 @@ class Character extends MovableObject {
     let currentImage = 0;
 
     const idleInterval = setInterval(() => {
-      // Prüfen ob Bewegung stattfindet
-      if (Date.now() - this.lastMoveTime < 10000) {
+      // Prüfen ob Bewegung stattfindet oder Long Idle beginnen sollte
+      if (Date.now() - this.lastMoveTime < 10000 || Date.now() - this.lastMoveTime > 12000) {
         clearInterval(idleInterval);
         this.idleAnimationStarted = false;
         return;
@@ -205,6 +247,6 @@ class Character extends MovableObject {
         // Bei letztem Bild stehen bleiben
         this.loadImage(this.IMAGES_IDLE[this.IMAGES_IDLE.length - 1]);
       }
-    }, 200); // Geschwindigkeit der Idle-Animation anpassen
+    }, 200);
   }
 }
