@@ -42,23 +42,4 @@ class ChickenSmall extends MovableObject {
     }, 200);
   }
 
-  // ✅ optional, aber sehr hilfreich: Intervalle sauber stoppen
-  stop() {
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-      this.moveInterval = null;
-    }
-    if (this.animationInterval) {
-      clearInterval(this.animationInterval);
-      this.animationInterval = null;
-    }
-  }
-
-  // ✅ optional: wenn du irgendwo "die" aufrufst, kannst du hier zentral cleanup machen
-  die() {
-    if (this.isDead) return;
-    this.isDead = true;
-    this.loadImage(this.IMAGE_DEAD);
-    this.stop();
-  }
 }
