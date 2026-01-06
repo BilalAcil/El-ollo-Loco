@@ -50,7 +50,6 @@ class MovableObject extends DrawableObject {
     return this.speedY < -2;
   }
 
-
   /**
    * Prüft, ob dieses Objekt mit einem anderen kollidiert.
    * @param {MovableObject} mo - Das andere Objekt
@@ -105,8 +104,6 @@ class MovableObject extends DrawableObject {
       this.world.countdown.stopCountdown();
     }
   }
-
-
 
   /**
    * Prüft, ob das Objekt kürzlich getroffen wurde (innerhalb der letzten 1 Sekunde).
@@ -167,5 +164,4 @@ class MovableObject extends DrawableObject {
     this.jumpSound.volume = 0.6;
     this.jumpSound.play().catch(e => console.warn(e));
   }
-
 }
