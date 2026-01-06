@@ -18,7 +18,6 @@ class World {
   salsas = []; // mehrere Salsaflaschen
   throwableObjects = [];
 
-
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
@@ -75,7 +74,6 @@ class World {
     this.isMaracasSequence = false; // 👈 Neues Flag
   }
 
-
   setWorld() {
     this.character.world = this;
     this.coins = this.generateCoins();
@@ -115,9 +113,6 @@ class World {
     }
   }
 
-
-
-
   generateChickens() {
     const chickens = [];
 
@@ -131,7 +126,6 @@ class World {
 
     return chickens;
   }
-
 
   checkCollisions() {
     this.collisionInterval = setInterval(() => {
@@ -224,10 +218,8 @@ class World {
                 if (this.character.x > maxX) this.character.x = maxX;
               }, 20);
 
-
               return; // verhindert Mehrfachkollision
             }
-
 
             // 🔴 SEITLICH → Spieler bekommt Schaden MIT COOLDOWN
             const now = Date.now();
@@ -247,10 +239,8 @@ class World {
                 this.endGame(false);
               }
             }
-
           }
         }
-
 
         // 🟨 FALL 3: andere Gegner (Chicken usw.)
         else {
@@ -258,7 +248,6 @@ class World {
             collidedEnemies.push({ enemy, index });
           }
         }
-
       }); // forEach ENDE
 
       // 🔥 VERBESSERTE Logik für normale Gegner
@@ -310,8 +299,6 @@ class World {
         }
       });
 
-
-
       // Charakter springt ab
       if (characterJumpedOnEnemy) {
         this.character.speedY = 15;
@@ -348,7 +335,6 @@ class World {
           }
         });
       }
-
 
       // 🔥 VERBESSERT: Normale Gegner mit COOLDOWN
       // 👇 verhindert, dass sofort nach einem Sprung Schaden ausgelöst wird
@@ -391,7 +377,6 @@ class World {
           }
         });
       }
-
 
       // 💥 Salsa-Flaschen treffen Gegner (Endboss, Bodyguard, Chicken, Küken)
       this.throwableObjects.forEach((salsa, index) => {
@@ -483,8 +468,6 @@ class World {
           }
         });
       });
-
-
 
       // Rest deines Codes für Items...
       if (this.corncob && this.character.isColliding(this.corncob)) {
@@ -721,7 +704,6 @@ class World {
     this.checkCollisions();
   }
 
-
   // 🎥 Weiches Kamera-Panning im Endbossbereich (4000–4600 → 3850–4450)
   startEndbossCameraPan() {
     // Wenn schon gepannt wird oder schon auf der Zielposition → nichts tun
@@ -737,7 +719,6 @@ class World {
     // 🔊 Sound starten
     this.playCameraMoveSound();
   }
-
 
   playCameraMoveSound() {
     if (!this.cameraMoveSound) return;
@@ -758,8 +739,6 @@ class World {
       console.warn('Kamera-Sound konnte nicht gestoppt werden:', e);
     }
   }
-
-
 
   // 🎥 Kamera wieder in ursprüngliche Endboss-Position (4000–4600) fahren
   startEndbossCameraPanBack() {
@@ -788,16 +767,12 @@ class World {
     this.shouldStartCameraPanBack = true;
   }
 
-
-
-
   /**
    * Stoppt das Spiel komplett (z. B. bei Game Over).
    */
   stop() {
     this.pauseAllMovements();
   }
-
 
   addObjectsToMap(objects) {
     objects.forEach(o => {
@@ -832,8 +807,6 @@ class World {
 
     this.ctx.restore();
   }
-
-
 
   generateCoins() {
     const coins = [];
@@ -911,11 +884,6 @@ class World {
     }
   }
 
-
-
-
-
-
   // 🧩 SPIEL FORTSETZEN
   resumeGame() {
     if (!this.isPaused) return;
@@ -968,7 +936,6 @@ class World {
     this.hidePlaySymbol();
   }
 
-
   endGame(win = false) {
     // 🛑 Alles einfrieren
     this.pauseAllMovements();
@@ -980,9 +947,6 @@ class World {
       showEndScreen(win); // false = verloren, true = gewonnen
     }, delay);
   }
-
-
-
 
   // 🧩 ZEIGE PAUSE, DANN PLAY SYMBOL
   showPauseThenPlaySymbol() {
@@ -1058,8 +1022,6 @@ class World {
     const overlay = document.getElementById("play-overlay");
     if (overlay) overlay.remove();
   }
-
-
 
   // ⚡ ALLE Figuren kurz hüpfen lassen (Bodyguard landet)
   jumpFromShock() {
