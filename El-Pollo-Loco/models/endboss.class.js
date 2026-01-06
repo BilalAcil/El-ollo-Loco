@@ -53,22 +53,27 @@ class Endboss extends MovableObject {
   }
 
   startFallingWhenDead() {
-    if (this.fallInterval) return; // verhindert Doppelstart
+    if (this.fallInterval) return;
+    this.fallSpeed = 0;
+    this.fallInterval = setInterval(() => this.tickFall(), 1000 / 30);
+  }
 
-    let fallSpeed = 0;
-    this.fallInterval = setInterval(() => {
-      if (this.isPaused || (this.world && this.world.isPaused)) return;
+  tickFall() {
+    if (this.isPaused || this.world?.isPaused) return;
+    if (!this.isDead) return;
+    this.applyFallStep();
+    if (this.y > 600) this.finishFall();
+  }
 
-      if (this.isDead) {
-        fallSpeed += 0.5; // sanfte Beschleunigung
-        this.y += fallSpeed;
+  applyFallStep() {
+    this.fallSpeed += 0.5;
+    this.y += this.fallSpeed;
+  }
 
-        if (this.y > 600) {
-          clearInterval(this.fallInterval);
-          this.removeFromWorld();
-        }
-      }
-    }, 1000 / 30);
+  finishFall() {
+    clearInterval(this.fallInterval);
+    this.fallInterval = null;
+    this.removeFromWorld();
   }
 
   // ★★★ NEUE METHODE: Aus der Welt entfernen ★★★
