@@ -9,11 +9,73 @@ let gameInitialized = false;
  */
 window.addEventListener("DOMContentLoaded", init);
 
+/* =========================================================
+   ✅ Mini-Helper (minimaler Patch, kein Verhaltens-Change)
+   ========================================================= */
 
-/**
- * Initialisiert die Seite, aber startet das Spiel noch nicht.
- * Hier wird nur der Startbildschirm vorbereitet.
- */
+function show(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('hidden');
+}
+
+function hide(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('hidden');
+}
+
+function display(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = value;
+}
+
+function resumeWorldAfterDelay(delay = 200) {
+  setTimeout(() => {
+    if (!world) return;
+
+    // ✅ Ab jetzt dürfen Pause-/Play-Overlays erscheinen
+    world.allowPauseOverlay = true;
+
+    if (typeof world.resumeGame === 'function') {
+      world.resumeGame();
+    } else {
+      world.isPaused = false;
+    }
+  }, delay);
+}
+
+function pauseWorldSilently() {
+  if (!world) return;
+
+  // ⏸️ direkt pausieren, damit nichts "losläuft", bevor der Spieler startet
+  if (typeof world.pauseGame === 'function') {
+    // 🔥 pausieren OHNE Pause-/Play-Symbol
+    world.pauseGame(false);
+  } else {
+    world.isPaused = true;
+  }
+}
+
+function areImagesLoaded() {
+  return [...document.querySelectorAll('img')].every(img => img.complete);
+}
+
+function areClassesReady() {
+  return (
+    typeof World !== 'undefined' &&
+    typeof level1 !== 'undefined' &&
+    typeof Character !== 'undefined' &&
+    typeof StatusBar !== 'undefined' &&
+    typeof StatusBarCoin !== 'undefined' &&
+    typeof StatusBarSalsa !== 'undefined'
+  );
+}
+
+function isDrawableReady() {
+  return typeof DrawableObject === 'undefined' || DrawableObject.areAllAssetsLoaded();
+}
+
+/* ========================================================= */
+
 function init() {
   canvas = document.getElementById('canvas');
 
@@ -23,10 +85,10 @@ function init() {
   }
 
   // Startscreen anzeigen, Spielbereich verstecken
-  document.getElementById('start-screen').classList.remove('hidden');
-  document.getElementById('canvas').style.display = 'none';
-  document.getElementById('game-name').style.display = 'none';
-  document.getElementById('end-screen').classList.add('hidden');
+  show('start-screen');
+  hide('end-screen');
+  display('canvas', 'none');
+  display('game-name', 'none');
 }
 
 /**
@@ -47,24 +109,17 @@ function preloadWorld() {
   startGameLogic();            // erstellt world = new World(...)
 
   // ⏸️ direkt pausieren, damit nichts "losläuft", bevor der Spieler startet
-  if (world && typeof world.pauseGame === 'function') {
-    // 🔥 pausieren OHNE Pause-/Play-Symbol
-    world.pauseGame(false);
-  } else if (world) {
-    world.isPaused = true;
-  }
-
+  pauseWorldSilently();
 }
-
 
 /**
  * Startet das Spiel, wenn "Spielen" gedrückt wird.
  */
 function startGame() {
-  document.getElementById('game-name').style.display = 'block';
-  document.getElementById('start-screen').classList.add('hidden');
-  document.getElementById('canvas').style.display = 'block';
-  document.getElementById('end-screen').classList.add('hidden');
+  display('game-name', 'block');
+  hide('start-screen');
+  display('canvas', 'block');
+  hide('end-screen');
 
   // 📱 Mobile-Controls NUR auf kleinen Bildschirmen im Querformat aktivieren
   const mobileControls = document.querySelector('.mobile-controls');
@@ -79,23 +134,8 @@ function startGame() {
     }
   }
 
-  setTimeout(() => {
-    if (world) {
-      // ✅ Ab jetzt dürfen Pause-/Play-Overlays erscheinen
-      world.allowPauseOverlay = true;
-    }
-
-    if (world && typeof world.resumeGame === 'function') {
-      world.resumeGame();
-    } else if (world) {
-      world.isPaused = false;
-    }
-  }, 200);
+  resumeWorldAfterDelay(200);
 }
-
-
-
-
 
 /**
  * Anleitung öffnen/schließen
@@ -106,7 +146,6 @@ function openInstructions() {
 function closeInstructions() {
   document.getElementById('instructions').classList.add('hidden');
 }
-
 
 function applyMuteState(muted) {
   // globale Variable updaten
@@ -136,7 +175,6 @@ function applyMuteState(muted) {
   }
 }
 
-
 function restoreMuteFromStorage() {
   try {
     const stored = localStorage.getItem('elPolloMute');
@@ -148,9 +186,6 @@ function restoreMuteFromStorage() {
   }
 }
 
-
-
-
 /**
  * Ton an/aus
  */
@@ -158,8 +193,6 @@ function toggleMute() {
   const newState = !isMuted;
   applyMuteState(newState);
 }
-
-
 
 /**
  * Zeigt den Endscreen an (wird vom Spiel aufgerufen)
@@ -235,20 +268,18 @@ function showEndScreen(win) {
   endScreen.classList.remove('hidden');
 }
 
-
-
 /**
  * Spiel neu starten
  */
 function restartGame() {
-
   // 🔧 Sicherstellen, dass Canvas-Referenz stimmt
   canvas = document.getElementById('canvas');
 
   // 🛑 Alte Welt stoppen (falls stopGame existiert)
   if (typeof stopGame === 'function') {
-    stopGame();            // ruft intern vermutlich world.stop()/pauseAllMovements()
+    stopGame(); // ruft intern vermutlich world.stop()/pauseAllMovements()
   }
+
   // Referenz auf alte World löschen
   world = null;
 
@@ -263,38 +294,20 @@ function restartGame() {
   }
 
   // ENDSCREEN ausblenden, Canvas & Titel wieder zeigen
-  document.getElementById('end-screen').classList.add('hidden');
-  document.getElementById('canvas').style.display = 'block';
-  document.getElementById('game-name').style.display = 'block';
+  hide('end-screen');
+  display('canvas', 'block');
+  display('game-name', 'block');
 
   // 🌍 Neue World erzeugen (wie beim ersten Laden)
-  preloadWorld();   // erstellt world = new World(canvas, keyboard) und pausiert sie
+  preloadWorld(); // erstellt world = new World(canvas, keyboard) und pausiert sie
 
   // ⏯️ Kurz warten, dann Spiel wirklich starten
-  setTimeout(() => {
-    if (world) {
-      world.allowPauseOverlay = true; // Pause-Overlay wieder erlauben
-      if (typeof world.resumeGame === 'function') {
-        world.resumeGame();
-      } else {
-        world.isPaused = false;
-      }
-    }
-  }, 200);
+  resumeWorldAfterDelay(200);
 }
-
-
 
 function nextLevel() {
-  // document.getElementById('end-screen').classList.add('hidden');
-
-  // Hier könntest du dein Level-2-Setup starten:
-  // z.B. loadLevel2();
-  // oder einfach ein Platzhalter:
   alert("Level 2: Hol dir die Gitarre! (noch in Arbeit 😎)");
-
 }
-
 
 /**
  * Zurück zum Startscreen
@@ -308,15 +321,14 @@ function returnToHome() {
   }
 
   // Endscreen ausblenden (optional – Seite lädt gleich neu)
-  document.getElementById('end-screen').classList.add('hidden');
-  document.getElementById('canvas').style.display = 'none';
-  document.getElementById('game-name').style.display = 'none';
-  document.getElementById('start-screen').classList.add('hidden');
+  hide('end-screen');
+  display('canvas', 'none');
+  display('game-name', 'none');
+  hide('start-screen');
 
   // 🔄 Seite komplett neu laden
   location.reload();
 }
-
 
 /**
  * Mobile-Touch-Buttons mit der Keyboard-Steuerung verbinden
@@ -390,9 +402,6 @@ function setupMobileControls() {
   bindButtonToKey(btnThrow, 'D');
 }
 
-
-
-
 /**
  * Warten, bis Browser + Spiel intern vollständig geladen sind
  */
@@ -418,10 +427,6 @@ window.addEventListener('load', async () => {
   }
 });
 
-
-
-
-
 /**
  * Prüft in Intervallen, ob Spielressourcen geladen sind
  */
@@ -431,23 +436,10 @@ async function waitForGameAssets() {
 
   return new Promise(resolve => {
     const check = setInterval(() => {
-      const imagesLoaded = [...document.querySelectorAll('img')].every(img => img.complete);
-
-      const classesReady =
-        typeof World !== 'undefined' &&
-        typeof level1 !== 'undefined' &&
-        typeof Character !== 'undefined' &&
-        typeof StatusBar !== 'undefined' &&
-        typeof StatusBarCoin !== 'undefined' &&
-        typeof StatusBarSalsa !== 'undefined';
-
-      const drawableReady =
-        typeof DrawableObject === 'undefined' || DrawableObject.areAllAssetsLoaded();
-
       const assetsReady =
-        classesReady &&
-        imagesLoaded &&
-        drawableReady;
+        areClassesReady() &&
+        areImagesLoaded() &&
+        isDrawableReady();
 
       if (assetsReady || Date.now() - startTime > timeout) {
         clearInterval(check);
@@ -456,5 +448,3 @@ async function waitForGameAssets() {
     }, 200);
   });
 }
-
-
