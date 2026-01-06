@@ -37,7 +37,6 @@ body::before {
   z-index: -1;
 }
 
-
 :root {
   --canvas-max: 720px;
   /* Default: so wie jetzt */
@@ -75,7 +74,6 @@ canvas {
 
   display: block;
 }
-
 
 h1 {
   margin: 10px;
@@ -352,7 +350,6 @@ h3 {
   cursor: pointer;
 }
 
-
 body.legal-page {
   font-family: Arial, system-ui, sans-serif;
   /* andere Schrift nur für diese Seiten */
@@ -372,7 +369,6 @@ body.legal-page .dialog-content h3 {
 body.legal-page p {
   line-height: 1.5;
 }
-
 
 /* ================================ */
 /* 📱 Nur Querformat auf Mobile     */
