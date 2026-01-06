@@ -137,213 +137,243 @@ class Character extends MovableObject {
   }
 
   animate() {
-    // Bewegung und Kamera
-    setInterval(() => {
-      if (this.isPaused) return;  // ⏸ Bewegung einfrieren
-      if (!this.world) return;    // ✅ world kann beim Start noch undefined sein
-      if (this.world.isPaused) return; // 🧩 Bewegung deaktivieren, wenn Welt pausiert ist
+    this.startMovementLoop();
+    this.startAnimationLoop();
+  }
 
-      // 🎥 Kamera-Logik
-      if (this.world) {
+  startMovementLoop() {
+    setInterval(() => this.tickMovement(), 1000 / 60);
+  }
 
-        // 👉 NEU: Panning nach rechts erst starten, wenn Pepe über x = 4050 ist
-        if (
-          this.atEndboss &&
-          this.world.hasBodyguardDied &&                 // Bodyguard ist tot
-          this.world.shouldStartCameraPanBack &&         // wir haben "warte auf PanBack" vorgemerkt
-          !this.world.isCameraPanning &&                 // aktuell kein Panning
-          this.x >= 4000                                 // Pepe ist weit genug rechts
-        ) {
-          this.world.startEndbossCameraPanBack();
-          this.world.shouldStartCameraPanBack = false;   // nur einmal starten
-        }
+  tickMovement() {
+    if (this.shouldSkipMovementTick()) return;
+    this.updateCamera();
+    this.applyKnockback();
+    if (this.freezeForBodyguard) return;
+    this.processMovementInputs();
+    this.checkEndbossTrigger();
+    this.switchToIdleIfNeeded();
+  }
 
-        // 1️⃣ Weiches Panning aktiv?
-        if (this.world.isCameraPanning && typeof this.world.cameraTargetX === 'number') {
-          const target = this.world.cameraTargetX;
-          const speed = this.world.cameraPanSpeed || 2;
+  shouldSkipMovementTick() {
+    if (this.isPaused) return true;
+    if (!this.world) return true;
+    return this.world.isPaused;
+  }
 
-          if (this.world.camera_x < target) {
-            this.world.camera_x += speed;
-            if (this.world.camera_x > target) this.world.camera_x = target;
-          } else if (this.world.camera_x > target) {
-            this.world.camera_x -= speed;
-            if (this.world.camera_x < target) this.world.camera_x = target;
-          }
+  processMovementInputs() {
+    const { minX, maxX } = this.getRunBounds();
+    this.moveRightIfNeeded(maxX);
+    this.moveLeftIfNeeded(minX);
+    this.jumpIfNeeded();
+    this.throwIfNeeded();
+  }
 
-          // Ziel erreicht → Panning beenden & feste Endboss-Kamera setzen
-          if (Math.abs(this.world.camera_x - target) < 1) {
-            this.world.camera_x = target;
-            this.world.isCameraPanning = false;
-            this.world.endbossCameraX = target; // ab jetzt bleibt sie dort
+  getRunBounds() {
+    let minX = 0;
+    let maxX = this.world.level.level_end_x;
 
-            // 🔊 Sound stoppen
-            if (typeof this.world.stopCameraMoveSound === 'function') {
-              this.world.stopCameraMoveSound();
-            }
-          }
+    if (this.atEndboss && this.world.canvas) {
+      const viewLeft = -this.world.camera_x;
+      const viewRight = viewLeft + this.world.canvas.width;
+      const margin = 10;
+      minX = viewLeft + margin;
+      maxX = viewRight - this.width - margin;
+    }
+    return { minX, maxX };
+  }
 
-        } else if (this.atEndboss) {
-          // Wenn schon eine feste Endboss-Kameraposition existiert → diese nutzen
-          if (typeof this.world.endbossCameraX === 'number') {
-            this.world.camera_x = this.world.endbossCameraX;
-          } else {
-            // Standard: fester Bereich 4000–4600 (wie bisher)
-            this.world.camera_x = -4100 + 100; // = -4000
-          }
+  moveRightIfNeeded(maxX) {
+    if (this.world.keyboard.RIGHT && this.x < maxX) {
+      this.moveRight();
+      this.otherDirection = false;
+      this.handleMovement();
+    }
+  }
 
-        } else {
-          // 3️⃣ Normaler Kamerafollow außerhalb des Endbossbereichs
-          this.world.camera_x = -this.x + 100;
-        }
-      }
+  moveLeftIfNeeded(minX) {
+    if (this.world.keyboard.LEFT && this.x > minX) {
+      this.moveLeft();
+      this.otherDirection = true;
+      this.handleMovement();
+    }
+  }
 
-      // 🧩 Knockback-Bewegung automatisch verarbeiten
-      if (this.knockbackActive) {
-        this.x += this.speedX;
-        this.speedX *= 0.9;
-        if (Math.abs(this.speedX) < 1) {
-          this.knockbackActive = false;
-          this.speedX = 0;
-        }
-      }
+  jumpIfNeeded() {
+    if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+      this.jump();
+      this.handleMovement();
+    }
+  }
 
-      // 🛑 Spieler eingefroren?
-      if (this.freezeForBodyguard) return;
+  throwIfNeeded() {
+    if (this.world.keyboard.D && this.animationFinished) {
+      this.throwAnimation();
+      this.lastActionTime = Date.now();
+      this.lastMoveTime = Date.now();
+    }
+  }
 
-      // 👉 AKTUELLE LAUF-GRENZEN BERECHNEN
-      let minX = 0;
-      let maxX = this.world.level.level_end_x;
+  updateCamera() {
+    if (this.shouldStartPanBackNow()) this.startPanBackOnce();
+    if (this.handleSoftPanning()) return;
+    if (this.atEndboss) return this.lockEndbossCamera();
+    this.followCharacterCamera();
+  }
 
-      if (this.atEndboss && this.world && this.world.canvas) {
-        // Sichtbarer Bereich im Welt-Koordinatensystem
-        const viewLeft = -this.world.camera_x;
-        const viewRight = -this.world.camera_x + this.world.canvas.width;
+  shouldStartPanBackNow() {
+    return (
+      this.atEndboss &&
+      this.world.hasBodyguardDied &&
+      this.world.shouldStartCameraPanBack &&
+      !this.world.isCameraPanning &&
+      this.x >= 4000
+    );
+  }
 
-        const margin = 10; // kleiner Rand, damit Pepe nicht direkt am Bildschirmrand klebt
+  startPanBackOnce() {
+    this.world.startEndbossCameraPanBack();
+    this.world.shouldStartCameraPanBack = false;
+  }
 
-        minX = viewLeft + margin;
-        maxX = viewRight - this.width - margin;
-      }
+  handleSoftPanning() {
+    if (!this.world.isCameraPanning) return false;
+    if (typeof this.world.cameraTargetX !== 'number') return false;
 
-      // Bewegung RECHTS
-      if (this.world.keyboard.RIGHT && this.x < maxX) {
-        this.moveRight();
-        this.otherDirection = false;
-        this.handleMovement();
-      }
+    const target = this.world.cameraTargetX;
+    const speed = this.world.cameraPanSpeed || 2;
 
-      // Bewegung LINKS
-      if (this.world.keyboard.LEFT && this.x > minX) {
-        this.moveLeft();
-        this.otherDirection = true;
-        this.handleMovement();
-      }
+    this.world.camera_x += this.world.camera_x < target ? speed : -speed;
+    if (Math.abs(this.world.camera_x - target) < 1) this.finishSoftPanning(target);
+    return true;
+  }
 
-      // Springen
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
-        this.jump();
-        this.handleMovement();
-      }
+  finishSoftPanning(target) {
+    this.world.camera_x = target;
+    this.world.isCameraPanning = false;
+    this.world.endbossCameraX = target;
+    this.world.stopCameraMoveSound?.();
+  }
 
-      // 👉 WURF-ANIMATION (Taste D)
-      if (this.world.keyboard.D && this.animationFinished) {
-        this.throwAnimation();
-        this.lastActionTime = Date.now();
-        this.lastMoveTime = Date.now();
-      }
+  lockEndbossCamera() {
+    if (typeof this.world.endbossCameraX === 'number') {
+      this.world.camera_x = this.world.endbossCameraX;
+    } else {
+      this.world.camera_x = -4100 + 100; // = -4000
+    }
+  }
 
-      // Endboss-Bereich aktivieren
-      if (this.x >= 4100 && !this.atEndboss) {
-        this.atEndboss = true;
+  followCharacterCamera() {
+    this.world.camera_x = -this.x + 100;
+  }
 
-        // Musik abspielen
-        if (this.world && this.world.countdown) {
-          this.world.countdown.playEndBossMusic();
+  applyKnockback() {
+    if (!this.knockbackActive) return;
+    this.x += this.speedX;
+    this.speedX *= 0.9;
+    if (Math.abs(this.speedX) < 1) {
+      this.knockbackActive = false;
+      this.speedX = 0;
+    }
+  }
 
-          // ⏱️ NEU: Countdown für 2 Sekunden ausblenden
-          if (typeof this.world.countdown.hideTemporarily === 'function') {
-            this.world.countdown.hideTemporarily(3000);
-          }
-        }
+  checkEndbossTrigger() {
+    if (this.x < 4100 || this.atEndboss) return;
+    this.activateEndbossArea();
+  }
 
-        // Spieler anhalten
-        this.freezeForBodyguard = true;
+  activateEndbossArea() {
+    this.atEndboss = true;
+    this.world?.countdown?.playEndBossMusic();
 
-        // 📌 BODYGUARD herunterspringen lassen
-        if (this.world.bodyguard && !this.world.bodyguard.hasJumped) {
-          this.world.bodyguard.jumpToEndboss();
-          this.world.bodyguard.hasJumped = true;
-        }
-      }
+    if (typeof this.world?.countdown?.hideTemporarily === 'function') {
+      this.world.countdown.hideTemporarily(3000);
+    }
 
-      // Zur Idle-Animation wechseln nach Inaktivität
-      if (
-        Date.now() - this.lastActionTime > this.actionCooldown &&
-        !this.isAboveGround() &&
-        !this.isHurt() &&
-        !this.isDead() &&
-        this.currentAnimation !== 'idle'
-      ) {
-        this.currentAnimation = 'idle';
-      }
-    }, 1000 / 60);
+    this.freezeForBodyguard = true;
+    this.triggerBodyguardJump();
+  }
 
-    // Animation
-    setInterval(() => {
-      if (this.isPaused) return;
-      if (!this.world) return; // ✅ world kann beim Start noch undefined sein
-      if (this.isThrowing) return;
+  triggerBodyguardJump() {
+    if (!this.world?.bodyguard || this.world.bodyguard.hasJumped) return;
+    this.world.bodyguard.jumpToEndboss();
+    this.world.bodyguard.hasJumped = true;
+  }
 
-      // 🛑 Wenn Bodyguard landet → Pepe zeigt EIN Standbild
-      if (this.freezeForBodyguard) {
-        this.loadImage('img/2_character_pepe/3_jump/J-31.png');
-        return; // keine Animation abspielen
-      }
+  switchToIdleIfNeeded() {
+    const idleAllowed =
+      Date.now() - this.lastActionTime > this.actionCooldown &&
+      !this.isAboveGround() &&
+      !this.isHurt() &&
+      !this.isDead() &&
+      this.currentAnimation !== 'idle';
 
-      // 👉 Berechnung, wie lange der Spieler "effektiv" schon inaktiv ist
-      // (also seit der letzten Bewegung)
-      const effectiveIdleTime = Date.now() - this.lastMoveTime;
+    if (idleAllowed) this.currentAnimation = 'idle';
+  }
 
-      // 💤 Logik für Idle-Zustände (stehen) und Long-Idle (lange nichts gemacht)
 
-      // 1. Charakter ist tot → Todesanimation abspielen
-      if (this.energy <= 0) {
-        this.stopLongIdleAnimation();     // Long-Idle ggf. stoppen
-        this.playDeathAnimation();        // Todes-Animation starten
+  startAnimationLoop() {
+    setInterval(() => this.tickAnimation(), 50);
+  }
 
-        // 2. Charakter ist verletzt → Hurt-Animation
-      } else if (this.isHurt()) {
-        this.stopLongIdleAnimation();
-        this.playAnimation(this.IMAGES_HURT);
+  tickAnimation() {
+    if (this.isPaused) return;
+    if (!this.world) return;
+    if (this.isThrowing) return;
 
-        // 3. Charakter ist in der Luft → Sprung-Animation
-      } else if (this.isAboveGround()) {
-        this.stopLongIdleAnimation();
-        this.handleJumpAnimation();
+    if (this.freezeForBodyguard) return this.showFreezeFrame();
+    this.updateStandingAnimation(Date.now() - this.lastMoveTime);
+  }
 
-        // 4. Charakter bewegt sich nach links oder rechts → Lauf-Animation
-      } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-        this.stopLongIdleAnimation();
-        this.playAnimation(this.IMAGES_WALKING);
+  showFreezeFrame() {
+    this.loadImage('img/2_character_pepe/3_jump/J-31.png');
+  }
 
-        // 5. Charakter steht länger als 12 Sekunden rum → Long-Idle-Animation
-      } else if (effectiveIdleTime > 12000) {
-        // Nur starten, wenn sie noch nicht läuft
-        if (!this.longIdleActive) this.startLongIdleAnimation();
+  updateStandingAnimation(effectiveIdleTime) {
+    if (this.energy <= 0) return this.handleDeathAnim();
+    if (this.isHurt()) return this.playHurtAnim();
+    if (this.isAboveGround()) return this.playAirAnim();
+    if (this.isWalking()) return this.playWalkAnim();
+    this.playIdleOrLongIdle(effectiveIdleTime);
+  }
 
-        // 6. Charakter steht länger als 10 Sekunden, aber weniger als 12 Sekunden → normale Idle-Animation
-      } else if (effectiveIdleTime > 10000) {
-        // Nur einmal starten
-        if (!this.idleAnimationStarted) this.playIdleAnimation();
+  handleDeathAnim() {
+    this.stopLongIdleAnimation();
+    this.playDeathAnimation();
+  }
 
-        // 7. Standardfall: Charakter steht, aber noch nicht lange genug für Idle/Long-Idle
-      } else {
-        this.stopLongIdleAnimation();        // sicherstellen, dass Long-Idle gestoppt ist
-        this.loadImage(this.IMAGES_IDLE[0]); // erstes Idle-Bild anzeigen
-      }
+  playHurtAnim() {
+    this.stopLongIdleAnimation();
+    this.playAnimation(this.IMAGES_HURT);
+  }
 
-    }, 50); // Animations-Update alle 50ms (~20 FPS)
+  playAirAnim() {
+    this.stopLongIdleAnimation();
+    this.handleJumpAnimation();
+  }
+
+  isWalking() {
+    return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
+  }
+
+  playWalkAnim() {
+    this.stopLongIdleAnimation();
+    this.playAnimation(this.IMAGES_WALKING);
+  }
+
+  playIdleOrLongIdle(effectiveIdleTime) {
+    if (effectiveIdleTime > 12000) return this.startLongIdleIfNeeded();
+    if (effectiveIdleTime > 10000) return this.startIdleIfNeeded();
+    this.stopLongIdleAnimation();
+    this.loadImage(this.IMAGES_IDLE[0]);
+  }
+
+  startLongIdleIfNeeded() {
+    if (!this.longIdleActive) this.startLongIdleAnimation();
+  }
+
+  startIdleIfNeeded() {
+    if (!this.idleAnimationStarted) this.playIdleAnimation();
   }
 
   // 🧩 Alles pausieren (Animation + Bewegung)
@@ -388,66 +418,73 @@ class Character extends MovableObject {
   }
 
   throwAnimation() {
-    // blockiere weitere Würfe
-    if (!this.animationFinished || this.isThrowing) return;
+    if (!this.canStartThrow()) return;
+    if (!this.hasSalsa()) return this.handleNoSalsa();
+    this.beginThrow();
+    this.playThrowFrames();
+  }
 
-    // 🎯 Prüfen, ob überhaupt Flaschen da sind
-    if (!this.world?.statusBarSalsa || this.world.statusBarSalsa.salsaCount <= 0) {
-      const failSound = new Audio('audio/Fail.mp3');
-      failSound.volume = 0.4;
-      failSound.playbackRate = 2; // etwas schneller
-      failSound.play().catch(e => console.warn('Fail sound error:', e));
+  canStartThrow() {
+    return this.animationFinished && !this.isThrowing;
+  }
 
-      // ✨ NEU: Salsa-Anzeige blinken lassen
-      this.world?.statusBarSalsa?.blinkOnFail();
+  hasSalsa() {
+    return this.world?.statusBarSalsa && this.world.statusBarSalsa.salsaCount > 0;
+  }
 
-      return; // ❌ keine Animation, kein Wurf
-    }
+  handleNoSalsa() {
+    const failSound = new Audio('audio/Fail.mp3');
+    failSound.volume = 0.4;
+    failSound.playbackRate = 2;
+    failSound.play().catch(() => { });
+    this.world?.statusBarSalsa?.blinkOnFail();
+  }
 
+  beginThrow() {
     this.animationFinished = false;
     this.isThrowing = true;
-    this.lastActionTime = Date.now(); // verhindert, dass sofort Idle startet
-
-    // 🎵 Sound für den eigentlichen Wurf
+    this.lastActionTime = Date.now();
     this.throwSound.currentTime = 0;
-    this.throwSound.play().catch(e => console.warn('Throw sound error:', e));
+    this.throwSound.play().catch(() => { });
+  }
 
+  playThrowFrames() {
     const throwImages = this.IMAGES_THROW;
     let current = 0;
-    const frameDuration = 50;
 
     const interval = setInterval(() => {
-      const path = throwImages[current];
-      if (path) this.loadImage(path);
-      current++;
+      this.loadImage(throwImages[current++]);
+      if (current >= throwImages.length) this.finishThrowFrames(interval);
+    }, 50);
+  }
 
-      if (current >= throwImages.length) {
-        clearInterval(interval);
+  finishThrowFrames(intervalId) {
+    clearInterval(intervalId);
+    setTimeout(() => this.spawnSalsaAndFinish(), 50);
+  }
 
-        setTimeout(() => {
-          // ✅ Nur hier Salsa-Flasche erzeugen, da wir garantiert mindestens 1 hatten
-          if (!this.world?.statusBarSalsa) return;
+  spawnSalsaAndFinish() {
+    if (!this.world?.statusBarSalsa) return;
 
-          this.world.statusBarSalsa.salsaCount--;
+    this.world.statusBarSalsa.salsaCount--;
+    this.spawnSalsaThrow();
+    this.finishThrow();
+  }
 
-          const offsetX = this.otherDirection ? -50 : 100;
-          const salsa = new SalsaThrow(
-            this.x + offsetX,
-            this.y + this.height / 2 + 20, // realistischer Startpunkt
-            this.otherDirection
-          );
+  spawnSalsaThrow() {
+    const offsetX = this.otherDirection ? -50 : 100;
+    const salsa = new SalsaThrow(
+      this.x + offsetX,
+      this.y + this.height / 2 + 20,
+      this.otherDirection
+    );
+    this.world?.throwableObjects?.push(salsa);
+  }
 
-          if (this.world?.throwableObjects) {
-            this.world.throwableObjects.push(salsa);
-          }
-
-          // Zurück zur Idle-Animation
-          this.loadImage(this.IMAGES_IDLE[0]);
-          this.animationFinished = true;
-          this.isThrowing = false;
-        }, 50);
-      }
-    }, frameDuration);
+  finishThrow() {
+    this.loadImage(this.IMAGES_IDLE[0]);
+    this.animationFinished = true;
+    this.isThrowing = false;
   }
 
   startLongIdleAnimation() {
@@ -481,87 +518,102 @@ class Character extends MovableObject {
 
   playIdleAnimation() {
     this.idleAnimationStarted = true;
-    let currentImage = 0;
+    this.idleFrame = 0;
 
-    const idleInterval = setInterval(() => {
-      // Prüfen ob Bewegung stattfindet oder Long Idle beginnen sollte
-      if (Date.now() - this.lastMoveTime < 10000 || Date.now() - this.lastMoveTime > 12000) {
-        clearInterval(idleInterval);
-        this.idleAnimationStarted = false;
-        return;
-      }
-
-      if (currentImage < this.IMAGES_IDLE.length) {
-        this.loadImage(this.IMAGES_IDLE[currentImage]);
-        currentImage++;
-      } else {
-        // Bei letztem Bild stehen bleiben
-        this.loadImage(this.IMAGES_IDLE[this.IMAGES_IDLE.length - 1]);
-      }
+    const id = setInterval(() => {
+      if (!this.isInIdleWindow()) return this.stopIdleInterval(id);
+      this.showNextIdleFrame();
     }, 200);
   }
 
+  isInIdleWindow() {
+    const dt = Date.now() - this.lastMoveTime;
+    return dt >= 10000 && dt <= 12000;
+  }
+
+  stopIdleInterval(id) {
+    clearInterval(id);
+    this.idleAnimationStarted = false;
+  }
+
+  showNextIdleFrame() {
+    const i = Math.min(this.idleFrame, this.IMAGES_IDLE.length - 1);
+    this.loadImage(this.IMAGES_IDLE[i]);
+    this.idleFrame++;
+  }
+
+
   // 🧩 NEU: Todesanimation (Pepe rutscht aus dem Bild)
   playDeathAnimation() {
-    if (this.isDying) return; // Mehrfaches Starten verhindern
+    if (this.isDying) return;
+    this.startDeathState();
+    this.scheduleDeathSounds(500);
+    this.startDeathFallAnim();
+  }
+
+  startDeathState() {
     this.isDying = true;
-    if (this.world) {
-      this.world.pauseAllMovements();
-    }
+    this.world?.pauseAllMovements?.();
     this.animationFinished = false;
 
-    // 🎵 Death-Sound + zusätzlicher Fail-Sound gleichzeitig abspielen
-    setTimeout(() => {
-      // Haupt-Todessound
-      this.deathSound = new Audio('audio/dead-sound.mp3');
-      this.deathSound.volume = 0.6;
-      this.deathSound.play().catch(e => console.warn('Death sound error:', e));
+    this.deathFrameIndex = 0;
+    this.deathFallVelocity = 0;
+  }
 
-      // Zusätzlicher Fail-Sound
-      this.failSound = new Audio('audio/Fail-2.mp3');
-      this.failSound.volume = 0.2;       // etwas lauter als der Todessound
-      this.failSound.playbackRate = 0.7; // Geschwindigkeit
-      this.failSound.play().catch(e => console.warn('Fail-2 sound error:', e));
-    }, 500);
+  scheduleDeathSounds(delayMs) {
+    setTimeout(() => this.playDeathSounds(), delayMs);
+  }
 
-    let frameIndex = 0;
-    const frameInterval = 250; // Zeit pro Frame (ms)
-    let fallVelocity = 0;
-    const gravity = 0.5; // Wie schnell Pepe nach unten fällt
+  playDeathSounds() {
+    this.deathSound = new Audio('audio/dead-sound.mp3');
+    this.deathSound.volume = 0.6;
+    this.deathSound.play().catch(() => { });
 
-    const deathInterval = setInterval(() => {
-      // 1️⃣ Todesbilder nacheinander abspielen
-      if (frameIndex < this.IMAGES_DEAD.length) {
-        this.loadImage(this.IMAGES_DEAD[frameIndex]);
-        frameIndex++;
-      }
+    this.failSound = new Audio('audio/Fail-2.mp3');
+    this.failSound.volume = 0.2;
+    this.failSound.playbackRate = 0.7;
+    this.failSound.play().catch(() => { });
+  }
 
-      // 2️⃣ Pepe langsam nach unten bewegen
-      fallVelocity += gravity;
-      this.y += fallVelocity;
+  startDeathFallAnim() {
+    this.deathInterval = setInterval(() => this.stepDeathFallAnim(), 250);
+  }
 
-      // 3️⃣ Wenn Pepe aus dem Bild ist → stoppen
-      if (this.y > 480 || frameIndex >= this.IMAGES_DEAD.length) {
-        clearInterval(deathInterval);
-        this.animationFinished = true;
-        this.loadImage(this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]);
-      }
-    }, frameInterval);
+  stepDeathFallAnim() {
+    this.stepDeathFrames();
+    this.stepDeathFallPhysics();
+    if (this.shouldFinishDeathAnim()) this.finishDeathAnim();
+  }
+
+  stepDeathFrames() {
+    if (this.deathFrameIndex >= this.IMAGES_DEAD.length) return;
+    this.loadImage(this.IMAGES_DEAD[this.deathFrameIndex++]);
+  }
+
+  stepDeathFallPhysics() {
+    this.deathFallVelocity += 0.5;
+    this.y += this.deathFallVelocity;
+  }
+
+  shouldFinishDeathAnim() {
+    return this.y > 480 || this.deathFrameIndex >= this.IMAGES_DEAD.length;
+  }
+
+  finishDeathAnim() {
+    clearInterval(this.deathInterval);
+    this.animationFinished = true;
+    this.loadImage(this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]);
   }
 
   // ★★★ NEUE METHODE: Pepe soll fallen, wenn er tot ist ★★★
   startFallingWhenDead() {
-    // Verhindert, dass mehrere Intervalle gleichzeitig laufen
-    if (this.fallingInterval) return;
+    if (this.fallingInterval) return;  // Verhindert, dass mehrere Intervalle gleichzeitig laufen
 
-    // Intervall starten (30 Mal pro Sekunde)
-    this.fallingInterval = setInterval(() => {
-      // Wenn Pepe tot oder im Sterben ist …
-      if (this.isDead || this.isDying) {
+    this.fallingInterval = setInterval(() => {   // Intervall starten (30 Mal pro Sekunde)
+      if (this.isDead || this.isDying) {   // Wenn Pepe tot oder im Sterben ist …
         this.y += 3; // Geschwindigkeit des Fallens
 
-        // Sobald Pepe komplett außerhalb des Bildschirms ist …
-        if (this.y > 600) {
+        if (this.y > 600) {    // Sobald Pepe komplett außerhalb des Bildschirms ist …
           clearInterval(this.fallingInterval); // Intervall stoppen
           this.removeFromWorld(); // Aus der Spielwelt entfernen
         }
@@ -584,28 +636,26 @@ class Character extends MovableObject {
 
   applyGravity() {
     setInterval(() => {
-      // 🔥 NEU: Wenn das Spiel/der Charakter pausiert ist → keine Gravitation
-      if (this.isPaused || (this.world && this.world.isPaused)) {
-        return;
-      }
-
-      // 🧠 Wenn Pepe stirbt oder tot ist → keine Gravitation mehr
-      if (this.energy <= 0 || this.isDying) {
-        return;
-      }
-
-      // Gravity anwenden
-      if (this.isAboveGround() || this.speedY > 0) {
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-      }
-
-      // Character auf Boden-Position fixieren
-      if (!this.isAboveGround() && this.speedY <= 0) {
-        this.y = 155;
-        this.speedY = 0;
-      }
+      if (this.shouldSkipGravity()) return;
+      this.applyGravityStep();
+      this.snapToGroundIfNeeded();
     }, 1000 / 25);
   }
 
+  shouldSkipGravity() {
+    if (this.isPaused || this.world?.isPaused) return true;
+    return this.energy <= 0 || this.isDying;
+  }
+
+  applyGravityStep() {
+    if (!this.isAboveGround() && this.speedY <= 0) return;
+    this.y -= this.speedY;
+    this.speedY -= this.acceleration;
+  }
+
+  snapToGroundIfNeeded() {
+    if (this.isAboveGround() || this.speedY > 0) return;
+    this.y = 155;
+    this.speedY = 0;
+  }
 }
