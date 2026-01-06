@@ -71,7 +71,6 @@ class Endboss extends MovableObject {
     }, 1000 / 30);
   }
 
-
   // ★★★ NEUE METHODE: Aus der Welt entfernen ★★★
   removeFromWorld() {
     if (this.world) {
@@ -98,8 +97,6 @@ class Endboss extends MovableObject {
       }, 800);
     }
   }
-
-
 
   // Methode wird aufgerufen, wenn der Boss getroffen wird
   activate() {
@@ -141,5 +138,4 @@ class Endboss extends MovableObject {
   resume() {
     this.isPaused = false;
   }
-
 }
