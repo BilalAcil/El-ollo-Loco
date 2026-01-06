@@ -27,89 +27,116 @@ class SalsaThrow extends MovableObject {
     super().loadImage(this.IMAGES_ROTATION[0]);
     this.loadImages(this.IMAGES_ROTATION);
     this.loadImages(this.IMAGES_SPLASH);
+    this.setStartPosition(x, y, direction);
+    this.initSounds();
+    this.throw();
+  }
+
+  setStartPosition(x, y, direction) {
     this.x = x;
     this.y = y;
     this.direction = direction;
+  }
 
+  initSounds() {
     this.rotationSound = new Audio('audio/throw-sound-2.mp3');
     this.rotationSound.volume = 0.4;
-
     this.hitSound = new Audio('audio/hit-sound.mp3');
     this.hitSound.volume = 0.5;
-
-    this.throw();
   }
 
   /** 🚀 Startet den Wurf **/
   throw() {
+    this.playRotationSound();
+    this.startMoveLoop();
+    this.startRotationLoop();
+  }
+
+  playRotationSound() {
     this.rotationSound.currentTime = 0;
     this.rotationSound.play().catch(e => console.warn('Rotation sound error:', e));
+  }
 
-    this.moveInterval = setInterval(() => {
-      // Bewegung X
-      if (this.direction) {
-        this.x -= this.speedX;
-      } else {
-        this.x += this.speedX;
-      }
-      this.speedX *= 0.99;
+  startMoveLoop() {
+    this.moveInterval = setInterval(() => this.tickMove(), 25);
+  }
 
-      // Bewegung Y
-      this.y -= this.speedY;
-      this.speedY -= this.acceleration;
+  tickMove() {
+    this.moveX();
+    this.moveY();
+    if (this.isGroundHit()) this.onGroundHit();
+  }
 
-      // --- 🟤 BODENKONTAKT ---
-      if (this.y >= 380 && !this.hasHit) {
-        this.hasHit = true;
+  moveX() {
+    this.x += this.direction ? -this.speedX : this.speedX;
+    this.speedX *= 0.99;
+  }
 
-        // 🎵 Bodentreffer-Sound
-        this.hitSound.currentTime = 0;
-        this.hitSound.play().catch(e => console.warn('Hit sound error:', e));
+  moveY() {
+    this.y -= this.speedY;
+    this.speedY -= this.acceleration;
+  }
 
-        this.splashAnimation();
-      }
+  isGroundHit() {
+    return this.y >= 380 && !this.hasHit;
+  }
 
-    }, 25);
+  onGroundHit() {
+    this.hasHit = true;
+    this.playHitSound();
+    this.splashAnimation();
+  }
 
-    // Dreh-Animation
+  playHitSound() {
+    this.hitSound.currentTime = 0;
+    this.hitSound.play().catch(e => console.warn('Hit sound error:', e));
+  }
+
+  startRotationLoop() {
     this.rotationInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_ROTATION);
     }, 50);
   }
 
   stopSound() {
-    if (this.rotationSound) {
-      this.rotationSound.pause();
-      this.rotationSound.currentTime = 0;
-    }
+    if (!this.rotationSound) return;
+    this.rotationSound.pause();
+    this.rotationSound.currentTime = 0;
   }
 
   /** 💥 Splash-Animation **/
   splashAnimation(callback) {
     this.stopSound();
+    this.stopIntervals();
+    this.resetSpeeds();
+    this.playSplashFrames(callback);
+  }
+
+  stopIntervals() {
     clearInterval(this.moveInterval);
     clearInterval(this.rotationInterval);
+  }
 
+  resetSpeeds() {
     this.speedY = 0;
     this.speedX = 0;
+  }
 
+  playSplashFrames(callback) {
     let i = 0;
-    const interval = setInterval(() => {
-      this.loadImage(this.IMAGES_SPLASH[i]);
-      i++;
-
-      if (i >= this.IMAGES_SPLASH.length) {
-        clearInterval(interval);
-
-        setTimeout(() => {
-          this.loadImage('');
-          this.width = 0;
-          this.height = 0;
-
-          if (callback) callback();
-        }, 200);
-      }
+    const id = setInterval(() => {
+      this.loadImage(this.IMAGES_SPLASH[i++]);
+      if (i >= this.IMAGES_SPLASH.length) this.finishSplash(id, callback);
     }, 100);
   }
 
+  finishSplash(intervalId, callback) {
+    clearInterval(intervalId);
+    setTimeout(() => {
+      this.loadImage('');
+      this.width = 0;
+      this.height = 0;
+      if (callback) callback();
+    }, 200);
+  }
 }
