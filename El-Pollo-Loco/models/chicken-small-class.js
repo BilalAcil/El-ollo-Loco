@@ -5,6 +5,9 @@ class ChickenSmall extends MovableObject {
   width = 40;
   isDead = false;
 
+  moveInterval = null;
+  animationInterval = null;
+
   IMAGES_WALKING = [
     'img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
     'img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
@@ -26,19 +29,36 @@ class ChickenSmall extends MovableObject {
   animate() {
     // 🟢 Bewegung starten und merken
     this.moveInterval = setInterval(() => {
-      // Nur bewegen, wenn der Gegner noch lebt
-      if (!this.isDead) {
-        this.moveLeft(); // Gegner bewegt sich nach links
-      }
-    }, 1000 / 60); // 60 FPS = flüssige Bewegung
+      if (this.isDead) return;
+      if (this.isPaused || this.world?.isPaused) return; // ✅ Pause respektieren (falls vorhanden)
+      this.moveLeft();
+    }, 1000 / 60);
 
     // 🟣 Animation starten und merken
     this.animationInterval = setInterval(() => {
-      // Nur animieren, wenn der Gegner noch lebt
-      if (!this.isDead) {
-        this.playAnimation(this.IMAGES_WALKING); // Lauf-Animation abspielen
-      }
-    }, 200); // Wechselt alle 200ms das Bild → typische Lauf-Animation
+      if (this.isDead) return;
+      if (this.isPaused || this.world?.isPaused) return; // ✅ Pause respektieren (falls vorhanden)
+      this.playAnimation(this.IMAGES_WALKING);
+    }, 200);
   }
 
+  // ✅ optional, aber sehr hilfreich: Intervalle sauber stoppen
+  stop() {
+    if (this.moveInterval) {
+      clearInterval(this.moveInterval);
+      this.moveInterval = null;
+    }
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+      this.animationInterval = null;
+    }
+  }
+
+  // ✅ optional: wenn du irgendwo "die" aufrufst, kannst du hier zentral cleanup machen
+  die() {
+    if (this.isDead) return;
+    this.isDead = true;
+    this.loadImage(this.IMAGE_DEAD);
+    this.stop();
+  }
 }
