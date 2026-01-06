@@ -28,24 +28,26 @@ class Countdown extends DrawableObject {
     this.endBossMusic.loop = true;
     this.endBossMusic.volume = 0.7;
 
-    // ⏰ NEU: Slow-Clock Sound (bei 1:00)
+    // ⏰ Slow-Clock Sound
     this.slowClockSound = new Audio('audio/slow-clock.mp3');
     this.slowClockSound.volume = 0.7;
 
-    // ✨ NEU: Blinken
+    // ✨ Blinken
     this.isBlinking = false;
     this.blinkVisible = true;
+    this.blinkInterval = null;         // ✅ neu: handle merken
 
-    // ✨ NEU: kurz komplett ausblenden (Icon + Zahl)
+    // ✨ kurz komplett ausblenden (Icon + Zahl)
     this.isTemporarilyHidden = false;
+    this.hideTimeout = null;           // ✅ neu: handle merken
 
-    // ⏱️ NEU: Timeout-Handle für verzögerten Endboss-Start
+    // ⏱️ Timeout-Handle für verzögerten Endboss-Start
     this.endBossMusicTimeout = null;
   }
+
   /**
    * Startet den Countdown und die Musik – nur einmal
    */
-
   startCountdown() {
     if (this.isStarted) return;
     this.isStarted = true;
@@ -54,6 +56,7 @@ class Countdown extends DrawableObject {
 
     this.countdownInterval = setInterval(() => {
       if (this.isPaused) return;
+
       this.countdownTime--;
 
       // ⏰ Trigger bei 1:00 (60 Sekunden)
@@ -61,9 +64,9 @@ class Countdown extends DrawableObject {
         this.triggerOneMinuteWarning();
       }
 
-      // ⏰ NEU: Trigger auch bei 0:07 Sekunden
+      // ⏰ Trigger bei 0:07 Sekunden
       if (this.countdownTime === 7) {
-        this.triggerOneMinuteWarning();
+        this.triggerOneMinuteWarning(true); // ✅ optional "force" für Endphase
       }
 
       if (this.countdownTime <= 0) {
@@ -82,11 +85,8 @@ class Countdown extends DrawableObject {
           this.world.endGame(false);
         }
       }
-
-
     }, 1000);
   }
-
 
   /**
    * 🎧 Startet normale Hintergrundmusik
@@ -102,30 +102,38 @@ class Countdown extends DrawableObject {
     this.safePlay(this.bgMusic2);
   }
 
-
   /**
- * Wird aufgerufen, wenn Countdown bei 1:00 ist
- */
-  triggerOneMinuteWarning() {
-    if (this.isBlinking) return; // falls bereits aktiv → nicht nochmal starten
+   * Wird aufgerufen, wenn Countdown bei 1:00 ist (und optional bei 0:07)
+   * force=true erlaubt Neustart, falls vorher schon geblinkt wurde (aber nie doppelt gleichzeitig)
+   */
+  triggerOneMinuteWarning(force = false) {
+    if (this.isBlinking && !force) return;
+
+    // ✅ falls schon ein Blink-Intervall läuft, vorher stoppen (damit es nicht doppelt läuft)
+    if (this.blinkInterval) {
+      clearInterval(this.blinkInterval);
+      this.blinkInterval = null;
+    }
 
     this.isBlinking = true;
+    this.blinkVisible = true;
+
     this.slowClockSound.currentTime = 0;
     this.safePlay(this.slowClockSound);
 
     let blinkCount = 0;
-    const blinkInterval = setInterval(() => {
+    this.blinkInterval = setInterval(() => {
       this.blinkVisible = !this.blinkVisible;
       blinkCount++;
+
       if (blinkCount >= 7 * 2) { // 7 Blinks (an/aus)
-        clearInterval(blinkInterval);
+        clearInterval(this.blinkInterval);
+        this.blinkInterval = null;
         this.isBlinking = false;
         this.blinkVisible = true;
       }
     }, 500);
   }
-
-
 
   /**
    * 🛑 Countdown & Musik stoppen
@@ -138,7 +146,22 @@ class Countdown extends DrawableObject {
     this.countdownTime = 0;
     this.isStarted = false;
 
-    // ⏱️ NEU: Verzögerten Endboss-Start abbrechen
+    // ✅ Blink-Interval sauber stoppen
+    if (this.blinkInterval) {
+      clearInterval(this.blinkInterval);
+      this.blinkInterval = null;
+    }
+    this.isBlinking = false;
+    this.blinkVisible = true;
+
+    // ✅ Hide-Timeout sauber stoppen
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+    this.isTemporarilyHidden = false;
+
+    // ⏱️ Verzögerten Endboss-Start abbrechen
     if (this.endBossMusicTimeout) {
       clearTimeout(this.endBossMusicTimeout);
       this.endBossMusicTimeout = null;
@@ -152,8 +175,6 @@ class Countdown extends DrawableObject {
       }
     });
   }
-
-
 
   /**
    * 🔊 Wechselt zur Endboss-Musik (mit Verzögerung)
@@ -176,19 +197,15 @@ class Countdown extends DrawableObject {
     // 🎬 Endboss-Musik verzögert starten
     this.endBossMusicTimeout = setTimeout(() => {
       this.endBossMusic.currentTime = 0;
-      this.endBossMusic
-        .play()
-        .catch(e => console.warn('Endboss-Musik Fehler:', e));
+      this.safePlay(this.endBossMusic); // ✅ konsistent
     }, delay);
   }
-
-
 
   /**
    * ⏸ Musik pausieren
    */
   pauseAllMusic() {
-    // ⏱️ NEU: Verzögerten Start abbrechen, wenn pausiert wird
+    // Verzögerten Start abbrechen, wenn pausiert wird
     if (this.endBossMusicTimeout) {
       clearTimeout(this.endBossMusicTimeout);
       this.endBossMusicTimeout = null;
@@ -199,11 +216,7 @@ class Countdown extends DrawableObject {
     });
   }
 
-
-
-
   async resumeAllMusic() {
-
     if (this.currentMusic === "endboss") {
       await this.safePlay(this.endBossMusic);
       return;
@@ -216,9 +229,6 @@ class Countdown extends DrawableObject {
       await this.safePlay(this.slowClockSound);
     }
   }
-
-
-
 
   /**
    * 🕓 Countdown einfrieren
@@ -238,27 +248,33 @@ class Countdown extends DrawableObject {
   }
 
   /**
- * Blendet den Countdown (Icon + Text) für eine bestimmte Zeit aus
- */
+   * Blendet den Countdown (Icon + Text) für eine bestimmte Zeit aus
+   */
   hideTemporarily(duration = 2000) {
     this.isTemporarilyHidden = true;
 
-    setTimeout(() => {
+    // ✅ falls schon ein Hide läuft, ersetzen
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
+
+    this.hideTimeout = setTimeout(() => {
       this.isTemporarilyHidden = false;
+      this.hideTimeout = null;
     }, duration);
   }
-
 
   /**
    * ⏱ Zeit formatieren
    */
   draw(ctx) {
-
-    // 👇 NEU: komplett nix zeichnen, wenn temporär versteckt
+    // komplett nix zeichnen, wenn temporär versteckt
     if (this.isTemporarilyHidden) return;
+
     super.draw(ctx);
 
-    // ⏱ Wenn blinkt → nur manchmal anzeigen
+    // Wenn blinkt → nur manchmal anzeigen
     if (!this.isBlinking || this.blinkVisible) {
       ctx.font = "24px comic sans serif";
       ctx.fillStyle = "black";
@@ -281,7 +297,4 @@ class Countdown extends DrawableObject {
       console.warn("Audio-Play-Fehler:", e);
     }
   }
-
 }
-
-
