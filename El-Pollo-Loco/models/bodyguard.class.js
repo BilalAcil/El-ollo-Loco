@@ -99,7 +99,7 @@ class Bodyguard extends MovableObject {
 
   playJumpStartSound() {
     this.bodyguardSound.currentTime = 0;
-    this.bodyguardSound.play();
+    this.bodyguardSound.play().catch(() => { });
   }
 
   startJumpMotion() {
@@ -149,7 +149,7 @@ class Bodyguard extends MovableObject {
 
   playBoom() {
     this.boomSound.currentTime = 0;
-    this.boomSound.play();
+    this.boomSound.play().catch(() => { });
   }
 
   triggerWorldShock() {
@@ -185,7 +185,10 @@ class Bodyguard extends MovableObject {
   }
 
   startAttackAfterDelay(ms) {
-    setTimeout(() => this.startAttackLoop(), ms);
+    setTimeout(() => {
+      if (this.isDead) return;
+      this.startAttackLoop();
+    }, ms);
   }
 
   startAttackLoop() {
@@ -221,6 +224,7 @@ class Bodyguard extends MovableObject {
   turnAroundAfterStop(direction, speed) {
     this.speedX = 0;
     setTimeout(() => {
+      if (this.isDead) return;
       this.otherDirection = direction;
       this.speedX = speed;
     }, 200);
@@ -343,7 +347,9 @@ class Bodyguard extends MovableObject {
 
   playDieSoundDelayed(ms) {
     this.ensureDieSound();
-    setTimeout(() => this.playDieSound(), ms);
+    setTimeout(() => {
+      if (this.isDead) this.playDieSound();
+    }, ms);
   }
 
   ensureDieSound() {
@@ -354,7 +360,7 @@ class Bodyguard extends MovableObject {
 
   playDieSound() {
     this.dieSound.currentTime = 0;
-    this.dieSound.play();
+    this.dieSound.play().catch(() => { });
   }
 
   startFallingWhenDead() {
