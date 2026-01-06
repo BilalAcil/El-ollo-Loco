@@ -5,19 +5,14 @@ function startGameLogic() {
   canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
 
-  // 🖱️ Klick auf Canvas = Pause/Play Toggle
-  canvas.onclick = () => {
-    if (!world) return;
-
-    // ⛔ Während Maracas-Sequenz keine Pause
-    if (world.isMaracasSequence) return;
-
-    if (world.isPaused) world.resumeGame();
-    else world.pauseGame();
-  };
+  canvas.onclick = handleCanvasClick;
 }
 
-
+function handleCanvasClick() {
+  if (!world) return;
+  if (world.isMaracasSequence) return; // ⛔ keine Pause während Sequenz
+  togglePause();
+}
 
 /**
  * Stoppt das Spiel (z. B. bei Game Over)
@@ -29,11 +24,13 @@ function stopGame() {
   // ❗ world NICHT sofort auf null setzen!
 }
 
-
 // === Tasteneingaben erfassen ===
-window.addEventListener('keydown', (e) => {
+window.addEventListener('keydown', handleKeyDown);
+window.addEventListener('keyup', handleKeyUp);
+
+function handleKeyDown(e) {
   // 🎚️ Ton an/aus mit Taste „M“ (immer erlaubt, auch ohne World)
-  if ((e.key === 'm' || e.key === 'M') && !e.repeat) {
+  if (isMuteKey(e) && !e.repeat) {
     toggleMute();
   }
 
@@ -41,34 +38,47 @@ window.addEventListener('keydown', (e) => {
   if (!world) return;
 
   // ⛔ Während Maracas-Endsequenz ALLE Eingaben ignorieren
-  if (world.isMaracasSequence) {
-    return;
-  }
+  if (world.isMaracasSequence) return;
 
+  applyKeyDownToKeyboard(e);
+
+  // 🧩 Pause/Play mit Taste „P“
+  if (isPauseKey(e) && !e.repeat) {
+    togglePause();
+  }
+}
+
+function handleKeyUp(e) {
+  applyKeyUpToKeyboard(e);
+}
+
+function togglePause() {
+  if (world.isPaused) world.resumeGame();
+  else world.pauseGame();
+}
+
+function isMuteKey(e) {
+  return e.key === 'm' || e.key === 'M';
+}
+
+function isPauseKey(e) {
+  return e.key === 'p' || e.key === 'P';
+}
+
+function applyKeyDownToKeyboard(e) {
   if (e.key === 'ArrowRight') keyboard.RIGHT = true;
   if (e.key === 'ArrowLeft') keyboard.LEFT = true;
   if (e.key === 'ArrowUp') keyboard.UP = true;
   if (e.key === 'ArrowDown') keyboard.DOWN = true;
   if (e.key === ' ') keyboard.SPACE = true;
   if (e.key === 'd' || e.key === 'D') keyboard.D = true;
+}
 
-  // 🧩 Pause/Play mit Taste „P“
-  if ((e.key === 'p' || e.key === 'P') && !e.repeat) {
-    if (world.isPaused) {
-      world.resumeGame();   // ▶️ fortsetzen
-    } else {
-      world.pauseGame();    // ⏸️ pausieren
-    }
-  }
-});
-
-
-window.addEventListener('keyup', (e) => {
+function applyKeyUpToKeyboard(e) {
   if (e.key === 'ArrowRight') keyboard.RIGHT = false;
   if (e.key === 'ArrowLeft') keyboard.LEFT = false;
   if (e.key === 'ArrowUp') keyboard.UP = false;
   if (e.key === 'ArrowDown') keyboard.DOWN = false;
   if (e.key === ' ') keyboard.SPACE = false;
   if (e.key === 'd' || e.key === 'D') keyboard.D = false;
-});
-
+}
