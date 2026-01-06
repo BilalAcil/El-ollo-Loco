@@ -106,7 +106,6 @@ class Character extends MovableObject {
   pauseStartTime = 0;  // Wann die Pause begonnen hat
   totalPausedTime = 0; // Wie viel Zeit insgesamt pausiert war
 
-
   // Kollisionsbox Character
   get collisionBox() {
     return {
@@ -125,7 +124,6 @@ class Character extends MovableObject {
     return this.y < groundLevel;
   }
 
-
   drawFrame(ctx) {
     if (this instanceof Character) {
       const box = this.collisionBox;
@@ -138,11 +136,12 @@ class Character extends MovableObject {
     }
   }
 
-
   animate() {
     // Bewegung und Kamera
     setInterval(() => {
       if (this.isPaused) return;  // ⏸ Bewegung einfrieren
+      if (!this.world) return;    // ✅ world kann beim Start noch undefined sein
+      if (this.world.isPaused) return; // 🧩 Bewegung deaktivieren, wenn Welt pausiert ist
 
       // 🎥 Kamera-Logik
       if (this.world) {
@@ -199,7 +198,6 @@ class Character extends MovableObject {
         }
       }
 
-
       // 🧩 Knockback-Bewegung automatisch verarbeiten
       if (this.knockbackActive) {
         this.x += this.speedX;
@@ -210,12 +208,8 @@ class Character extends MovableObject {
         }
       }
 
-      // 🧩 Bewegung deaktivieren, wenn Welt pausiert ist
-      if (this.world.isPaused) return;
-
       // 🛑 Spieler eingefroren?
-      if (this.freezeForBodyguard)
-        return;
+      if (this.freezeForBodyguard) return;
 
       // 👉 AKTUELLE LAUF-GRENZEN BERECHNEN
       let minX = 0;
@@ -252,7 +246,6 @@ class Character extends MovableObject {
         this.handleMovement();
       }
 
-
       // 👉 WURF-ANIMATION (Taste D)
       if (this.world.keyboard.D && this.animationFinished) {
         this.throwAnimation();
@@ -284,9 +277,6 @@ class Character extends MovableObject {
         }
       }
 
-
-
-
       // Zur Idle-Animation wechseln nach Inaktivität
       if (
         Date.now() - this.lastActionTime > this.actionCooldown &&
@@ -299,11 +289,10 @@ class Character extends MovableObject {
       }
     }, 1000 / 60);
 
-
-
     // Animation
     setInterval(() => {
       if (this.isPaused) return;
+      if (!this.world) return; // ✅ world kann beim Start noch undefined sein
       if (this.isThrowing) return;
 
       // 🛑 Wenn Bodyguard landet → Pepe zeigt EIN Standbild
@@ -314,13 +303,7 @@ class Character extends MovableObject {
 
       // 👉 Berechnung, wie lange der Spieler "effektiv" schon inaktiv ist
       // (also seit der letzten Bewegung)
-      let effectiveIdleTime = Date.now() - this.lastMoveTime;
-
-      // Falls pausiert war, wird die Zeit, in der das Spiel pausiert war,
-      // von der Inaktivitäts-Zeit abgezogen, damit Pausen nicht als "idle" zählen.
-      if (this.isPaused && this.pauseStartTime) {
-        effectiveIdleTime -= (Date.now() - this.pauseStartTime);
-      }
+      const effectiveIdleTime = Date.now() - this.lastMoveTime;
 
       // 💤 Logik für Idle-Zustände (stehen) und Long-Idle (lange nichts gemacht)
 
@@ -356,13 +339,11 @@ class Character extends MovableObject {
 
         // 7. Standardfall: Charakter steht, aber noch nicht lange genug für Idle/Long-Idle
       } else {
-        this.stopLongIdleAnimation();       // sicherstellen, dass Long-Idle gestoppt ist
+        this.stopLongIdleAnimation();        // sicherstellen, dass Long-Idle gestoppt ist
         this.loadImage(this.IMAGES_IDLE[0]); // erstes Idle-Bild anzeigen
       }
 
     }, 50); // Animations-Update alle 50ms (~20 FPS)
-
-
   }
 
   // 🧩 Alles pausieren (Animation + Bewegung)
@@ -382,9 +363,6 @@ class Character extends MovableObject {
       this.lastMoveTime += pausedDuration;
     }
   }
-
-
-
 
   handleJumpAnimation() {
     if (this.speedY > 0) {
@@ -414,14 +392,14 @@ class Character extends MovableObject {
     if (!this.animationFinished || this.isThrowing) return;
 
     // 🎯 Prüfen, ob überhaupt Flaschen da sind
-    if (this.world.statusBarSalsa.salsaCount <= 0) {
+    if (!this.world?.statusBarSalsa || this.world.statusBarSalsa.salsaCount <= 0) {
       const failSound = new Audio('audio/Fail.mp3');
       failSound.volume = 0.4;
       failSound.playbackRate = 2; // etwas schneller
       failSound.play().catch(e => console.warn('Fail sound error:', e));
 
       // ✨ NEU: Salsa-Anzeige blinken lassen
-      this.world.statusBarSalsa.blinkOnFail();
+      this.world?.statusBarSalsa?.blinkOnFail();
 
       return; // ❌ keine Animation, kein Wurf
     }
@@ -448,6 +426,8 @@ class Character extends MovableObject {
 
         setTimeout(() => {
           // ✅ Nur hier Salsa-Flasche erzeugen, da wir garantiert mindestens 1 hatten
+          if (!this.world?.statusBarSalsa) return;
+
           this.world.statusBarSalsa.salsaCount--;
 
           const offsetX = this.otherDirection ? -50 : 100;
@@ -456,7 +436,10 @@ class Character extends MovableObject {
             this.y + this.height / 2 + 20, // realistischer Startpunkt
             this.otherDirection
           );
-          this.world.throwableObjects.push(salsa);
+
+          if (this.world?.throwableObjects) {
+            this.world.throwableObjects.push(salsa);
+          }
 
           // Zurück zur Idle-Animation
           this.loadImage(this.IMAGES_IDLE[0]);
@@ -466,7 +449,6 @@ class Character extends MovableObject {
       }
     }, frameDuration);
   }
-
 
   startLongIdleAnimation() {
     this.longIdleActive = true;
@@ -487,7 +469,6 @@ class Character extends MovableObject {
       this.loadImage(this.IMAGES_LONG_IDLE[currentImageIndex]);
       currentImageIndex = (currentImageIndex + 1) % this.IMAGES_LONG_IDLE.length;
     }, 200);
-
   }
 
   stopLongIdleAnimation() {
@@ -519,8 +500,6 @@ class Character extends MovableObject {
       }
     }, 200);
   }
-
-
 
   // 🧩 NEU: Todesanimation (Pepe rutscht aus dem Bild)
   playDeathAnimation() {
@@ -570,7 +549,6 @@ class Character extends MovableObject {
     }, frameInterval);
   }
 
-
   // ★★★ NEUE METHODE: Pepe soll fallen, wenn er tot ist ★★★
   startFallingWhenDead() {
     // Verhindert, dass mehrere Intervalle gleichzeitig laufen
@@ -604,8 +582,6 @@ class Character extends MovableObject {
     }
   }
 
-
-
   applyGravity() {
     setInterval(() => {
       // 🔥 NEU: Wenn das Spiel/der Charakter pausiert ist → keine Gravitation
@@ -617,9 +593,6 @@ class Character extends MovableObject {
       if (this.energy <= 0 || this.isDying) {
         return;
       }
-
-      let previousY = this.y;
-      let previousSpeedY = this.speedY;
 
       // Gravity anwenden
       if (this.isAboveGround() || this.speedY > 0) {
