@@ -42,37 +42,35 @@ class DrawableObject {
   }
 
   drawFrame(ctx) {
-    if (
-      this instanceof Character ||
-      this instanceof Chicken ||
-      this instanceof Endboss ||
-      this instanceof ChickenSmall ||
-      this instanceof Corncob ||
-      this instanceof Coin ||
-      this instanceof Salsa ||
-      this instanceof Maracas ||
-      this instanceof Bodyguard
-    ) {
-      ctx.beginPath();
-      ctx.lineWidth = "1";
-      ctx.strokeStyle = "transparent";
-
-      if (this.collisionBox) {
-        const box = this.collisionBox;
-        ctx.rect(
-          box.x - this.x,
-          box.y - this.y,
-          box.width,
-          box.height
-        );
-      } else {
-        let offsetY = this instanceof Bodyguard ? 30 : 0;
-        ctx.rect(0, offsetY, this.width, this.height - offsetY);
-      }
-
-      ctx.stroke();
-    }
+    if (!this.shouldDrawFrame()) return;
+    this.beginFrame(ctx);
+    this.drawFrameRect(ctx);
+    ctx.stroke();
   }
+
+  shouldDrawFrame() {
+    return this instanceof Character || this instanceof Chicken || this instanceof Endboss ||
+      this instanceof ChickenSmall || this instanceof Corncob || this instanceof Coin ||
+      this instanceof Salsa || this instanceof Maracas || this instanceof Bodyguard;
+  }
+
+  beginFrame(ctx) {
+    ctx.beginPath();
+    ctx.lineWidth = "1";
+    ctx.strokeStyle = "transparent";
+  }
+
+  drawFrameRect(ctx) {
+    if (this.collisionBox) return this.drawCollisionRect(ctx);
+    const offsetY = this instanceof Bodyguard ? 30 : 0;
+    ctx.rect(0, offsetY, this.width, this.height - offsetY);
+  }
+
+  drawCollisionRect(ctx) {
+    const b = this.collisionBox;
+    ctx.rect(b.x - this.x, b.y - this.y, b.width, b.height);
+  }
+
 
   // 🔥 NEU: Helper, ob aus Sicht aller DrawableObjects alles geladen ist
   static areAllAssetsLoaded() {
