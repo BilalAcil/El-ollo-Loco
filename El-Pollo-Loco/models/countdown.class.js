@@ -53,39 +53,35 @@ class Countdown extends DrawableObject {
     this.isStarted = true;
     this.isPaused = false;
     this.playBackgroundMusic();
+    this.countdownInterval = setInterval(() => this.tickCountdown(), 1000);
+  }
 
-    this.countdownInterval = setInterval(() => {
-      if (this.isPaused) return;
+  tickCountdown() {
+    if (this.isPaused) return;
+    this.countdownTime--;
+    this.handleCountdownTriggers();
+    if (this.countdownTime <= 0) this.handleTimeOver();
+  }
 
-      this.countdownTime--;
+  handleCountdownTriggers() {
+    if (this.countdownTime === 60) this.triggerOneMinuteWarning();
+    if (this.countdownTime === 7) this.triggerOneMinuteWarning(true);
+  }
 
-      // ⏰ Trigger bei 1:00 (60 Sekunden)
-      if (this.countdownTime === 60) {
-        this.triggerOneMinuteWarning();
-      }
+  handleTimeOver() {
+    this.stopCountdown();
+    this.killPlayerIfAlive();
+    this.world?.endGame?.(false);
+  }
 
-      // ⏰ Trigger bei 0:07 Sekunden
-      if (this.countdownTime === 7) {
-        this.triggerOneMinuteWarning(true); // ✅ optional "force" für Endphase
-      }
-
-      if (this.countdownTime <= 0) {
-        this.stopCountdown();
-
-        if (this.world && this.world.character && !this.world.character.isDying) {
-          const pepe = this.world.character;
-          pepe.energy = 0;
-          this.world.statusBar.setPercentage(0);
-          pepe.isDead = true;
-
-          pepe.playDeathAnimation();
-          pepe.startFallingWhenDead();
-
-          // 👉 Einheitlicher Game-Over-Call
-          this.world.endGame(false);
-        }
-      }
-    }, 1000);
+  killPlayerIfAlive() {
+    const pepe = this.world?.character;
+    if (!pepe || pepe.isDying) return;
+    pepe.energy = 0;
+    this.world?.statusBar?.setPercentage?.(0);
+    pepe.isDead = true;
+    pepe.playDeathAnimation();
+    pepe.startFallingWhenDead();
   }
 
   /**
@@ -108,71 +104,90 @@ class Countdown extends DrawableObject {
    */
   triggerOneMinuteWarning(force = false) {
     if (this.isBlinking && !force) return;
+    this.resetBlink();
+    this.startBlinking();
+  }
 
-    // ✅ falls schon ein Blink-Intervall läuft, vorher stoppen (damit es nicht doppelt läuft)
-    if (this.blinkInterval) {
-      clearInterval(this.blinkInterval);
-      this.blinkInterval = null;
-    }
+  resetBlink() {
+    if (!this.blinkInterval) return;
+    clearInterval(this.blinkInterval);
+    this.blinkInterval = null;
+  }
 
+  startBlinking() {
     this.isBlinking = true;
     this.blinkVisible = true;
+    this.playSlowClockSound();
+    this.startBlinkLoop();
+  }
 
+  playSlowClockSound() {
     this.slowClockSound.currentTime = 0;
     this.safePlay(this.slowClockSound);
+  }
 
+  startBlinkLoop() {
     let blinkCount = 0;
     this.blinkInterval = setInterval(() => {
       this.blinkVisible = !this.blinkVisible;
-      blinkCount++;
-
-      if (blinkCount >= 7 * 2) { // 7 Blinks (an/aus)
-        clearInterval(this.blinkInterval);
-        this.blinkInterval = null;
-        this.isBlinking = false;
-        this.blinkVisible = true;
-      }
+      if (++blinkCount >= 14) this.finishBlink();
     }, 500);
+  }
+
+  finishBlink() {
+    clearInterval(this.blinkInterval);
+    this.blinkInterval = null;
+    this.isBlinking = false;
+    this.blinkVisible = true;
   }
 
   /**
    * 🛑 Countdown & Musik stoppen
    */
   stopCountdown() {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = null;
-    }
+    this.stopMainInterval();
+    this.resetTimeState();
+    this.stopBlinking();
+    this.stopHide();
+    this.stopEndbossDelay();
+    this.stopAllAudio();
+  }
+
+  stopMainInterval() {
+    if (!this.countdownInterval) return;
+    clearInterval(this.countdownInterval);
+    this.countdownInterval = null;
+  }
+
+  resetTimeState() {
     this.countdownTime = 0;
     this.isStarted = false;
+  }
 
-    // ✅ Blink-Interval sauber stoppen
-    if (this.blinkInterval) {
-      clearInterval(this.blinkInterval);
-      this.blinkInterval = null;
-    }
+  stopBlinking() {
+    if (this.blinkInterval) clearInterval(this.blinkInterval);
+    this.blinkInterval = null;
     this.isBlinking = false;
     this.blinkVisible = true;
+  }
 
-    // ✅ Hide-Timeout sauber stoppen
-    if (this.hideTimeout) {
-      clearTimeout(this.hideTimeout);
-      this.hideTimeout = null;
-    }
+  stopHide() {
+    if (this.hideTimeout) clearTimeout(this.hideTimeout);
+    this.hideTimeout = null;
     this.isTemporarilyHidden = false;
+  }
 
-    // ⏱️ Verzögerten Endboss-Start abbrechen
-    if (this.endBossMusicTimeout) {
-      clearTimeout(this.endBossMusicTimeout);
-      this.endBossMusicTimeout = null;
-    }
+  stopEndbossDelay() {
+    if (!this.endBossMusicTimeout) return;
+    clearTimeout(this.endBossMusicTimeout);
+    this.endBossMusicTimeout = null;
+  }
 
-    // 🎵 Alles stoppen
-    [this.bgMusic1, this.bgMusic2, this.endBossMusic, this.slowClockSound].forEach(audio => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
+  stopAllAudio() {
+    [this.bgMusic1, this.bgMusic2, this.endBossMusic, this.slowClockSound].forEach(a => {
+      if (!a) return;
+      a.pause();
+      a.currentTime = 0;
     });
   }
 
@@ -181,24 +196,26 @@ class Countdown extends DrawableObject {
    */
   playEndBossMusic(delay = 3200) {
     if (this.currentMusic === "endboss") return;
-
     this.currentMusic = "endboss";
+    this.stopBackgroundMusic();
+    this.resetEndbossTimeout();
+    this.endBossMusicTimeout = setTimeout(() => this.startEndbossMusic(), delay);
+  }
 
-    // Normale Musik sofort stoppen
+  stopBackgroundMusic() {
     this.bgMusic1.pause();
     this.bgMusic2.pause();
+  }
 
-    // Falls schon ein Timeout läuft → abbrechen
-    if (this.endBossMusicTimeout) {
-      clearTimeout(this.endBossMusicTimeout);
-      this.endBossMusicTimeout = null;
-    }
+  resetEndbossTimeout() {
+    if (!this.endBossMusicTimeout) return;
+    clearTimeout(this.endBossMusicTimeout);
+    this.endBossMusicTimeout = null;
+  }
 
-    // 🎬 Endboss-Musik verzögert starten
-    this.endBossMusicTimeout = setTimeout(() => {
-      this.endBossMusic.currentTime = 0;
-      this.safePlay(this.endBossMusic); // ✅ konsistent
-    }, delay);
+  startEndbossMusic() {
+    this.endBossMusic.currentTime = 0;
+    this.safePlay(this.endBossMusic);
   }
 
   /**
