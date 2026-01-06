@@ -26,15 +26,15 @@ class BodyguardStatusBar extends DrawableObject {
     if (this.fixed) {
       ctx.save();
       ctx.translate(-this.world.camera_x, 0); // Kamerabewegung rückgängig machen
+      super.draw(ctx);                        // ✅ JETZT wird auch wirklich gezeichnet
       ctx.restore();
-    } else {
-      super.draw(ctx);
+      return;
     }
+
+    super.draw(ctx);
   }
 
-
   setPercentage(percentage) {
-
     this.percentage = Math.max(0, percentage); // niemals negativ
     const path = this.IMAGES[this.resolveImageIndex()];
     this.img = this.imageCache[path];
@@ -42,13 +42,13 @@ class BodyguardStatusBar extends DrawableObject {
     // 🧨 Prüfen, ob der Boss tot ist → Statusbar entfernen
     if (this.percentage <= 0) {
       this.removeFromWorld();
+      return;
     }
   }
 
   removeFromWorld() {
     this.world.bodyguardStatus = null; // Ganz sauber
   }
-
 
   resolveImageIndex() {
     if (this.percentage == 100) {
