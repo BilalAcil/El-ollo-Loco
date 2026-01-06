@@ -22,19 +22,9 @@ class MovableObject extends DrawableObject {
    */
   applyGravity() {
     setInterval(() => {
-      if (this.isAboveGround() || this.speedY > 0) {
-
-        // Vorher prüfen, ob wir noch aufsteigen
-        const warAmSteigen = this.speedY > 0;
-
-        this.y -= this.speedY;
-        this.speedY -= this.acceleration;
-
-        // Übergang von Steigen -> Fallen erkennen (Apex)
-        if (warAmSteigen && this.speedY <= 0) {
-        }
-
-      }
+      if (!this.isAboveGround() && this.speedY <= 0) return;
+      this.y -= this.speedY;
+      this.speedY -= this.acceleration;
     }, 1000 / 25);
   }
 
@@ -56,53 +46,49 @@ class MovableObject extends DrawableObject {
    * @returns {boolean}
    */
   isColliding(mo) {
-    // Eigene Kollisionsbox verwenden
-    const myBox = this.collisionBox || {
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height
-    };
+    const a = this.getCollisionBox(this);
+    const b = this.getCollisionBox(mo);
+    return this.boxesOverlap(a, b);
+  }
 
-    // Kollisionsbox des anderen Objekts verwenden
-    const otherBox = mo.collisionBox || {
-      x: mo.x,
-      y: mo.y,
-      width: mo.width,
-      height: mo.height
-    };
+  getCollisionBox(obj) {
+    return obj.collisionBox || { x: obj.x, y: obj.y, width: obj.width, height: obj.height };
+  }
 
-    return myBox.x + myBox.width > otherBox.x &&
-      myBox.x < otherBox.x + otherBox.width &&
-      myBox.y + myBox.height > otherBox.y &&
-      myBox.y < otherBox.y + otherBox.height;
+  boxesOverlap(a, b) {
+    return a.x + a.width > b.x &&
+      a.x < b.x + b.width &&
+      a.y + a.height > b.y &&
+      a.y < b.y + b.height;
   }
 
   /**
    * Reduziert die Energie des Objekts bei einem Treffer und merkt sich den Zeitpunkt.
    */
   hit() {
-    this.energy -= 20;
-    if (this.energy < 0) {
-      this.energy = 0;
-    } else {
-      this.lastHit = new Date().getTime(); // Zeitpunkt des Treffers speichern
-    }
+    this.applyDamage(20);
+    this.playPainSoundWithCooldown(1300);
+    this.stopCountdownIfDead();
+  }
 
-    // Schmerz-Sound nur abspielen, wenn 2 Sekunden seit dem letzten Abspielen vergangen sind
-    const now = new Date().getTime();
-    if (!this.lastPainSoundTime || now - this.lastPainSoundTime >= 1300) {
-      this.lastPainSoundTime = now;
-      this.painSound.currentTime = 0;
-      this.painSound.playbackRate = 1.2;
-      this.painSound.volume = 0.6;
-      this.painSound.play().catch(e => console.warn(e));
-    }
+  applyDamage(amount) {
+    this.energy = Math.max(0, this.energy - amount);
+    if (this.energy > 0) this.lastHit = Date.now();
+  }
 
-    // 👇 Wenn Energie 0 ist → Countdown stoppen
-    if (this.energy <= 0 && this.world && this.world.countdown) {
-      this.world.countdown.stopCountdown();
-    }
+  playPainSoundWithCooldown(ms) {
+    const now = Date.now();
+    if (this.lastPainSoundTime && now - this.lastPainSoundTime < ms) return;
+    this.lastPainSoundTime = now;
+    this.painSound.currentTime = 0;
+    this.painSound.playbackRate = 1.2;
+    this.painSound.volume = 0.6;
+    this.painSound.play().catch(e => console.warn(e));
+  }
+
+  stopCountdownIfDead() {
+    if (this.energy > 0) return;
+    this.world?.countdown?.stopCountdown();
   }
 
   /**
