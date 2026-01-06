@@ -115,25 +115,26 @@ function preloadWorld() {
 /**
  * Startet das Spiel, wenn "Spielen" gedrückt wird.
  */
-function startGame() {
+function updateScreenForGameStart() {
   display('game-name', 'block');
   hide('start-screen');
   display('canvas', 'block');
   hide('end-screen');
+}
 
-  // 📱 Mobile-Controls NUR auf kleinen Bildschirmen im Querformat aktivieren
+function toggleMobileControlsForStart() {
   const mobileControls = document.querySelector('.mobile-controls');
-  if (mobileControls) {
-    const isSmallScreen = window.innerWidth <= 1366;
-    const isLandscape = window.innerWidth > window.innerHeight;
+  if (!mobileControls) return;
 
-    if (isSmallScreen && isLandscape) {
-      mobileControls.classList.add('active');
-    } else {
-      mobileControls.classList.remove('active');
-    }
-  }
+  const isSmallScreen = window.innerWidth <= 1366;
+  const isLandscape = window.innerWidth > window.innerHeight;
 
+  mobileControls.classList.toggle('active', isSmallScreen && isLandscape);
+}
+
+function startGame() {
+  updateScreenForGameStart();
+  toggleMobileControlsForStart();
   resumeWorldAfterDelay(200);
 }
 
@@ -147,32 +148,33 @@ function closeInstructions() {
   document.getElementById('instructions').classList.add('hidden');
 }
 
-function applyMuteState(muted) {
-  // globale Variable updaten
-  isMuted = muted;
-
-  // Button-Text setzen
+function updateMuteButtonText(muted) {
   const btn = document.getElementById('mute-btn');
-  if (btn) {
-    btn.textContent = muted ? '🔈 Ton an' : '🔊 Ton aus';
-  }
+  if (btn) btn.textContent = muted ? '🔈 Ton an' : '🔊 Ton aus';
+}
 
-  // global alle Audio-Objekte muten / entmuten
-  if (typeof setGlobalMute === 'function') {
-    setGlobalMute(muted);
-  }
+function applyGlobalMuteIfAvailable(muted) {
+  if (typeof setGlobalMute === 'function') setGlobalMute(muted);
+}
 
-  // optional den Zustand auch in der World merken
-  if (world) {
-    world.isMuted = muted;
-  }
+function syncWorldMuteState(muted) {
+  if (world) world.isMuted = muted;
+}
 
-  // 💾 Zustand im Local Storage speichern
+function saveMuteToStorage(muted) {
   try {
     localStorage.setItem('elPolloMute', muted ? '1' : '0');
   } catch (e) {
     console.warn('Konnte Mute-Status nicht in localStorage speichern:', e);
   }
+}
+
+function applyMuteState(muted) {
+  isMuted = muted;
+  updateMuteButtonText(muted);
+  applyGlobalMuteIfAvailable(muted);
+  syncWorldMuteState(muted);
+  saveMuteToStorage(muted);
 }
 
 function restoreMuteFromStorage() {
@@ -198,72 +200,79 @@ function toggleMute() {
  * Zeigt den Endscreen an (wird vom Spiel aufgerufen)
  * @param {boolean} win - true = gewonnen, false = verloren
  */
-function showEndScreen(win) {
-  // ❗ Daten zuerst retten, bevor die Welt zerstört / gestoppt wird
-  const coinCount = world?.statusBarCoin?.coinCount ?? 0;
-  const salsaCount = world?.statusBarSalsa?.salsaCount ?? 0;
+function getEndStats() {
+  return {
+    coinCount: world?.statusBarCoin?.coinCount ?? 0,
+    salsaCount: world?.statusBarSalsa?.salsaCount ?? 0
+  };
+}
 
-  // Spiel stoppen (Bewegungen/Intervalle etc.)
-  if (typeof stopGame === 'function') {
-    stopGame();
-  }
+function stopGameIfAvailable() {
+  if (typeof stopGame === 'function') stopGame();
+}
 
+function getEndScreenRefs() {
   const endScreen = document.getElementById('end-screen');
-  if (!endScreen) {
-    console.error('❌ end-screen nicht gefunden!');
-    return;
-  }
+  const buttonContainer = endScreen?.querySelector('.menu-box');
+  return { endScreen, buttonContainer };
+}
 
-  const buttonContainer = endScreen.querySelector('.menu-box');
-  if (!buttonContainer) {
-    console.error('❌ .menu-box im end-screen nicht gefunden!');
-    return;
-  }
-
-  // 🧩 Sicherstellen, dass stats-box existiert
+function ensureStatsBox(buttonContainer) {
   let statsBox = document.getElementById('stats-box');
-  if (!statsBox) {
-    statsBox = document.createElement('div');
-    statsBox.id = 'stats-box';
-    statsBox.classList.add('hidden');
-    buttonContainer.appendChild(statsBox);
-  }
+  if (statsBox) return statsBox;
 
-  // 🧹 StatsBox am Anfang immer leeren
-  statsBox.innerHTML = "";
+  statsBox = document.createElement('div');
+  statsBox.id = 'stats-box';
+  statsBox.classList.add('hidden');
+  buttonContainer.appendChild(statsBox);
+  return statsBox;
+}
 
-  // Canvas + Titel ausblenden
+function hideGameCanvasAndTitle() {
   const canvasEl = document.getElementById('canvas');
   const titleEl = document.getElementById('game-name');
   if (canvasEl) canvasEl.style.display = 'none';
   if (titleEl) titleEl.style.display = 'none';
+}
 
-  if (win) {
-    // 🏆 Gewinnscreen
-    buttonContainer.innerHTML = `
-      <h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
-      <button onclick="nextLevel()">🎸 Gitarre holen</button>
-      <button onclick="returnToHome()">🏠 Zurück zum Start</button>
-    `;
+function renderWinEndScreen(buttonContainer, statsBox, stats) {
+  buttonContainer.innerHTML = `
+    <h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
+    <button onclick="nextLevel()">🎸 Gitarre holen</button>
+    <button onclick="returnToHome()">🏠 Zurück zum Start</button>
+  `;
 
-    // statsBox wieder anhängen + füllen
-    statsBox.innerHTML = `
-      <p><span class="stats-coin">🪙 <b>${coinCount}</b>x</span></p>
-      <p><span class="stats-salsa">🌶️ <b>${salsaCount}</b>x</span></p>
-    `;
-    statsBox.classList.remove('hidden');
-    buttonContainer.appendChild(statsBox);
+  statsBox.innerHTML = `
+    <p><span class="stats-coin">🪙 <b>${stats.coinCount}</b>x</span></p>
+    <p><span class="stats-salsa">🌶️ <b>${stats.salsaCount}</b>x</span></p>
+  `;
+  statsBox.classList.remove('hidden');
+  buttonContainer.appendChild(statsBox);
+}
 
-  } else {
-    // 💀 Verloren-Screen
-    buttonContainer.innerHTML = `
-      <h2 id="end-message">💀 Du hast verloren!</h2>
-      <button onclick="restartGame()">🔁 Nochmal spielen</button>
-      <button onclick="returnToHome()">🏠 Zurück zum Start</button>
-    `;
+function renderLoseEndScreen(buttonContainer, statsBox) {
+  buttonContainer.innerHTML = `
+    <h2 id="end-message">💀 Du hast verloren!</h2>
+    <button onclick="restartGame()">🔁 Nochmal spielen</button>
+    <button onclick="returnToHome()">🏠 Zurück zum Start</button>
+  `;
+  statsBox.classList.add('hidden');
+}
 
-    statsBox.classList.add('hidden'); // hier keine Stats anzeigen
-  }
+function showEndScreen(win) {
+  const stats = getEndStats();
+  stopGameIfAvailable();
+
+  const { endScreen, buttonContainer } = getEndScreenRefs();
+  if (!endScreen) return console.error('❌ end-screen nicht gefunden!');
+  if (!buttonContainer) return console.error('❌ .menu-box im end-screen nicht gefunden!');
+
+  const statsBox = ensureStatsBox(buttonContainer);
+  statsBox.innerHTML = "";
+  hideGameCanvasAndTitle();
+
+  if (win) renderWinEndScreen(buttonContainer, statsBox, stats);
+  else renderLoseEndScreen(buttonContainer, statsBox);
 
   endScreen.classList.remove('hidden');
 }
@@ -271,37 +280,31 @@ function showEndScreen(win) {
 /**
  * Spiel neu starten
  */
-function restartGame() {
-  // 🔧 Sicherstellen, dass Canvas-Referenz stimmt
-  canvas = document.getElementById('canvas');
-
-  // 🛑 Alte Welt stoppen (falls stopGame existiert)
-  if (typeof stopGame === 'function') {
-    stopGame(); // ruft intern vermutlich world.stop()/pauseAllMovements()
-  }
-
-  // Referenz auf alte World löschen
-  world = null;
-
-  // 🧼 Preload-Flag zurücksetzen, damit preloadWorld erneut eine neue World erzeugt
-  gameInitialized = false;
-
-  // 🧠 stats-box aufräumen / neu initialisieren
+function resetStatsBox() {
   const oldStatsBox = document.getElementById('stats-box');
-  if (oldStatsBox) {
-    oldStatsBox.innerHTML = '';
-    oldStatsBox.classList.add('hidden');
-  }
+  if (!oldStatsBox) return;
+  oldStatsBox.innerHTML = '';
+  oldStatsBox.classList.add('hidden');
+}
 
-  // ENDSCREEN ausblenden, Canvas & Titel wieder zeigen
+function showGameUIForRestart() {
   hide('end-screen');
   display('canvas', 'block');
   display('game-name', 'block');
+}
 
-  // 🌍 Neue World erzeugen (wie beim ersten Laden)
-  preloadWorld(); // erstellt world = new World(canvas, keyboard) und pausiert sie
+function resetWorldForRestart() {
+  if (typeof stopGame === 'function') stopGame();
+  world = null;
+  gameInitialized = false;
+}
 
-  // ⏯️ Kurz warten, dann Spiel wirklich starten
+function restartGame() {
+  canvas = document.getElementById('canvas');
+  resetWorldForRestart();
+  resetStatsBox();
+  showGameUIForRestart();
+  preloadWorld();
   resumeWorldAfterDelay(200);
 }
 
@@ -333,115 +336,95 @@ function returnToHome() {
 /**
  * Mobile-Touch-Buttons mit der Keyboard-Steuerung verbinden
  */
-function setupMobileControls() {
-  const btnLeft = document.getElementById('btn-left');
-  const btnRight = document.getElementById('btn-right');
-  const btnJump = document.getElementById('btn-jump');
-  const btnThrow = document.getElementById('btn-throw');
+function getMobileButtons() {
+  return {
+    left: document.getElementById('btn-left'),
+    right: document.getElementById('btn-right'),
+    jump: document.getElementById('btn-jump'),
+    throw: document.getElementById('btn-throw'),
+  };
+}
 
-  // Falls wir z.B. am Desktop oder im HTML noch keine Buttons haben → einfach abbrechen
-  if (!btnLeft || !btnRight || !btnJump || !btnThrow) {
-    return;
-  }
+function hasAllMobileButtons(btns) {
+  return btns.left && btns.right && btns.jump && btns.throw;
+}
 
-  // 👉 HIER: Kontextmenü & Textauswahl auf den Buttons deaktivieren
-  [btnLeft, btnRight, btnJump, btnThrow].forEach(btn => {
-    // Rechtsklick / Long-Press Kontextmenü verhindern
-    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+function disableButtonContextAndSelection(button) {
+  button.addEventListener('contextmenu', (e) => e.preventDefault());
+  button.style.userSelect = 'none';
+  button.style.webkitUserSelect = 'none';
+  button.style.msUserSelect = 'none';
+}
 
-    // optional: keine Text-Selektion (falls Browser das zulässt)
-    btn.style.userSelect = 'none';
-    btn.style.webkitUserSelect = 'none';
-    btn.style.msUserSelect = 'none';
+function setKeyFlag(keyName, isDown) {
+  if (!keyboard) return;
+  keyboard[keyName] = isDown;
+}
+
+function bindButtonToKey(button, keyName) {
+  button.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    setKeyFlag(keyName, true);
   });
 
-  /**
-   * Hilfsfunktion: setzt ein bestimmtes Keyboard-Flag
-   */
-  const pressKey = (keyName) => {
-    if (!keyboard) return;
-    keyboard[keyName] = true;
-  };
+  button.addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    setKeyFlag(keyName, false);
+  });
 
-  const releaseKey = (keyName) => {
-    if (!keyboard) return;
-    keyboard[keyName] = false;
-  };
+  button.addEventListener('pointerleave', () => setKeyFlag(keyName, false));
+  button.addEventListener('pointercancel', () => setKeyFlag(keyName, false));
+}
 
-  /**
-   * Pointer-Events für ein Button-Element registrieren
-   * keyName ist z.B. "LEFT", "RIGHT", "SPACE", "D"
-   */
-  const bindButtonToKey = (button, keyName) => {
-    // gedrückt halten = Bewegung dauerhaft
-    button.addEventListener('pointerdown', (e) => {
-      e.preventDefault();          // verhindert ungewolltes Scrollen / Fokus
-      pressKey(keyName);
-    });
+function setupMobileControls() {
+  const btns = getMobileButtons();
+  if (!hasAllMobileButtons(btns)) return;
 
-    // loslassen → Bewegung stoppen
-    button.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      releaseKey(keyName);
-    });
+  [btns.left, btns.right, btns.jump, btns.throw].forEach(disableButtonContextAndSelection);
 
-    // Finger vom Button runterziehen → auch stoppen
-    button.addEventListener('pointerleave', () => {
-      releaseKey(keyName);
-    });
-
-    button.addEventListener('pointercancel', () => {
-      releaseKey(keyName);
-    });
-  };
-
-  // Zuordnungen
-  bindButtonToKey(btnLeft, 'LEFT');
-  bindButtonToKey(btnRight, 'RIGHT');
-  bindButtonToKey(btnJump, 'SPACE');
-  bindButtonToKey(btnThrow, 'D');
+  bindButtonToKey(btns.left, 'LEFT');
+  bindButtonToKey(btns.right, 'RIGHT');
+  bindButtonToKey(btns.jump, 'SPACE');
+  bindButtonToKey(btns.throw, 'D');
 }
 
 /**
  * Warten, bis Browser + Spiel intern vollständig geladen sind
  */
-window.addEventListener('load', async () => {
-  // 🔊 1. Mute-Status aus Local Storage holen und anwenden
-  restoreMuteFromStorage();
-
-  // 📱 Mobile-Touch-Buttons mit Keyboard koppeln
-  setupMobileControls();
-
-  // 🔥 Welt + alle Objekte (Pepe, Statusbars, Coins, etc.) ERZEUGEN
-  preloadWorld();
-
-  // 🔥 jetzt lädt DrawableObject alle Bilder dieser Objekte
-  await waitForGameAssets();
-
+function setupStartButton() {
   const startBtn = document.getElementById('start-btn');
-  if (startBtn) {
-    startBtn.classList.remove('loading', 'hidden');
-    startBtn.removeAttribute('disabled');
-    startBtn.textContent = '🎮 Spiel starten';
-    startBtn.onclick = startGame;
-  }
-});
+  if (!startBtn) return;
+
+  startBtn.classList.remove('loading', 'hidden');
+  startBtn.removeAttribute('disabled');
+  startBtn.textContent = '🎮 Spiel starten';
+  startBtn.onclick = startGame;
+}
+
+async function onWindowLoad() {
+  restoreMuteFromStorage();
+  setupMobileControls();
+  preloadWorld();
+  await waitForGameAssets();
+  setupStartButton();
+}
+
+window.addEventListener('load', onWindowLoad);
 
 /**
  * Prüft in Intervallen, ob Spielressourcen geladen sind
  */
+function areAssetsReadyNow() {
+  return areClassesReady() && areImagesLoaded() && isDrawableReady();
+}
+
 async function waitForGameAssets() {
   const startTime = Date.now();
-  const timeout = 20000; // maximal 20 Sekunden warten
+  const timeout = 20000;
 
   return new Promise(resolve => {
     const check = setInterval(() => {
-      const assetsReady =
-        areClassesReady() &&
-        areImagesLoaded() &&
-        isDrawableReady();
-
-      if (assetsReady || Date.now() - startTime > timeout) {
+      if (areAssetsReadyNow() || Date.now() - startTime > timeout) {
         clearInterval(check);
         resolve();
       }
