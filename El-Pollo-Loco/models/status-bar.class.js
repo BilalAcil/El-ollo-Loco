@@ -1,6 +1,5 @@
 class StatusBar extends DrawableObject {
 
-
   IMAGES = [
     'img/7_statusbars/1_statusbar/2_statusbar_health/blue/0.png',
     'img/7_statusbars/1_statusbar/2_statusbar_health/blue/20.png',
@@ -50,29 +49,44 @@ class StatusBar extends DrawableObject {
  * Lässt die Statusbar 3x grün blinken, um Heilung anzuzeigen.
  */
   blinkFullHealth() {
-    const normalImage = this.imageCache['img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png'];
-    const greenImage = this.imageCache['img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png'];
-    let blinkCount = 0;
-    const totalBlinks = 8; // 3 grüne Blinks (jeweils hin und zurück)
+    const images = this.getBlinkImages();
+    this.resetBlink(images.normal);
+    this.startBlinkLoop(images);
+  }
 
-    // 🔥 Falls ein altes Intervall noch läuft → stoppen!
-    if (this.blinkInterval) {
-      clearInterval(this.blinkInterval);
-      this.blinkInterval = null;
-      this.img = normalImage;
-    }
+  getBlinkImages() {
+    return {
+      normal: this.imageCache['img/7_statusbars/1_statusbar/2_statusbar_health/blue/100.png'],
+      green: this.imageCache['img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png']
+    };
+  }
+
+  resetBlink(normalImage) {
+    if (!this.blinkInterval) return;
+    clearInterval(this.blinkInterval);
+    this.blinkInterval = null;
+    this.img = normalImage;
+  }
+
+  startBlinkLoop({ normal, green }) {
+    let blinkCount = 0;
+    const totalBlinks = 8;
 
     this.blinkInterval = setInterval(() => {
-      this.img = this.img === greenImage ? normalImage : greenImage;
-
-      if (this.img === greenImage) blinkCount++;
-
-      if (blinkCount >= totalBlinks) {
-        clearInterval(this.blinkInterval);
-        this.blinkInterval = null;
-        this.img = normalImage;
-      }
+      this.toggleBlinkImage(normal, green);
+      if (this.img === green) blinkCount++;
+      if (blinkCount >= totalBlinks) this.finishBlink(normal);
     }, 300);
+  }
+
+  toggleBlinkImage(normal, green) {
+    this.img = this.img === green ? normal : green;
+  }
+
+  finishBlink(normalImage) {
+    clearInterval(this.blinkInterval);
+    this.blinkInterval = null;
+    this.img = normalImage;
   }
 
   // 🆕 NEU:  SOFORT STOPPEN!
