@@ -9,10 +9,6 @@ let gameInitialized = false;
  */
 window.addEventListener("DOMContentLoaded", init);
 
-/* =========================================================
-   ✅ Mini-Helper (minimaler Patch, kein Verhaltens-Change)
-   ========================================================= */
-
 function show(id) {
   const el = document.getElementById(id);
   if (el) el.classList.remove('hidden');

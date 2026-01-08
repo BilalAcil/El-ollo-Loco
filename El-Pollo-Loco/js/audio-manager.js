@@ -1,5 +1,3 @@
-// js/audio-manager.js
-
 window.isMuted = false;
 window.allGameAudio = [];
 

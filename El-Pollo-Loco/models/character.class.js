@@ -83,24 +83,44 @@ class Character extends MovableObject {
 
   constructor() {
     super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
+    this.initImages();
+    this.initPhysics();
+    this.initState();
+    this.initSounds();
+    this.initIdleSystem();
+    this.animate();
+  }
+
+  initImages() {
     this.loadImages(this.IMAGES_IDLE);
     this.loadImages(this.IMAGES_THROW);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGES_HURT);
-    this.loadImages(this.IMAGES_LONG_IDLE); // Long Idle Bilder laden
+    this.loadImages(this.IMAGES_LONG_IDLE);
+  }
+
+  initPhysics() {
     this.applyGravity();
+  }
+
+  initState() {
     this.atEndboss = false;
-    this.animate();
     this.lastGlobalHit = 0;
+  }
+
+  initSounds() {
     this.throwSound = new Audio('audio/throw-sound-1.mp3');
-    this.throwSound.volume = 0.4; // etwas leiser
+    this.throwSound.volume = 0.4;
+  }
+
+  initIdleSystem() {
     this.showIdle = false;
     this.lastMoveTime = Date.now();
     this.idleAnimationStarted = false;
-    this.longIdleActive = false; // Neue Eigenschaft für Long Idle
-    this.longIdleInterval = null; // Für die Long Idle Animation
+    this.longIdleActive = false;
+    this.longIdleInterval = null;
   }
 
   pauseStartTime = 0;  // Wann die Pause begonnen hat
