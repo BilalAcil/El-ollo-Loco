@@ -1,429 +1,213 @@
-let isMuted = false;
-let canvas;
-let world;
-let keyboard = new Keyboard();
-let gameInitialized = false;
+// ui.js
+window.GameState = window.GameState || {
+  isMuted: false,
+  canvas: null,
+  world: null,
+  keyboard: new Keyboard(),
+  gameInitialized: false,
+};
 
-/**
- * Wird ausgeführt, sobald DOM geladen ist.
- */
-window.addEventListener("DOMContentLoaded", init);
+// ---------- DOM ----------
+function el(id) { return document.getElementById(id); }
 
-function show(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.remove('hidden');
-}
+function show(id) { const n = el(id); if (n) n.classList.remove('hidden'); }
 
-function hide(id) {
-  const el = document.getElementById(id);
-  if (el) el.classList.add('hidden');
-}
+function hide(id) { const n = el(id); if (n) n.classList.add('hidden'); }
 
-function display(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = value;
-}
+function display(id, value) { const n = el(id); if (n) n.style.display = value; }
 
-function resumeWorldAfterDelay(delay = 200) {
-  setTimeout(() => {
-    if (!world) return;
+// ---------- Instructions ----------
+function openInstructions() { el('instructions')?.classList.remove('hidden'); }
 
-    // ✅ Ab jetzt dürfen Pause-/Play-Overlays erscheinen
-    world.allowPauseOverlay = true;
+function closeInstructions() { el('instructions')?.classList.add('hidden'); }
 
-    if (typeof world.resumeGame === 'function') {
-      world.resumeGame();
-    } else {
-      world.isPaused = false;
-    }
-  }, delay);
-}
+// ---------- Mute ----------
+function toggleMute() { applyMuteState(!GameState.isMuted); }
 
-function pauseWorldSilently() {
-  if (!world) return;
-
-  // ⏸️ direkt pausieren, damit nichts "losläuft", bevor der Spieler startet
-  if (typeof world.pauseGame === 'function') {
-    // 🔥 pausieren OHNE Pause-/Play-Symbol
-    world.pauseGame(false);
-  } else {
-    world.isPaused = true;
-  }
-}
-
-function areImagesLoaded() {
-  return [...document.querySelectorAll('img')].every(img => img.complete);
-}
-
-function areClassesReady() {
-  return (
-    typeof World !== 'undefined' &&
-    typeof level1 !== 'undefined' &&
-    typeof Character !== 'undefined' &&
-    typeof StatusBar !== 'undefined' &&
-    typeof StatusBarCoin !== 'undefined' &&
-    typeof StatusBarSalsa !== 'undefined'
-  );
-}
-
-function isDrawableReady() {
-  return typeof DrawableObject === 'undefined' || DrawableObject.areAllAssetsLoaded();
-}
-
-/* ========================================================= */
-
-function init() {
-  canvas = document.getElementById('canvas');
-
-  if (!canvas) {
-    console.error("❌ Canvas nicht gefunden!");
-    return;
-  }
-
-  // Startscreen anzeigen, Spielbereich verstecken
-  show('start-screen');
-  hide('end-screen');
-  display('canvas', 'none');
-  display('game-name', 'none');
-}
-
-/**
- * Erzeugt einmalig die World, damit ALLE Assets (Pepe, Statusbars, Coins, etc.)
- * schon beim Laden der Seite vorgeladen werden.
- */
-function preloadWorld() {
-  if (gameInitialized) return; // nur einmal ausführen
-  gameInitialized = true;
-
-  canvas = document.getElementById('canvas');
-  if (!canvas) {
-    console.error('❌ Canvas nicht gefunden (preloadWorld)!');
-    return;
-  }
-
-  // ⬇️ deine bisherige Spiel-Initialisierung
-  startGameLogic();            // erstellt world = new World(...)
-
-  // ⏸️ direkt pausieren, damit nichts "losläuft", bevor der Spieler startet
-  pauseWorldSilently();
-}
-
-/**
- * Startet das Spiel, wenn "Spielen" gedrückt wird.
- */
-function updateScreenForGameStart() {
-  display('game-name', 'block');
-  hide('start-screen');
-  display('canvas', 'block');
-  hide('end-screen');
-}
-
-function toggleMobileControlsForStart() {
-  const mobileControls = document.querySelector('.mobile-controls');
-  if (!mobileControls) return;
-
-  const isSmallScreen = window.innerWidth <= 1366;
-  const isLandscape = window.innerWidth > window.innerHeight;
-
-  mobileControls.classList.toggle('active', isSmallScreen && isLandscape);
-}
-
-function startGame() {
-  updateScreenForGameStart();
-  toggleMobileControlsForStart();
-  resumeWorldAfterDelay(200);
-}
-
-/**
- * Anleitung öffnen/schließen
- */
-function openInstructions() {
-  document.getElementById('instructions').classList.remove('hidden');
-}
-function closeInstructions() {
-  document.getElementById('instructions').classList.add('hidden');
-}
-
-function updateMuteButtonText(muted) {
-  const btn = document.getElementById('mute-btn');
-  if (btn) btn.textContent = muted ? '🔈 Ton an' : '🔊 Ton aus';
-}
-
-function applyGlobalMuteIfAvailable(muted) {
-  if (typeof setGlobalMute === 'function') setGlobalMute(muted);
-}
-
-function syncWorldMuteState(muted) {
-  if (world) world.isMuted = muted;
-}
-
-function saveMuteToStorage(muted) {
-  try {
-    localStorage.setItem('elPolloMute', muted ? '1' : '0');
-  } catch (e) {
-    console.warn('Konnte Mute-Status nicht in localStorage speichern:', e);
-  }
+function restoreMuteFromStorage() {
+  try { applyMuteState(localStorage.getItem('elPolloMute') === '1'); }
+  catch (e) { console.warn('Mute restore failed:', e); applyMuteState(false); }
 }
 
 function applyMuteState(muted) {
-  isMuted = muted;
+  GameState.isMuted = muted;
   updateMuteButtonText(muted);
-  applyGlobalMuteIfAvailable(muted);
-  syncWorldMuteState(muted);
+  applyGlobalMute(muted);
+  syncWorldMute(muted);
   saveMuteToStorage(muted);
 }
 
-function restoreMuteFromStorage() {
-  try {
-    const stored = localStorage.getItem('elPolloMute');
-    const muted = stored === '1';   // '1' = stumm, alles andere = nicht stumm
-    applyMuteState(muted);          // setzt Button-Text + globales Mute
-  } catch (e) {
-    console.warn('Konnte Mute-Status nicht aus localStorage lesen:', e);
-    applyMuteState(false);          // Fallback: Ton an
-  }
+function updateMuteButtonText(muted) {
+  const btn = el('mute-btn');
+  if (btn) btn.textContent = muted ? '🔈 Ton an' : '🔊 Ton aus';
 }
 
-/**
- * Ton an/aus
- */
-function toggleMute() {
-  const newState = !isMuted;
-  applyMuteState(newState);
+function applyGlobalMute(muted) { if (typeof setGlobalMute === 'function') setGlobalMute(muted); }
+
+function syncWorldMute(muted) { if (GameState.world) GameState.world.isMuted = muted; }
+
+function saveMuteToStorage(muted) {
+  try { localStorage.setItem('elPolloMute', muted ? '1' : '0'); }
+  catch (e) { console.warn('Mute save failed:', e); }
 }
 
-/**
- * Zeigt den Endscreen an (wird vom Spiel aufgerufen)
- * @param {boolean} win - true = gewonnen, false = verloren
- */
+// ---------- Endscreen ----------
+function showEndScreen(win) {
+  stopGameIfAvailable();
+  const refs = getEndScreenRefs();
+  if (!refs) return;
+
+  const stats = getEndStats();
+  const statsBox = ensureStatsBox(refs.buttonContainer);
+
+  hideGameCanvasAndTitle();
+  renderEndScreen(refs.buttonContainer, statsBox, stats, win);
+  refs.endScreen.classList.remove('hidden');
+}
+
+function stopGameIfAvailable() { if (typeof stopGame === 'function') stopGame(); }
+
 function getEndStats() {
   return {
-    coinCount: world?.statusBarCoin?.coinCount ?? 0,
-    salsaCount: world?.statusBarSalsa?.salsaCount ?? 0
+    coinCount: GameState.world?.statusBarCoin?.coinCount ?? 0,
+    salsaCount: GameState.world?.statusBarSalsa?.salsaCount ?? 0,
   };
 }
 
-function stopGameIfAvailable() {
-  if (typeof stopGame === 'function') stopGame();
-}
-
 function getEndScreenRefs() {
-  const endScreen = document.getElementById('end-screen');
+  const endScreen = el('end-screen');
   const buttonContainer = endScreen?.querySelector('.menu-box');
+  if (!endScreen) return console.error('❌ end-screen nicht gefunden!');
+  if (!buttonContainer) return console.error('❌ .menu-box nicht gefunden!');
   return { endScreen, buttonContainer };
 }
 
 function ensureStatsBox(buttonContainer) {
-  let statsBox = document.getElementById('stats-box');
-  if (statsBox) return statsBox;
+  let box = el('stats-box');
+  if (box) return box;
 
-  statsBox = document.createElement('div');
-  statsBox.id = 'stats-box';
-  statsBox.classList.add('hidden');
-  buttonContainer.appendChild(statsBox);
-  return statsBox;
+  box = document.createElement('div');
+  box.id = 'stats-box';
+  box.classList.add('hidden');
+  buttonContainer.appendChild(box);
+  return box;
 }
 
 function hideGameCanvasAndTitle() {
-  const canvasEl = document.getElementById('canvas');
-  const titleEl = document.getElementById('game-name');
-  if (canvasEl) canvasEl.style.display = 'none';
-  if (titleEl) titleEl.style.display = 'none';
+  const c = el('canvas');
+  const t = el('game-name');
+  if (c) c.style.display = 'none';
+  if (t) t.style.display = 'none';
 }
 
-function renderWinEndScreen(buttonContainer, statsBox, stats) {
-  buttonContainer.innerHTML = `
-    <h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
-    <button onclick="nextLevel()">🎸 Gitarre holen</button>
-    <button onclick="returnToHome()">🏠 Zurück zum Start</button>
-  `;
-
-  statsBox.innerHTML = `
-    <p><span class="stats-coin">🪙 <b>${stats.coinCount}</b>x</span></p>
-    <p><span class="stats-salsa">🌶️ <b>${stats.salsaCount}</b>x</span></p>
-  `;
-  statsBox.classList.remove('hidden');
-  buttonContainer.appendChild(statsBox);
+function renderEndScreen(container, statsBox, stats, win) {
+  container.innerHTML = win ? winHtml() : loseHtml();
+  statsBox.innerHTML = win ? statsHtml(stats) : '';
+  statsBox.classList.toggle('hidden', !win);
+  container.appendChild(statsBox);
 }
 
-function renderLoseEndScreen(buttonContainer, statsBox) {
-  buttonContainer.innerHTML = `
-    <h2 id="end-message">💀 Du hast verloren!</h2>
-    <button onclick="restartGame()">🔁 Nochmal spielen</button>
-    <button onclick="returnToHome()">🏠 Zurück zum Start</button>
-  `;
-  statsBox.classList.add('hidden');
+function winHtml() {
+  return `<h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
+  <button onclick="nextLevel()">🎸 Gitarre holen</button>
+  <button onclick="returnToHome()">🏠 Zurück zum Start</button>`;
 }
 
-function showEndScreen(win) {
-  const stats = getEndStats();
-  stopGameIfAvailable();
-
-  const { endScreen, buttonContainer } = getEndScreenRefs();
-  if (!endScreen) return console.error('❌ end-screen nicht gefunden!');
-  if (!buttonContainer) return console.error('❌ .menu-box im end-screen nicht gefunden!');
-
-  const statsBox = ensureStatsBox(buttonContainer);
-  statsBox.innerHTML = "";
-  hideGameCanvasAndTitle();
-
-  if (win) renderWinEndScreen(buttonContainer, statsBox, stats);
-  else renderLoseEndScreen(buttonContainer, statsBox);
-
-  endScreen.classList.remove('hidden');
+function loseHtml() {
+  return `<h2 id="end-message">💀 Du hast verloren!</h2>
+  <button onclick="restartGame()">🔁 Nochmal spielen</button>
+  <button onclick="returnToHome()">🏠 Zurück zum Start</button>`;
 }
 
-/**
- * Spiel neu starten
- */
-function resetStatsBox() {
-  const oldStatsBox = document.getElementById('stats-box');
-  if (!oldStatsBox) return;
-  oldStatsBox.innerHTML = '';
-  oldStatsBox.classList.add('hidden');
+function statsHtml(stats) {
+  return `<p><span class="stats-coin">🪙 <b>${stats.coinCount}</b>x</span></p>
+  <p><span class="stats-salsa">🌶️ <b>${stats.salsaCount}</b>x</span></p>`;
 }
 
-function showGameUIForRestart() {
-  hide('end-screen');
-  display('canvas', 'block');
-  display('game-name', 'block');
-}
-
-function resetWorldForRestart() {
-  if (typeof stopGame === 'function') stopGame();
-  world = null;
-  gameInitialized = false;
-}
-
-function restartGame() {
-  canvas = document.getElementById('canvas');
-  resetWorldForRestart();
-  resetStatsBox();
-  showGameUIForRestart();
-  preloadWorld();
-  resumeWorldAfterDelay(200);
-}
-
-function nextLevel() {
-  alert("Level 2: Hol dir die Gitarre! (noch in Arbeit 😎)");
-}
-
-/**
- * Zurück zum Startscreen
- */
-function returnToHome() {
-  stopGame();
-
-  // Musik & Timer anhalten (zur Sicherheit)
-  if (world && world.countdown) {
-    world.countdown.stopCountdown();
-  }
-
-  // Endscreen ausblenden (optional – Seite lädt gleich neu)
-  hide('end-screen');
-  display('canvas', 'none');
-  display('game-name', 'none');
-  hide('start-screen');
-
-  // 🔄 Seite komplett neu laden
-  location.reload();
-}
-
-/**
- * Mobile-Touch-Buttons mit der Keyboard-Steuerung verbinden
- */
-function getMobileButtons() {
-  return {
-    left: document.getElementById('btn-left'),
-    right: document.getElementById('btn-right'),
-    jump: document.getElementById('btn-jump'),
-    throw: document.getElementById('btn-throw'),
-  };
-}
-
-function hasAllMobileButtons(btns) {
-  return btns.left && btns.right && btns.jump && btns.throw;
-}
-
-function disableButtonContextAndSelection(button) {
-  button.addEventListener('contextmenu', (e) => e.preventDefault());
-  button.style.userSelect = 'none';
-  button.style.webkitUserSelect = 'none';
-  button.style.msUserSelect = 'none';
-}
-
-function setKeyFlag(keyName, isDown) {
-  if (!keyboard) return;
-  keyboard[keyName] = isDown;
-}
-
-function bindButtonToKey(button, keyName) {
-  button.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    setKeyFlag(keyName, true);
-  });
-
-  button.addEventListener('pointerup', (e) => {
-    e.preventDefault();
-    setKeyFlag(keyName, false);
-  });
-
-  button.addEventListener('pointerleave', () => setKeyFlag(keyName, false));
-  button.addEventListener('pointercancel', () => setKeyFlag(keyName, false));
-}
-
+// ---------- Mobile Controls ----------
 function setupMobileControls() {
   const btns = getMobileButtons();
   if (!hasAllMobileButtons(btns)) return;
 
-  [btns.left, btns.right, btns.jump, btns.throw].forEach(disableButtonContextAndSelection);
-
+  getAllButtons(btns).forEach(disableButtonContextAndSelection);
   bindButtonToKey(btns.left, 'LEFT');
   bindButtonToKey(btns.right, 'RIGHT');
   bindButtonToKey(btns.jump, 'SPACE');
   bindButtonToKey(btns.throw, 'D');
 }
 
-/**
- * Warten, bis Browser + Spiel intern vollständig geladen sind
- */
-function setupStartButton() {
-  const startBtn = document.getElementById('start-btn');
-  if (!startBtn) return;
-
-  startBtn.classList.remove('loading', 'hidden');
-  startBtn.removeAttribute('disabled');
-  startBtn.textContent = '🎮 Spiel starten';
-  startBtn.onclick = startGame;
+function getMobileButtons() {
+  return {
+    left: el('btn-left'),
+    right: el('btn-right'),
+    jump: el('btn-jump'),
+    throw: el('btn-throw'),
+  };
 }
 
-async function onWindowLoad() {
-  restoreMuteFromStorage();
-  setupMobileControls();
-  preloadWorld();
-  await waitForGameAssets();
-  setupStartButton();
+function hasAllMobileButtons(b) { return b.left && b.right && b.jump && b.throw; }
+
+function getAllButtons(b) { return [b.left, b.right, b.jump, b.throw]; }
+
+function disableButtonContextAndSelection(button) {
+  button.addEventListener('contextmenu', e => e.preventDefault());
+  button.style.userSelect = 'none';
+  button.style.webkitUserSelect = 'none';
+  button.style.msUserSelect = 'none';
 }
 
-window.addEventListener('load', onWindowLoad);
-
-/**
- * Prüft in Intervallen, ob Spielressourcen geladen sind
- */
-function areAssetsReadyNow() {
-  return areClassesReady() && areImagesLoaded() && isDrawableReady();
+function bindButtonToKey(button, keyName) {
+  button.addEventListener('pointerdown', e => setKeyFlag(e, keyName, true));
+  button.addEventListener('pointerup', e => setKeyFlag(e, keyName, false));
+  button.addEventListener('pointerleave', () => (GameState.keyboard[keyName] = false));
+  button.addEventListener('pointercancel', () => (GameState.keyboard[keyName] = false));
 }
 
-async function waitForGameAssets() {
-  const startTime = Date.now();
-  const timeout = 20000;
-
-  return new Promise(resolve => {
-    const check = setInterval(() => {
-      if (areAssetsReadyNow() || Date.now() - startTime > timeout) {
-        clearInterval(check);
-        resolve();
-      }
-    }, 200);
-  });
+function setKeyFlag(e, keyName, isDown) {
+  e.preventDefault();
+  GameState.keyboard[keyName] = isDown;
 }
+
+// ---------- Assets ----------
+function waitForGameAssets() {
+  const start = Date.now();
+  return new Promise(resolve => pollAssets(resolve, start, 20000));
+}
+
+function pollAssets(resolve, start, timeout) {
+  const id = setInterval(() => {
+    if (assetsReadyNow() || Date.now() - start > timeout) { clearInterval(id); resolve(); }
+  }, 200);
+}
+
+function assetsReadyNow() { return classesReady() && imagesLoaded() && drawableReady(); }
+
+function imagesLoaded() { return [...document.querySelectorAll('img')].every(img => img.complete); }
+
+function classesReady() {
+  return typeof World !== 'undefined' &&
+    typeof level1 !== 'undefined' &&
+    typeof Character !== 'undefined' &&
+    typeof StatusBar !== 'undefined' &&
+    typeof StatusBarCoin !== 'undefined' &&
+    typeof StatusBarSalsa !== 'undefined';
+}
+
+function drawableReady() {
+  return typeof DrawableObject === 'undefined' || DrawableObject.areAllAssetsLoaded();
+}
+
+// ---------- Expose (for HTML + game.js) ----------
+window.show = show;
+window.hide = hide;
+window.display = display;
+
+window.toggleMute = toggleMute;
+window.restoreMuteFromStorage = restoreMuteFromStorage;
+
+window.openInstructions = openInstructions;
+window.closeInstructions = closeInstructions;
+
+window.showEndScreen = showEndScreen;
+window.setupMobileControls = setupMobileControls;
+window.waitForGameAssets = waitForGameAssets;
