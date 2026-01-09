@@ -7,7 +7,7 @@
  * @global
  * @property {boolean} window.isMuted - Globaler Mute-Status.
  * @property {HTMLAudioElement[]} window.allGameAudio - Liste aller Audio-Instanzen im Spiel.
- * @property {(muted: boolean) => void} window.setGlobalMute - Setzt global Mute und wendet es auf alle Audios an.
+ * @property {function(boolean): void} window.setGlobalMute - Setzt global Mute und wendet es auf alle Audios an.
  */
 
 window.isMuted = false;

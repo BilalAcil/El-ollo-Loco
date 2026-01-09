@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/world.collision.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/world.collision.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file models/world.collision.js
+ * @description
+ * Kollisions- und Pickup-Logik der World.
+ * Enthält:
+ * - Gegner-Kollisionen (Stomp / Kontakt-Schaden)
+ * - Treffer durch Wurfobjekte (SalsaThrow)
+ * - Pickups (Coin, Salsa, Corncob, Maracas)
+ * - Maracas-Endsequenz (kurze Choreo + Level-Ende)
+ *
+ * Hinweis: Viele Methoden sind bewusst klein gehalten, damit pro Datei &lt; 400 LOC bleibt.
+ */
+
+Object.assign(World.prototype, {
+  checkCollisions,
+  handleCollisionTick,
+  createCollisionState,
+
+  scanEnemyCollisions,
+  scanEndboss,
+  isStompFromAbove,
+  applyEndbossStomp,
+  knockbackAfterEndbossStomp,
+  checkEndbossDeath,
+
+  scanBodyguard,
+  applyBodyguardStomp,
+  applyBodyguardBounce,
+  clampCharacterToViewport,
+  applyBodyguardSideHit,
+
+  collectNormalEnemy,
+  handleNormalEnemyStomps,
+  isJumpedOnEnemy,
+  getBox,
+
+  handleEndbossContactDamage,
+  tryEndbossContactHit,
+
+  handleNormalEnemyContactDamage,
+  tryNormalEnemyContactHit,
+  isGloballyImmune,
+
+  cancelHealing,
+  damageCharacterOrDie,
+
+  handleThrowableHits,
+  trySalsaHit,
+  markSalsaHit,
+  playHitSound,
+  removeSalsaAfterSplash,
+  applySalsaDamage,
+  damageEndbossBySalsa,
+
+  killChickenBySalsa,
+  setSalsaDeathImage,
+  setAlpha,
+  blinkEnemySoft,
+  applySoftBlink,
+
+  handleCorncobPickup,
+  playHealPickupSound,
+
+  handleCoinPickups,
+  playCoinSound,
+
+  handleSalsaPickups,
+  playSalsaPickupSound,
+
+  handleMaracasPickup,
+  startMaracasSequence,
+  playMaracasSound,
+  freezeWorldForMaracas,
+  clearEnemyIntervals,
+  resetKeyboardInputs,
+  runMaracasChoreo,
+  maracasJump,
+  playJumpSound,
+  startMaracasWalkOff,
+  finishMaracasEnding,
+});
+
+/**
+ * Startet den Kollisions-Loop der Welt.
+ * Ruft alle 50ms {@link handleCollisionTick} auf.
+ *
+ * @returns {void}
+ */
+function checkCollisions() {
+  this.collisionInterval = setInterval(() => this.handleCollisionTick(), 50);
+}
+
+/**
+ * Ein einzelner Tick der Kollisions-Logik:
+ * - Gegner scannen (Endboss/Bodyguard/Normale Enemies)
+ * - Stomps und Kontakt-Schaden
+ * - Treffer durch Wurfobjekte
+ * - Pickups (Mais, Coins, Salsa, Maracas)
+ *
+ * @returns {void}
+ */
+function handleCollisionTick() {
+  if (this.isPaused) return;
+
+  const state = this.createCollisionState();
+  this.scanEnemyCollisions(state);
+
+  this.handleNormalEnemyStomps(state);
+  this.handleEndbossContactDamage(state);
+  this.handleNormalEnemyContactDamage(state);
+
+  this.handleThrowableHits();
+
+  this.handleCorncobPickup();
+  this.handleCoinPickups();
+  this.handleSalsaPickups();
+  this.handleMaracasPickup();
+}
+
+/**
+ * Erstellt einen temporären State für einen Collision-Tick.
+ *
+ * @returns {{collidedEnemies: Array&lt;{enemy:any,index:number}>, hitEndbossFromAbove:boolean, jumpedOnEnemy:boolean}}
+ */
+function createCollisionState() {
+  return { collidedEnemies: [], hitEndbossFromAbove: false, jumpedOnEnemy: false };
+}
+
+/**
+ * Iteriert alle Gegner und sammelt relevante Kollisionen:
+ * - Endboss: direkt auswerten (Stomp)
+ * - Bodyguard: separat behandeln
+ * - Normale Gegner: erstmal nur sammeln, Auswertung später
+ *
+ * @param {{collidedEnemies:Array, hitEndbossFromAbove:boolean, jumpedOnEnemy:boolean}} state
+ * @returns {void}
+ */
+function scanEnemyCollisions(state) {
+  this.level.enemies.forEach((enemy, index) => {
+    if (enemy instanceof Endboss) return this.scanEndboss(enemy, state);
+    if (enemy instanceof Bodyguard) return this.scanBodyguard(enemy);
+    this.collectNormalEnemy(enemy, index, state);
+  });
+}
+
+/**
+ * Prüft Kollision mit Endboss und wendet Stomp-Schaden an,
+ * falls Pepe von oben auf den Boss trifft.
+ *
+ * @param {Endboss} enemy
+ * @param {{hitEndbossFromAbove:boolean}} state
+ * @returns {void}
+ */
+function scanEndboss(enemy, state) {
+  if (!this.character.isColliding(enemy)) return;
+  if (!this.isStompFromAbove(enemy)) return;
+
+  state.hitEndbossFromAbove = true;
+  this.applyEndbossStomp(enemy);
+}
+
+/**
+ * Prüft, ob Pepe den Gegner von oben "stompt".
+ * Diese Heuristik verhindert Side-Hits beim Springen.
+ *
+ * @param {MovableObject} enemy
+ * @returns {boolean}
+ */
+function isStompFromAbove(enemy) {
+  const cBottom = this.character.y + this.character.height;
+  const eTop = enemy.y;
+  const eMid = enemy.y + enemy.height / 2;
+
+  return (
+    this.character.isAboveGround() &amp;&amp;
+    this.character.speedY &lt; 0 &amp;&amp;
+    cBottom &lt; eMid &amp;&amp;
+    cBottom > eTop - 15
+  );
+}
+
+/**
+ * Wendet Endboss-Stomp an:
+ * - Aktiviert Hurt-Animation
+ * - Zieht Energie ab
+ * - Updatet Boss-Statusbar
+ * - Knockback für Pepe
+ * - Prüft Tod + onDeath Hook
+ *
+ * @param {Endboss} enemy
+ * @returns {void}
+ */
+function applyEndbossStomp(enemy) {
+  enemy.activate();
+  enemy.energy = (enemy.energy || 100) - 20;
+
+  this.lastEndbossBounce = Date.now();
+  this.endbossBar?.setPercentage(enemy.energy);
+
+  this.knockbackAfterEndbossStomp();
+  this.checkEndbossDeath(enemy);
+}
+
+/**
+ * Knockback/Abpraller nach Endboss-Stomp.
+ *
+ * @returns {void}
+ */
+function knockbackAfterEndbossStomp() {
+  this.character.speedY = 20;
+  this.character.speedX = -15;
+  this.character.knockbackActive = true;
+}
+
+/**
+ * Prüft, ob der Endboss tot ist und triggert Death-Logik.
+ *
+ * @param {Endboss} enemy
+ * @returns {void}
+ */
+function checkEndbossDeath(enemy) {
+  if (enemy.energy > 0 || enemy.isDead) return;
+  enemy.isDead = true;
+  enemy.onDeath?.();
+  enemy.startFallingWhenDead();
+}
+
+/**
+ * Prüft Bodyguard-Kollision:
+ * - Stomp => Bodyguard bekommt Hit + Pepe bounce
+ * - Side-Hit => Pepe nimmt Schaden (mit Cooldown)
+ *
+ * @param {Bodyguard} enemy
+ * @returns {void}
+ */
+function scanBodyguard(enemy) {
+  if (!this.character.isColliding(enemy) || enemy.isDead) return;
+  if (this.isStompFromAbove(enemy)) return this.applyBodyguardStomp(enemy);
+  this.applyBodyguardSideHit();
+}
+
+/**
+ * Stomp auf Bodyguard:
+ * - Bodyguard.hit()
+ * - Pepe bounce + clamp in Viewport
+ *
+ * @param {Bodyguard} enemy
+ * @returns {void}
+ */
+function applyBodyguardStomp(enemy) {
+  enemy.hit();
+  this.applyBodyguardBounce();
+  setTimeout(() => this.clampCharacterToViewport(), 20);
+}
+
+/**
+ * Zufälliger Bounce nach Bodyguard-Stomp (links/rechts).
+ *
+ * @returns {void}
+ */
+function applyBodyguardBounce() {
+  const dir = Math.random() &lt; 0.5 ? -1 : 1;
+  this.character.speedY = 18;
+  this.character.speedX = 10 * dir;
+  this.character.knockbackActive = true;
+}
+
+/**
+ * Klemmt den Charakter in den aktuell sichtbaren Kamera-Bereich,
+ * damit Pepe nach Bounce nicht aus dem Viewport rutscht.
+ *
+ * @returns {void}
+ */
+function clampCharacterToViewport() {
+  const viewLeft = -this.camera_x;
+  const viewRight = -this.camera_x + this.canvas.width;
+  const margin = 30;
+
+  const minX = viewLeft + margin;
+  const maxX = viewRight - this.character.width - margin;
+
+  if (this.character.x &lt; minX) this.character.x = minX;
+  if (this.character.x > maxX) this.character.x = maxX;
+}
+
+/**
+ * Side-Hit durch Bodyguard: Schaden nur alle 1000ms.
+ *
+ * @returns {void}
+ */
+function applyBodyguardSideHit() {
+  const now = Date.now();
+  if (this.lastBodyguardHit &amp;&amp; now - this.lastBodyguardHit &lt;= 1000) return;
+  this.lastBodyguardHit = now;
+  this.damageCharacterOrDie();
+}
+
+/**
+ * Sammelt Kollisionen mit "echten" Gegnern (Chickens etc.) für spätere Auswertung.
+ *
+ * @param {*} enemy - Kandidat aus level.enemies
+ * @param {number} index - Index im Enemies-Array (derzeit nur informational)
+ * @param {{collidedEnemies:Array}} state
+ * @returns {void}
+ */
+function collectNormalEnemy(enemy, index, state) {
+  if (!this.isActualEnemy(enemy)) return;
+  if (!this.character.isColliding(enemy) || enemy.isDead) return;
+  state.collidedEnemies.push({ enemy, index });
+}
+
+/**
+ * Verarbeitet Stomps auf normale Gegner.
+ * Wenn mindestens ein Stomp passiert, bekommt Pepe einen Bounce.
+ *
+ * @param {{collidedEnemies:Array&lt;{enemy:any}>, jumpedOnEnemy:boolean}} state
+ * @returns {void}
+ */
+function handleNormalEnemyStomps(state) {
+  state.collidedEnemies.forEach(({ enemy }) => {
+    if (!this.isJumpedOnEnemy(enemy) || enemy.isDead) return;
+
+    this.killEnemy(enemy);
+    this.character.speedY = 15;
+    this.lastEnemyBounce = Date.now();
+    state.jumpedOnEnemy = true;
+  });
+
+  if (state.jumpedOnEnemy) this.character.speedY = 15;
+}
+
+/**
+ * Prüft, ob Pepe einen Gegner "von oben" trifft (normaler Stomp).
+ *
+ * @param {MovableObject} enemy
+ * @returns {boolean}
+ */
+function isJumpedOnEnemy(enemy) {
+  const charBox = this.getBox(this.character);
+  const enemyBox = this.getBox(enemy);
+
+  const falling = this.character.speedY &lt; 0;
+  const charBottom = charBox.y + charBox.height;
+  const charMid = charBox.y + charBox.height / 2;
+
+  const enemyTop = enemyBox.y;
+  const enemyMid = enemyBox.y + enemyBox.height / 2;
+
+  const verticalDiff = charBottom - enemyTop;
+  return falling &amp;&amp; verticalDiff > -30 &amp;&amp; verticalDiff &lt; 30 &amp;&amp; charMid &lt; enemyMid;
+}
+
+/**
+ * Liefert eine Hitbox für ein Objekt:
+ * nutzt collisionBox falls vorhanden, sonst x/y/width/height.
+ *
+ * @param {*} obj
+ * @returns {{x:number,y:number,width:number,height:number}}
+ */
+function getBox(obj) {
+  return obj.collisionBox || { x: obj.x, y: obj.y, width: obj.width, height: obj.height };
+}
+
+/**
+ * Kontakt-Schaden durch Endboss:
+ * Wird blockiert, wenn Pepe gerade gebounced ist oder den Boss stompt.
+ *
+ * @param {{hitEndbossFromAbove:boolean}} state
+ * @returns {void}
+ */
+function handleEndbossContactDamage(state) {
+  const bounced = this.lastEndbossBounce &amp;&amp; Date.now() - this.lastEndbossBounce &lt; 400;
+  if (state.hitEndbossFromAbove || bounced) return;
+
+  this.level.enemies.forEach((enemy) => this.tryEndbossContactHit(enemy));
+}
+
+/**
+ * Wendet Endboss-Kontaktschaden an (Cooldown 1000ms).
+ *
+ * @param {*} enemy
+ * @returns {void}
+ */
+function tryEndbossContactHit(enemy) {
+  if (!(enemy instanceof Endboss)) return;
+  if (!this.character.isColliding(enemy) || enemy.isDead) return;
+
+  const now = Date.now();
+  if (this.lastEndbossHit &amp;&amp; now - this.lastEndbossHit &lt;= 1000) return;
+
+  this.lastEndbossHit = now;
+  this.cancelHealing();
+  this.damageCharacterOrDie();
+}
+
+/**
+ * Kontakt-Schaden durch normale Gegner:
+ * Wird blockiert, wenn Pepe gerade gebounced ist oder einen Gegner gestompt hat.
+ *
+ * @param {{collidedEnemies:Array&lt;{enemy:any}>, jumpedOnEnemy:boolean}} state
+ * @returns {void}
+ */
+function handleNormalEnemyContactDamage(state) {
+  const bounced = this.lastEnemyBounce &amp;&amp; Date.now() - this.lastEnemyBounce &lt; 200;
+  if (state.jumpedOnEnemy || bounced) return;
+
+  state.collidedEnemies.forEach(({ enemy }) => this.tryNormalEnemyContactHit(enemy));
+}
+
+/**
+ * Wendet Kontakt-Schaden durch normale Gegner an (mit globaler Immunität + Cooldown).
+ *
+ * @param {MovableObject} enemy
+ * @returns {void}
+ */
+function tryNormalEnemyContactHit(enemy) {
+  if (enemy.isDead) return;
+
+  const now = Date.now();
+  if (this.isGloballyImmune(now)) return;
+
+  if (this.lastEnemyHit &amp;&amp; now - this.lastEnemyHit &lt;= 800) return;
+  this.lastEnemyHit = now;
+
+  this.character.lastGlobalHit = now;
+  this.cancelHealing();
+  this.damageCharacterOrDie();
+}
+
+/**
+ * Prüft, ob der Charakter global immun ist (nach einem Hit).
+ *
+ * @param {number} now - Current timestamp (ms)
+ * @returns {boolean}
+ */
+function isGloballyImmune(now) {
+  return this.character.lastGlobalHit &amp;&amp; now - this.character.lastGlobalHit &lt; 1300;
+}
+
+/**
+ * Bricht Heilung/Healing-Feedback ab (Statusbar-Blink + Sound reset).
+ *
+ * @returns {void}
+ */
+function cancelHealing() {
+  this.statusBar?.stopBlink?.();
+  if (!this.healSound) return;
+
+  this.healSound.pause();
+  this.healSound.currentTime = 0;
+}
+
+/**
+ * Zieht dem Charakter Leben ab und beendet das Spiel, falls Energie 0 erreicht.
+ *
+ * @returns {void}
+ */
+function damageCharacterOrDie() {
+  this.character.hit();
+  this.statusBar.setPercentage(this.character.energy);
+
+  if (this.character.energy > 0) return;
+
+  this.character.isDead = true;
+  this.statusBar.setPercentage(0);
+
+  this.character.playDeathAnimation();
+  this.character.startFallingWhenDead();
+  this.endGame(false);
+}
+
+/**
+ * Prüft Treffer von geworfenen Objekten (SalsaThrow) auf Gegner.
+ *
+ * @returns {void}
+ */
+function handleThrowableHits() {
+  this.throwableObjects.forEach((salsa, index) => {
+    this.level.enemies.forEach((enemy) => this.trySalsaHit(salsa, index, enemy));
+  });
+}
+
+/**
+ * Verarbeitet einen möglichen Salsa-Hit:
+ * - nur wenn Salsa nicht schon getroffen hat
+ * - markiert Hit, Sound, Splash, entfernt Projectile
+ * - wendet Schaden am getroffenen Ziel an
+ *
+ * @param {SalsaThrow} salsa
+ * @param {number} index
+ * @param {*} enemy
+ * @returns {void}
+ */
+function trySalsaHit(salsa, index, enemy) {
+  if (enemy.isDead || salsa.hasHit) return;
+  if (!salsa.isColliding(enemy)) return;
+
+  this.markSalsaHit(salsa);
+  this.playHitSound();
+  this.removeSalsaAfterSplash(salsa, index);
+  this.applySalsaDamage(enemy);
+}
+
+/**
+ * Markiert Salsa als getroffen und stoppt Rotationssound.
+ *
+ * @param {SalsaThrow} salsa
+ * @returns {void}
+ */
+function markSalsaHit(salsa) {
+  salsa.hasHit = true;
+  salsa.stopSound();
+}
+
+/**
+ * Spielt den Treffer-Sound ab.
+ *
+ * @returns {void}
+ */
+function playHitSound() {
+  const hitSound = new Audio('audio/hit-sound.mp3');
+  hitSound.volume = 0.5;
+  hitSound.play().catch((e) => console.warn('Hit sound error:', e));
+}
+
+/**
+ * Entfernt Salsa erst nach Splash-Animation aus throwableObjects.
+ *
+ * @param {SalsaThrow} salsa
+ * @param {number} index
+ * @returns {void}
+ */
+function removeSalsaAfterSplash(salsa, index) {
+  salsa.splashAnimation(() => this.throwableObjects.splice(index, 1));
+}
+
+/**
+ * Wendet Salsa-Schaden abhängig vom Gegner-Typ an.
+ *
+ * @param {*} enemy
+ * @returns {void}
+ */
+function applySalsaDamage(enemy) {
+  if (enemy instanceof Bodyguard) return enemy.hit();
+  if (enemy instanceof Endboss) return this.damageEndbossBySalsa(enemy);
+  if (enemy instanceof Chicken || enemy instanceof ChickenSmall) this.killChickenBySalsa(enemy);
+}
+
+/**
+ * Salsa-Schaden am Endboss (20 dmg), Statusbar update, Todescheck.
+ *
+ * @param {Endboss} enemy
+ * @returns {void}
+ */
+function damageEndbossBySalsa(enemy) {
+  enemy.activate();
+  enemy.energy = (enemy.energy || 100) - 20;
+
+  this.endbossBar?.setPercentage(enemy.energy);
+
+  if (enemy.energy > 0 || enemy.isDead) return;
+
+  enemy.isDead = true;
+  enemy.onDeath?.();
+  enemy.startFallingWhenDead();
+}
+
+/**
+ * Tötet ein Chicken durch Salsa (Spezial-Death-Bild + Soft-Blink + später entfernen).
+ *
+ * @param {Chicken|ChickenSmall} enemy
+ * @returns {void}
+ */
+function killChickenBySalsa(enemy) {
+  if (!enemy || enemy.isDead) return;
+
+  this.markEnemyDead(enemy);
+  this.setSalsaDeathImage(enemy);
+
+  this.setAlpha(enemy, 1);
+  this.blinkEnemySoft(enemy, 1000);
+  this.removeEnemySoon(enemy, 1000);
+}
+
+/**
+ * Setzt das passende Salsa-Death-Bild (normal vs small chicken).
+ *
+ * @param {Chicken|ChickenSmall} enemy
+ * @returns {void}
+ */
+function setSalsaDeathImage(enemy) {
+  const path =
+    enemy instanceof Chicken
+      ? 'img/3_enemies_chicken/chicken_normal/2_dead/salsa-dead/dead-1.png'
+      : 'img/3_enemies_chicken/chicken_small/salsa-dead/dead.png';
+
+  enemy.loadImage(path);
+}
+
+/**
+ * Setzt Transparenz (Alpha) eines Objekts.
+ *
+ * @param {*} enemy
+ * @param {number} value - 0.0 (transparent) bis 1.0 (sichtbar)
+ * @returns {void}
+ */
+function setAlpha(enemy, value) {
+  enemy.alpha = value;
+}
+
+/**
+ * Lässt ein Objekt weich blinken (Alpha-Puls) für eine bestimmte Dauer.
+ *
+ * @param {*} enemy
+ * @param {number} ms - Gesamtdauer in Millisekunden
+ * @returns {void}
+ */
+function blinkEnemySoft(enemy, ms) {
+  const steps = 20;
+  const ticks = Math.max(1, Math.floor(ms / 50));
+  let phase = 0;
+
+  const id = setInterval(() => {
+    this.applySoftBlink(enemy, phase, steps);
+    if (++phase >= ticks) clearInterval(id);
+  }, 50);
+}
+
+/**
+ * Berechnet den Alpha-Wert eines weichen Blink-Effekts und setzt ihn.
+ *
+ * @param {*} enemy
+ * @param {number} phase
+ * @param {number} steps
+ * @returns {void}
+ */
+function applySoftBlink(enemy, phase, steps) {
+  const t = (phase % steps) / steps;
+  this.setAlpha(enemy, 0.3 + Math.abs(Math.sin(t * Math.PI)) * 0.7);
+}
+
+/**
+ * Pickup: Maiskolben.
+ * Setzt Energie auf 100, updated Statusbar und triggert Heal-Blink.
+ *
+ * @returns {void}
+ */
+function handleCorncobPickup() {
+  if (!this.corncob) return;
+  if (!this.character.isColliding(this.corncob)) return;
+
+  this.corncob = null;
+  this.playHealPickupSound();
+
+  this.character.energy = 100;
+  this.statusBar.setPercentage(this.character.energy);
+  this.statusBar.blinkFullHealth();
+}
+
+/**
+ * Spielt den Heal-Pickup Sound ab (wiederverwendetes Audio in World).
+ *
+ * @returns {void}
+ */
+function playHealPickupSound() {
+  this.healSound.currentTime = 0;
+  this.healSound.playbackRate = 1;
+  this.healSound.volume = 0.6;
+  this.healSound.play().catch((e) => console.warn(e));
+}
+
+/**
+ * Pickup: Coins.
+ * Entfernt Coin aus Liste, erhöht Counter, spielt Sound.
+ *
+ * @returns {void}
+ */
+function handleCoinPickups() {
+  this.coins.forEach((coin, index) => {
+    if (!this.character.isColliding(coin)) return;
+
+    this.coins.splice(index, 1);
+    this.statusBarCoin.addCoin();
+    this.playCoinSound();
+  });
+}
+
+/**
+ * Spielt Coin-Sound ab.
+ *
+ * @returns {void}
+ */
+function playCoinSound() {
+  const s = new Audio('audio/coin.mp3');
+  s.volume = 0.3;
+  s.playbackRate = 1.2;
+  s.play().catch((e) => console.warn(e));
+}
+
+/**
+ * Pickup: Salsa-Flaschen.
+ * Entfernt Salsa aus Liste, erhöht Counter, spielt Sound.
+ *
+ * @returns {void}
+ */
+function handleSalsaPickups() {
+  this.salsas.forEach((salsa, index) => {
+    if (!this.character.isColliding(salsa)) return;
+
+    this.salsas.splice(index, 1);
+    this.statusBarSalsa.addSalsa();
+    this.playSalsaPickupSound();
+  });
+}
+
+/**
+ * Spielt Salsa-Pickup Sound ab.
+ *
+ * @returns {void}
+ */
+function playSalsaPickupSound() {
+  const s = new Audio('audio/salsa.mp3');
+  s.volume = 0.4;
+  s.playbackRate = 2.0;
+  s.play().catch((e) => console.warn(e));
+}
+
+/**
+ * Pickup: Maracas.
+ * Triggert die Endsequenz, wenn Pepe kollidiert.
+ *
+ * @returns {void}
+ */
+function handleMaracasPickup() {
+  if (!this.maracas) return;
+  if (!this.character.isColliding(this.maracas)) return;
+  this.startMaracasSequence();
+}
+
+/**
+ * Startet die Maracas-Endsequenz:
+ * - blockiert Inputs/Pause
+ * - stoppt Countdown
+ * - friert Welt-Intervalle ein
+ * - startet Choreo
+ *
+ * @returns {void}
+ */
+function startMaracasSequence() {
+  this.isMaracasSequence = true;
+  this.maracas = null;
+
+  this.countdown?.stopCountdown?.();
+  this.playMaracasSound();
+
+  this.freezeWorldForMaracas();
+  this.resetKeyboardInputs();
+
+  this.runMaracasChoreo();
+}
+
+/**
+ * Spielt Maracas-Sound ab.
+ *
+ * @returns {void}
+ */
+function playMaracasSound() {
+  const s = new Audio('audio/maracas.mp3');
+  s.volume = 0.6;
+  s.play().catch((e) => console.warn('Maracas sound error:', e));
+}
+
+/**
+ * Stoppt alle Bewegungs-/Animations-Intervalle von Enemies und Clouds,
+ * damit während der Sequenz nichts weiterläuft.
+ *
+ * @returns {void}
+ */
+function freezeWorldForMaracas() {
+  this.level.enemies.forEach((e) => this.clearEnemyIntervals(e));
+  this.level.clouds.forEach((c) => clearInterval(c.moveInterval));
+}
+
+/**
+ * Stoppt die typischen Intervalle eines Gegners (move + animation).
+ *
+ * @param {*} e
+ * @returns {void}
+ */
+function clearEnemyIntervals(e) {
+  clearInterval(e.moveInterval);
+  clearInterval(e.animationInterval);
+}
+
+/**
+ * Setzt relevante Keyboard-Flags zurück.
+ *
+ * @returns {void}
+ */
+function resetKeyboardInputs() {
+  this.keyboard.RIGHT = false;
+  this.keyboard.LEFT = false;
+  this.keyboard.SPACE = false;
+  this.keyboard.D = false;
+}
+
+/**
+ * Führt eine kurze Choreo aus:
+ * - 3 Sprünge (rechts/links/rechts)
+ * - anschließend "walk off" und Ende (win)
+ *
+ * @returns {void}
+ */
+function runMaracasChoreo() {
+  const pepe = this.character;
+
+  this.maracasJump(pepe, 'right');
+  setTimeout(() => this.maracasJump(pepe, 'left'), 600);
+  setTimeout(() => this.maracasJump(pepe, 'right'), 1200);
+  setTimeout(() => this.startMaracasWalkOff(pepe), 1800);
+}
+
+/**
+ * Lässt Pepe für die Choreo springen und spielt Sprungsound.
+ *
+ * @param {Character} pepe
+ * @param {'left'|'right'} dir
+ * @returns {void}
+ */
+function maracasJump(pepe, dir) {
+  pepe.otherDirection = dir === 'left';
+  pepe.speedY = 25;
+  pepe.applyGravity();
+  this.playJumpSound();
+}
+
+/**
+ * Spielt den Sprungsound ab (kurzer SFX).
+ *
+ * @returns {void}
+ */
+function playJumpSound() {
+  const s = new Audio('audio/jump.mp3');
+  s.volume = 0.5;
+  s.play().catch(() => { });
+}
+
+/**
+ * Lässt Pepe kurz nach rechts aus dem Bild laufen.
+ *
+ * @param {Character} pepe
+ * @returns {void}
+ */
+function startMaracasWalkOff(pepe) {
+  pepe.otherDirection = false;
+
+  const walkInterval = setInterval(() => {
+    pepe.moveRight();
+    pepe.playAnimation(pepe.IMAGES_WALKING);
+  }, 1000 / 60);
+
+  setTimeout(() => this.finishMaracasEnding(walkInterval), 500);
+}
+
+/**
+ * Beendet die Choreo und beendet das Spiel als Sieg.
+ *
+ * @param {number} walkInterval - Interval-ID von setInterval
+ * @returns {void}
+ */
+function finishMaracasEnding(walkInterval) {
+  clearInterval(walkInterval);
+  this.endGame(true);
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="WorldCameraMixin.html">WorldCameraMixin</a></li></ul><h3>Classes</h3><ul><li><a href="BackgroundObject.html">BackgroundObject</a></li><li><a href="Bodyguard.html">Bodyguard</a></li><li><a href="BodyguardStatusBar.html">BodyguardStatusBar</a></li><li><a href="Character.html">Character</a></li><li><a href="Chicken.html">Chicken</a></li><li><a href="ChickenNest.html">ChickenNest</a></li><li><a href="ChickenSmall.html">ChickenSmall</a></li><li><a href="Cloud.html">Cloud</a></li><li><a href="Coin.html">Coin</a></li><li><a href="Corncob.html">Corncob</a></li><li><a href="Countdown.html">Countdown</a></li><li><a href="DrawableObject.html">DrawableObject</a></li><li><a href="EndBossStatusBar.html">EndBossStatusBar</a></li><li><a href="Endboss.html">Endboss</a></li><li><a href="Keyboard.html">Keyboard</a></li><li><a href="Level.html">Level</a></li><li><a href="Maracas.html">Maracas</a></li><li><a href="MovableObject.html">MovableObject</a></li><li><a href="Salsa.html">Salsa</a></li><li><a href="SalsaThrow.html">SalsaThrow</a></li><li><a href="StatusBar.html">StatusBar</a></li><li><a href="StatusBarCoin.html">StatusBarCoin</a></li><li><a href="StatusBarSalsa.html">StatusBarSalsa</a></li><li><a href="World.html">World</a></li><li><a href="window.Audio.html">Audio</a></li></ul><h3>Global</h3><ul><li><a href="global.html#KEY_MAP">KEY_MAP</a></li><li><a href="global.html#activateEndbossArea">activateEndbossArea</a></li><li><a href="global.html#addCoinGroup">addCoinGroup</a></li><li><a href="global.html#addObjectsToMap">addObjectsToMap</a></li><li><a href="global.html#addToMap">addToMap</a></li><li><a href="global.html#applyAlpha">applyAlpha</a></li><li><a href="global.html#applyBodyguardBounce">applyBodyguardBounce</a></li><li><a href="global.html#applyBodyguardSideHit">applyBodyguardSideHit</a></li><li><a href="global.html#applyBodyguardStomp">applyBodyguardStomp</a></li><li><a href="global.html#applyEndbossStomp">applyEndbossStomp</a></li><li><a href="global.html#applyGlobalMute">applyGlobalMute</a></li><li><a href="global.html#applyGravity">applyGravity</a></li><li><a href="global.html#applyGravityStep">applyGravityStep</a></li><li><a href="global.html#applyKeyFlag">applyKeyFlag</a></li><li><a href="global.html#applyKnockback">applyKnockback</a></li><li><a href="global.html#applyMuteState">applyMuteState</a></li><li><a href="global.html#applyObjectTransform">applyObjectTransform</a></li><li><a href="global.html#applyOverlayStyle">applyOverlayStyle</a></li><li><a href="global.html#applySalsaDamage">applySalsaDamage</a></li><li><a href="global.html#applySoftBlink">applySoftBlink</a></li><li><a href="global.html#assetsReadyNow">assetsReadyNow</a></li><li><a href="global.html#beginThrow">beginThrow</a></li><li><a href="global.html#bindButtonToKey">bindButtonToKey</a></li><li><a href="global.html#bindCanvasClick">bindCanvasClick</a></li><li><a href="global.html#blinkEnemySoft">blinkEnemySoft</a></li><li><a href="global.html#bounceCharacter">bounceCharacter</a></li><li><a href="global.html#bounceChickenNest">bounceChickenNest</a></li><li><a href="global.html#bounceCorncob">bounceCorncob</a></li><li><a href="global.html#bounceEndboss">bounceEndboss</a></li><li><a href="global.html#bounceEnemyToOriginalY">bounceEnemyToOriginalY</a></li><li><a href="global.html#bounceY">bounceY</a></li><li><a href="global.html#canStartThrow">canStartThrow</a></li><li><a href="global.html#cancelHealing">cancelHealing</a></li><li><a href="global.html#checkCollisions">checkCollisions</a></li><li><a href="global.html#checkEndbossDeath">checkEndbossDeath</a></li><li><a href="global.html#checkEndbossTrigger">checkEndbossTrigger</a></li><li><a href="global.html#clampCharacterToViewport">clampCharacterToViewport</a></li><li><a href="global.html#classesReady">classesReady</a></li><li><a href="global.html#clearCanvas">clearCanvas</a></li><li><a href="global.html#clearEnemyIntervals">clearEnemyIntervals</a></li><li><a href="global.html#closeInstructions">closeInstructions</a></li><li><a href="global.html#collectNormalEnemy">collectNormalEnemy</a></li><li><a href="global.html#createCoin">createCoin</a></li><li><a href="global.html#createCollisionState">createCollisionState</a></li><li><a href="global.html#createEnemies">createEnemies</a></li><li><a href="global.html#createGameWorld">createGameWorld</a></li><li><a href="global.html#createOverlay">createOverlay</a></li><li><a href="global.html#damageCharacterOrDie">damageCharacterOrDie</a></li><li><a href="global.html#damageEndbossBySalsa">damageEndbossBySalsa</a></li><li><a href="global.html#disableButtonContextAndSelection">disableButtonContextAndSelection</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawActorsAndEnemies">drawActorsAndEnemies</a></li><li><a href="global.html#drawBackgroundAndClouds">drawBackgroundAndClouds</a></li><li><a href="global.html#drawCameraLayer">drawCameraLayer</a></li><li><a href="global.html#drawCollectibles">drawCollectibles</a></li><li><a href="global.html#drawCountdown">drawCountdown</a></li><li><a href="global.html#drawOptionalWorldObjects">drawOptionalWorldObjects</a></li><li><a href="global.html#drawOverlayUI">drawOverlayUI</a></li><li><a href="global.html#drawThrowableObjects">drawThrowableObjects</a></li><li><a href="global.html#drawWorldObjects">drawWorldObjects</a></li><li><a href="global.html#drawableReady">drawableReady</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#endGame">endGame</a></li><li><a href="global.html#ensureStatsBox">ensureStatsBox</a></li><li><a href="global.html#exposeHtmlGlobals">exposeHtmlGlobals</a></li><li><a href="global.html#fadeOutThenRemove">fadeOutThenRemove</a></li><li><a href="global.html#finishDeathAnim">finishDeathAnim</a></li><li><a href="global.html#finishMaracasEnding">finishMaracasEnding</a></li><li><a href="global.html#finishSoftPanning">finishSoftPanning</a></li><li><a href="global.html#finishThrow">finishThrow</a></li><li><a href="global.html#finishThrowFrames">finishThrowFrames</a></li><li><a href="global.html#flipX">flipX</a></li><li><a href="global.html#followCharacterCamera">followCharacterCamera</a></li><li><a href="global.html#freezeWorldForMaracas">freezeWorldForMaracas</a></li><li><a href="global.html#generateChickens">generateChickens</a></li><li><a href="global.html#generateClouds">generateClouds</a></li><li><a href="global.html#generateCoins">generateCoins</a></li><li><a href="global.html#generateSalsas">generateSalsas</a></li><li><a href="global.html#getAllButtons">getAllButtons</a></li><li><a href="global.html#getBox">getBox</a></li><li><a href="global.html#getEndScreenRefs">getEndScreenRefs</a></li><li><a href="global.html#getEndStats">getEndStats</a></li><li><a href="global.html#getMobileButtons">getMobileButtons</a></li><li><a href="global.html#getRotationRadians">getRotationRadians</a></li><li><a href="global.html#getRunBounds">getRunBounds</a></li><li><a href="global.html#handleCanvasClick">handleCanvasClick</a></li><li><a href="global.html#handleCoinPickups">handleCoinPickups</a></li><li><a href="global.html#handleCollisionTick">handleCollisionTick</a></li><li><a href="global.html#handleCorncobPickup">handleCorncobPickup</a></li><li><a href="global.html#handleDeathAnim">handleDeathAnim</a></li><li><a href="global.html#handleEndbossContactDamage">handleEndbossContactDamage</a></li><li><a href="global.html#handleJumpAnimation">handleJumpAnimation</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleKeyUp">handleKeyUp</a></li><li><a href="global.html#handleMaracasPickup">handleMaracasPickup</a></li><li><a href="global.html#handleMovement">handleMovement</a></li><li><a href="global.html#handleNoSalsa">handleNoSalsa</a></li><li><a href="global.html#handleNormalEnemyContactDamage">handleNormalEnemyContactDamage</a></li><li><a href="global.html#handleNormalEnemyStomps">handleNormalEnemyStomps</a></li><li><a href="global.html#handleSalsaPickups">handleSalsaPickups</a></li><li><a href="global.html#handleSoftPanning">handleSoftPanning</a></li><li><a href="global.html#handleThrowableHits">handleThrowableHits</a></li><li><a href="global.html#hasAllMobileButtons">hasAllMobileButtons</a></li><li><a href="global.html#hasSalsa">hasSalsa</a></li><li><a href="global.html#hide">hide</a></li><li><a href="global.html#hideGameCanvasAndTitle">hideGameCanvasAndTitle</a></li><li><a href="global.html#hidePlaySymbol">hidePlaySymbol</a></li><li><a href="global.html#imagesLoaded">imagesLoaded</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#initGameCanvas">initGameCanvas</a></li><li><a href="global.html#isActualEnemy">isActualEnemy</a></li><li><a href="global.html#isGloballyImmune">isGloballyImmune</a></li><li><a href="global.html#isInIdleWindow">isInIdleWindow</a></li><li><a href="global.html#isJumpedOnEnemy">isJumpedOnEnemy</a></li><li><a href="global.html#isMuteKey">isMuteKey</a></li><li><a href="global.html#isOverlayPresent">isOverlayPresent</a></li><li><a href="global.html#isPauseKey">isPauseKey</a></li><li><a href="global.html#isStartScreenVisible">isStartScreenVisible</a></li><li><a href="global.html#isStompFromAbove">isStompFromAbove</a></li><li><a href="global.html#isWalking">isWalking</a></li><li><a href="global.html#jumpFromShock">jumpFromShock</a></li><li><a href="global.html#jumpIfNeeded">jumpIfNeeded</a></li><li><a href="global.html#killChickenBySalsa">killChickenBySalsa</a></li><li><a href="global.html#killEnemy">killEnemy</a></li><li><a href="global.html#knockbackAfterEndbossStomp">knockbackAfterEndbossStomp</a></li><li><a href="global.html#level1">level1</a></li><li><a href="global.html#lockEndbossCamera">lockEndbossCamera</a></li><li><a href="global.html#loseHtml">loseHtml</a></li><li><a href="global.html#maracasJump">maracasJump</a></li><li><a href="global.html#markEnemyDead">markEnemyDead</a></li><li><a href="global.html#markSalsaHit">markSalsaHit</a></li><li><a href="global.html#moveLeftIfNeeded">moveLeftIfNeeded</a></li><li><a href="global.html#moveRightIfNeeded">moveRightIfNeeded</a></li><li><a href="global.html#nextLevel">nextLevel</a></li><li><a href="global.html#onBodyguardDeath">onBodyguardDeath</a></li><li><a href="global.html#onWindowLoad">onWindowLoad</a></li><li><a href="global.html#openInstructions">openInstructions</a></li><li><a href="global.html#pauseActors">pauseActors</a></li><li><a href="global.html#pauseAllMovements">pauseAllMovements</a></li><li><a href="global.html#pauseBodyguard">pauseBodyguard</a></li><li><a href="global.html#pauseGame">pauseGame</a></li><li><a href="global.html#pauseWorldSilently">pauseWorldSilently</a></li><li><a href="global.html#playAirAnim">playAirAnim</a></li><li><a href="global.html#playCameraMoveSound">playCameraMoveSound</a></li><li><a href="global.html#playCoinSound">playCoinSound</a></li><li><a href="global.html#playDeathAnimation">playDeathAnimation</a></li><li><a href="global.html#playDeathSounds">playDeathSounds</a></li><li><a href="global.html#playHealPickupSound">playHealPickupSound</a></li><li><a href="global.html#playHitSound">playHitSound</a></li><li><a href="global.html#playHurtAnim">playHurtAnim</a></li><li><a href="global.html#playIdleAnimation">playIdleAnimation</a></li><li><a href="global.html#playIdleOrLongIdle">playIdleOrLongIdle</a></li><li><a href="global.html#playJumpSound">playJumpSound</a></li><li><a href="global.html#playLandingThenIdle">playLandingThenIdle</a></li><li><a href="global.html#playMaracasSound">playMaracasSound</a></li><li><a href="global.html#playSalsaPickupSound">playSalsaPickupSound</a></li><li><a href="global.html#playThrowFrames">playThrowFrames</a></li><li><a href="global.html#playWalkAnim">playWalkAnim</a></li><li><a href="global.html#pollAssets">pollAssets</a></li><li><a href="global.html#preloadWorld">preloadWorld</a></li><li><a href="global.html#processMovementInputs">processMovementInputs</a></li><li><a href="global.html#randomCoinBaseX">randomCoinBaseX</a></li><li><a href="global.html#randomCoinGroupSize">randomCoinGroupSize</a></li><li><a href="global.html#randomCoinY">randomCoinY</a></li><li><a href="global.html#removeEnemy">removeEnemy</a></li><li><a href="global.html#removeEnemySoon">removeEnemySoon</a></li><li><a href="global.html#removeFromWorld">removeFromWorld</a></li><li><a href="global.html#removeOverlay">removeOverlay</a></li><li><a href="global.html#removeSalsaAfterSplash">removeSalsaAfterSplash</a></li><li><a href="global.html#renderEndScreen">renderEndScreen</a></li><li><a href="global.html#renderObject">renderObject</a></li><li><a href="global.html#resetKeyboardInputs">resetKeyboardInputs</a></li><li><a href="global.html#resetKeyboardInputsAll">resetKeyboardInputsAll</a></li><li><a href="global.html#resetStatsBox">resetStatsBox</a></li><li><a href="global.html#resetWorldForRestart">resetWorldForRestart</a></li><li><a href="global.html#restartCollisionChecks">restartCollisionChecks</a></li><li><a href="global.html#restartGame">restartGame</a></li><li><a href="global.html#restoreMuteFromStorage">restoreMuteFromStorage</a></li><li><a href="global.html#resumeActors">resumeActors</a></li><li><a href="global.html#resumeAllMovements">resumeAllMovements</a></li><li><a href="global.html#resumeBodyguard">resumeBodyguard</a></li><li><a href="global.html#resumeCountdownSystem">resumeCountdownSystem</a></li><li><a href="global.html#resumeGame">resumeGame</a></li><li><a href="global.html#resumeWorld">resumeWorld</a></li><li><a href="global.html#resumeWorldAfterDelay">resumeWorldAfterDelay</a></li><li><a href="global.html#returnToHome">returnToHome</a></li><li><a href="global.html#runFirstStartLandingAnimation">runFirstStartLandingAnimation</a></li><li><a href="global.html#runMaracasChoreo">runMaracasChoreo</a></li><li><a href="global.html#saveMuteToStorage">saveMuteToStorage</a></li><li><a href="global.html#scanBodyguard">scanBodyguard</a></li><li><a href="global.html#scanEndboss">scanEndboss</a></li><li><a href="global.html#scanEnemyCollisions">scanEnemyCollisions</a></li><li><a href="global.html#scheduleDeathSounds">scheduleDeathSounds</a></li><li><a href="global.html#scheduleNextFrame">scheduleNextFrame</a></li><li><a href="global.html#setAlpha">setAlpha</a></li><li><a href="global.html#setDefaultDeathImage">setDefaultDeathImage</a></li><li><a href="global.html#setKeyFlag">setKeyFlag</a></li><li><a href="global.html#setPaused">setPaused</a></li><li><a href="global.html#setSalsaDeathImage">setSalsaDeathImage</a></li><li><a href="global.html#setStartFallFrame">setStartFallFrame</a></li><li><a href="global.html#setupMobileControls">setupMobileControls</a></li><li><a href="global.html#setupStartButton">setupStartButton</a></li><li><a href="global.html#shouldBlockPause">shouldBlockPause</a></li><li><a href="global.html#shouldFinishDeathAnim">shouldFinishDeathAnim</a></li><li><a href="global.html#shouldIgnoreCanvasClick">shouldIgnoreCanvasClick</a></li><li><a href="global.html#shouldRender">shouldRender</a></li><li><a href="global.html#shouldShowPauseOverlay">shouldShowPauseOverlay</a></li><li><a href="global.html#shouldSkipGravity">shouldSkipGravity</a></li><li><a href="global.html#shouldSkipMovementTick">shouldSkipMovementTick</a></li><li><a href="global.html#shouldStartPanBackNow">shouldStartPanBackNow</a></li><li><a href="global.html#show">show</a></li><li><a href="global.html#showEndScreen">showEndScreen</a></li><li><a href="global.html#showFallFrame">showFallFrame</a></li><li><a href="global.html#showFreezeFrame">showFreezeFrame</a></li><li><a href="global.html#showGameUIForRestart">showGameUIForRestart</a></li><li><a href="global.html#showJumpFrame">showJumpFrame</a></li><li><a href="global.html#showNextIdleFrame">showNextIdleFrame</a></li><li><a href="global.html#showPauseThenPlaySymbol">showPauseThenPlaySymbol</a></li><li><a href="global.html#showPlaySymbol">showPlaySymbol</a></li><li><a href="global.html#snapToGroundIfNeeded">snapToGroundIfNeeded</a></li><li><a href="global.html#spawnSalsaAndFinish">spawnSalsaAndFinish</a></li><li><a href="global.html#spawnSalsaThrow">spawnSalsaThrow</a></li><li><a href="global.html#startAnimationLoop">startAnimationLoop</a></li><li><a href="global.html#startCloudAnimations">startCloudAnimations</a></li><li><a href="global.html#startDeathFallAnim">startDeathFallAnim</a></li><li><a href="global.html#startDeathState">startDeathState</a></li><li><a href="global.html#startEndbossCameraPan">startEndbossCameraPan</a></li><li><a href="global.html#startEndbossCameraPanBack">startEndbossCameraPanBack</a></li><li><a href="global.html#startEnemyAnimations">startEnemyAnimations</a></li><li><a href="global.html#startFallingWhenDead">startFallingWhenDead</a></li><li><a href="global.html#startGame">startGame</a></li><li><a href="global.html#startGameLogic">startGameLogic</a></li><li><a href="global.html#startIdleAfterLanding">startIdleAfterLanding</a></li><li><a href="global.html#startIdleIfNeeded">startIdleIfNeeded</a></li><li><a href="global.html#startLongIdleAnimation">startLongIdleAnimation</a></li><li><a href="global.html#startLongIdleIfNeeded">startLongIdleIfNeeded</a></li><li><a href="global.html#startMaracasSequence">startMaracasSequence</a></li><li><a href="global.html#startMaracasWalkOff">startMaracasWalkOff</a></li><li><a href="global.html#startMovementLoop">startMovementLoop</a></li><li><a href="global.html#startPanBackOnce">startPanBackOnce</a></li><li><a href="global.html#statsHtml">statsHtml</a></li><li><a href="global.html#stepDeathFallAnim">stepDeathFallAnim</a></li><li><a href="global.html#stepDeathFallPhysics">stepDeathFallPhysics</a></li><li><a href="global.html#stepDeathFrames">stepDeathFrames</a></li><li><a href="global.html#stop">stop</a></li><li><a href="global.html#stopAllEnemyIntervals">stopAllEnemyIntervals</a></li><li><a href="global.html#stopCameraMoveSound">stopCameraMoveSound</a></li><li><a href="global.html#stopCloudIntervals">stopCloudIntervals</a></li><li><a href="global.html#stopCollisionChecks">stopCollisionChecks</a></li><li><a href="global.html#stopEnemyIntervals">stopEnemyIntervals</a></li><li><a href="global.html#stopGame">stopGame</a></li><li><a href="global.html#stopGameIfAvailable">stopGameIfAvailable</a></li><li><a href="global.html#stopIdleInterval">stopIdleInterval</a></li><li><a href="global.html#stopLongIdleAnimation">stopLongIdleAnimation</a></li><li><a href="global.html#switchToIdleIfNeeded">switchToIdleIfNeeded</a></li><li><a href="global.html#syncWorldMute">syncWorldMute</a></li><li><a href="global.html#throwAnimation">throwAnimation</a></li><li><a href="global.html#throwIfNeeded">throwIfNeeded</a></li><li><a href="global.html#tickAnimation">tickAnimation</a></li><li><a href="global.html#tickMovement">tickMovement</a></li><li><a href="global.html#toggleMobileControlsForStart">toggleMobileControlsForStart</a></li><li><a href="global.html#toggleMute">toggleMute</a></li><li><a href="global.html#togglePause">togglePause</a></li><li><a href="global.html#translateBack">translateBack</a></li><li><a href="global.html#translateToCenter">translateToCenter</a></li><li><a href="global.html#triggerBodyguardJump">triggerBodyguardJump</a></li><li><a href="global.html#tryEndbossContactHit">tryEndbossContactHit</a></li><li><a href="global.html#tryNormalEnemyContactHit">tryNormalEnemyContactHit</a></li><li><a href="global.html#trySalsaHit">trySalsaHit</a></li><li><a href="global.html#updateCamera">updateCamera</a></li><li><a href="global.html#updateMuteButtonText">updateMuteButtonText</a></li><li><a href="global.html#updateScreenForGameStart">updateScreenForGameStart</a></li><li><a href="global.html#updateStandingAnimation">updateStandingAnimation</a></li><li><a href="global.html#waitForGameAssets">waitForGameAssets</a></li><li><a href="global.html#waitForLandingThenIdle">waitForLandingThenIdle</a></li><li><a href="global.html#winHtml">winHtml</a></li><li><a href="global.html#withCamera">withCamera</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 09 2026 10:39:41 GMT+0100 (Mitteleuropäische Normalzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

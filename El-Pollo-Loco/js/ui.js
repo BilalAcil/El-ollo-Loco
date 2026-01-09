@@ -270,7 +270,7 @@ function setupMobileControls() {
 
 /**
  * Holt Referenzen auf alle Mobile-Buttons.
- * @returns {{left:HTMLElement|null,right:HTMLElement|null,jump:HTMLElement|null,throw:HTMLElement|null}}
+ * @returns {{left:(HTMLElement|null), right:(HTMLElement|null), jump:(HTMLElement|null), throw:(HTMLElement|null)}}
  */
 function getMobileButtons() {
   return {
@@ -283,14 +283,14 @@ function getMobileButtons() {
 
 /**
  * Prüft, ob alle Buttons vorhanden sind.
- * @param {{left:HTMLElement|null,right:HTMLElement|null,jump:HTMLElement|null,throw:HTMLElement|null}} b - Button-Refs.
+ * @param {{left:HTMLElement=, right:HTMLElement=, jump:HTMLElement=, throw:HTMLElement=}} b - Button-Refs.
  * @returns {boolean} True, wenn alle existieren.
  */
 function hasAllMobileButtons(b) { return b.left && b.right && b.jump && b.throw; }
 
 /**
  * Gibt alle Buttons als Array zurück.
- * @param {{left:HTMLElement,right:HTMLElement,jump:HTMLElement,throw:HTMLElement}} b - Button-Refs.
+ * @param {{left:HTMLElement=, right:HTMLElement=, jump:HTMLElement=, throw:HTMLElement=}} b - Button-Refs.
  * @returns {HTMLElement[]} Array aller Buttons.
  */
 function getAllButtons(b) { return [b.left, b.right, b.jump, b.throw]; }
@@ -344,7 +344,7 @@ function waitForGameAssets() {
 
 /**
  * Pollt in Intervallen, ob Assets bereit sind.
- * @param {() => void} resolve - Promise-Resolve.
+ * @param {function(): void} resolve - Promise-Resolve.
  * @param {number} start - Startzeit (ms).
  * @param {number} timeout - Timeout (ms).
  * @returns {void}

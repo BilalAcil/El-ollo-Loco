@@ -64,7 +64,7 @@ function generateChickens() {
  * Erstellt eine definierte Anzahl von Enemies per Konstruktor.
  * @template T
  * @param {number} count - Anzahl der zu erzeugenden Instanzen.
- * @param {new (...args:any[]) => T} Ctor - Klassenkonstruktor (z.B. Chicken).
+ * @param {Function} Ctor - Klassenkonstruktor (z.B. Chicken).
  * @returns {T[]} Array mit Instanzen.
  */
 function createEnemies(count, Ctor) {
