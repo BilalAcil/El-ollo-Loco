@@ -1,4 +1,22 @@
-// ui.js
+/**
+ * @file ui.js
+ * @description
+ * UI- und DOM-Helfer für das Spiel:
+ * - Globaler GameState (Mute, Canvas, World, Keyboard, Init-Flag)
+ * - DOM Utilities (show/hide/display)
+ * - Anleitung (Instructions) öffnen/schließen
+ * - Globales Mute inkl. localStorage Persistenz
+ * - Endscreen Rendering inkl. Stats
+ * - Mobile Controls (Touch-Buttons -> Keyboard Flags)
+ * - Asset-Waiter (wartet bis Klassen/Images/DrawableObject bereit sind)
+ *
+ * Exporte nach window:
+ * - show/hide/display
+ * - toggleMute/restoreMuteFromStorage
+ * - openInstructions/closeInstructions
+ * - showEndScreen/setupMobileControls/waitForGameAssets
+ */
+
 window.GameState = window.GameState || {
   isMuted: false,
   canvas: null,
@@ -8,27 +26,70 @@ window.GameState = window.GameState || {
 };
 
 // ---------- DOM ----------
+/**
+ * Shortcut: findet ein Element per ID.
+ * @param {string} id - Element-ID.
+ * @returns {HTMLElement|null} Das Element oder null.
+ */
 function el(id) { return document.getElementById(id); }
 
+/**
+ * Zeigt ein Element, indem die CSS-Klasse "hidden" entfernt wird.
+ * @param {string} id - Element-ID.
+ * @returns {void}
+ */
 function show(id) { const n = el(id); if (n) n.classList.remove('hidden'); }
 
+/**
+ * Versteckt ein Element, indem die CSS-Klasse "hidden" hinzugefügt wird.
+ * @param {string} id - Element-ID.
+ * @returns {void}
+ */
 function hide(id) { const n = el(id); if (n) n.classList.add('hidden'); }
 
+/**
+ * Setzt die CSS-display-Eigenschaft eines Elements.
+ * @param {string} id - Element-ID.
+ * @param {string} value - Display-Wert (z.B. "none", "block").
+ * @returns {void}
+ */
 function display(id, value) { const n = el(id); if (n) n.style.display = value; }
 
 // ---------- Instructions ----------
+/**
+ * Öffnet das Instructions-Overlay.
+ * @returns {void}
+ */
 function openInstructions() { el('instructions')?.classList.remove('hidden'); }
 
+/**
+ * Schließt das Instructions-Overlay.
+ * @returns {void}
+ */
 function closeInstructions() { el('instructions')?.classList.add('hidden'); }
 
 // ---------- Mute ----------
+/**
+ * Toggelt den Mute-Status des Spiels.
+ * @returns {void}
+ */
 function toggleMute() { applyMuteState(!GameState.isMuted); }
 
+/**
+ * Stellt den Mute-Status aus localStorage wieder her.
+ * Fallback: Ton an, wenn Lesen fehlschlägt.
+ * @returns {void}
+ */
 function restoreMuteFromStorage() {
   try { applyMuteState(localStorage.getItem('elPolloMute') === '1'); }
   catch (e) { console.warn('Mute restore failed:', e); applyMuteState(false); }
 }
 
+/**
+ * Wendet den Mute-Status überall an: UI-Button, globales Audio, World-State, Persistenz.
+ * @param {boolean} muted - True = stumm, false = Ton an.
+ * @returns {void}
+ */
 function applyMuteState(muted) {
   GameState.isMuted = muted;
   updateMuteButtonText(muted);
@@ -37,21 +98,46 @@ function applyMuteState(muted) {
   saveMuteToStorage(muted);
 }
 
+/**
+ * Aktualisiert den Text des Mute-Buttons.
+ * @param {boolean} muted - True = stumm, false = Ton an.
+ * @returns {void}
+ */
 function updateMuteButtonText(muted) {
   const btn = el('mute-btn');
   if (btn) btn.textContent = muted ? '🔈 Ton an' : '🔊 Ton aus';
 }
 
+/**
+ * Setzt globalen Mute (falls Audio-Manager vorhanden).
+ * @param {boolean} muted - True = stumm, false = Ton an.
+ * @returns {void}
+ */
 function applyGlobalMute(muted) { if (typeof setGlobalMute === 'function') setGlobalMute(muted); }
 
+/**
+ * Synchronisiert Mute-Status in die World, falls vorhanden.
+ * @param {boolean} muted - True = stumm, false = Ton an.
+ * @returns {void}
+ */
 function syncWorldMute(muted) { if (GameState.world) GameState.world.isMuted = muted; }
 
+/**
+ * Speichert den Mute-Status in localStorage.
+ * @param {boolean} muted - True = stumm, false = Ton an.
+ * @returns {void}
+ */
 function saveMuteToStorage(muted) {
   try { localStorage.setItem('elPolloMute', muted ? '1' : '0'); }
   catch (e) { console.warn('Mute save failed:', e); }
 }
 
 // ---------- Endscreen ----------
+/**
+ * Zeigt den Endscreen an und rendert je nach Ergebnis (win/lose).
+ * @param {boolean} win - True = gewonnen, false = verloren.
+ * @returns {void}
+ */
 function showEndScreen(win) {
   stopGameIfAvailable();
   const refs = getEndScreenRefs();
@@ -65,8 +151,16 @@ function showEndScreen(win) {
   refs.endScreen.classList.remove('hidden');
 }
 
+/**
+ * Stoppt das Spiel, falls stopGame global verfügbar ist.
+ * @returns {void}
+ */
 function stopGameIfAvailable() { if (typeof stopGame === 'function') stopGame(); }
 
+/**
+ * Liest aktuelle End-Statistiken aus der World.
+ * @returns {{coinCount:number, salsaCount:number}} Stats-Objekt.
+ */
 function getEndStats() {
   return {
     coinCount: GameState.world?.statusBarCoin?.coinCount ?? 0,
@@ -74,6 +168,10 @@ function getEndStats() {
   };
 }
 
+/**
+ * Holt Referenzen auf Endscreen und Button-Container.
+ * @returns {{endScreen: HTMLElement, buttonContainer: Element}|undefined} Referenzen oder undefined bei Fehler.
+ */
 function getEndScreenRefs() {
   const endScreen = el('end-screen');
   const buttonContainer = endScreen?.querySelector('.menu-box');
@@ -82,6 +180,11 @@ function getEndScreenRefs() {
   return { endScreen, buttonContainer };
 }
 
+/**
+ * Stellt sicher, dass die Stats-Box existiert (erstellt sie wenn nötig).
+ * @param {Element} buttonContainer - Container im Endscreen.
+ * @returns {HTMLElement} Stats-Box Element.
+ */
 function ensureStatsBox(buttonContainer) {
   let box = el('stats-box');
   if (box) return box;
@@ -93,6 +196,10 @@ function ensureStatsBox(buttonContainer) {
   return box;
 }
 
+/**
+ * Blendet Canvas und Titel aus (wird im Endscreen benötigt).
+ * @returns {void}
+ */
 function hideGameCanvasAndTitle() {
   const c = el('canvas');
   const t = el('game-name');
@@ -100,6 +207,14 @@ function hideGameCanvasAndTitle() {
   if (t) t.style.display = 'none';
 }
 
+/**
+ * Rendert den Endscreen (Buttons + Stats).
+ * @param {Element} container - Button-Container im Endscreen.
+ * @param {HTMLElement} statsBox - Stats-Box Element.
+ * @param {{coinCount:number, salsaCount:number}} stats - Stats.
+ * @param {boolean} win - True = gewonnen.
+ * @returns {void}
+ */
 function renderEndScreen(container, statsBox, stats, win) {
   container.innerHTML = win ? winHtml() : loseHtml();
   statsBox.innerHTML = win ? statsHtml(stats) : '';
@@ -107,24 +222,41 @@ function renderEndScreen(container, statsBox, stats, win) {
   container.appendChild(statsBox);
 }
 
+/**
+ * HTML für Sieg-Endscreen.
+ * @returns {string} HTML-String.
+ */
 function winHtml() {
   return `<h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
   <button onclick="nextLevel()">🎸 Gitarre holen</button>
   <button onclick="returnToHome()">🏠 Zurück zum Start</button>`;
 }
 
+/**
+ * HTML für Niederlage-Endscreen.
+ * @returns {string} HTML-String.
+ */
 function loseHtml() {
   return `<h2 id="end-message">💀 Du hast verloren!</h2>
   <button onclick="restartGame()">🔁 Nochmal spielen</button>
   <button onclick="returnToHome()">🏠 Zurück zum Start</button>`;
 }
 
+/**
+ * HTML für Stats-Box.
+ * @param {{coinCount:number, salsaCount:number}} stats - Stats.
+ * @returns {string} HTML-String.
+ */
 function statsHtml(stats) {
   return `<p><span class="stats-coin">🪙 <b>${stats.coinCount}</b>x</span></p>
   <p><span class="stats-salsa">🌶️ <b>${stats.salsaCount}</b>x</span></p>`;
 }
 
 // ---------- Mobile Controls ----------
+/**
+ * Richtet Mobile Touch Controls ein (Buttons setzen Keyboard-Flags).
+ * @returns {void}
+ */
 function setupMobileControls() {
   const btns = getMobileButtons();
   if (!hasAllMobileButtons(btns)) return;
@@ -136,6 +268,10 @@ function setupMobileControls() {
   bindButtonToKey(btns.throw, 'D');
 }
 
+/**
+ * Holt Referenzen auf alle Mobile-Buttons.
+ * @returns {{left:HTMLElement|null,right:HTMLElement|null,jump:HTMLElement|null,throw:HTMLElement|null}}
+ */
 function getMobileButtons() {
   return {
     left: el('btn-left'),
@@ -145,10 +281,25 @@ function getMobileButtons() {
   };
 }
 
+/**
+ * Prüft, ob alle Buttons vorhanden sind.
+ * @param {{left:HTMLElement|null,right:HTMLElement|null,jump:HTMLElement|null,throw:HTMLElement|null}} b - Button-Refs.
+ * @returns {boolean} True, wenn alle existieren.
+ */
 function hasAllMobileButtons(b) { return b.left && b.right && b.jump && b.throw; }
 
+/**
+ * Gibt alle Buttons als Array zurück.
+ * @param {{left:HTMLElement,right:HTMLElement,jump:HTMLElement,throw:HTMLElement}} b - Button-Refs.
+ * @returns {HTMLElement[]} Array aller Buttons.
+ */
 function getAllButtons(b) { return [b.left, b.right, b.jump, b.throw]; }
 
+/**
+ * Deaktiviert Contextmenu und Text-Selektion auf einem Button.
+ * @param {HTMLElement} button - Button Element.
+ * @returns {void}
+ */
 function disableButtonContextAndSelection(button) {
   button.addEventListener('contextmenu', e => e.preventDefault());
   button.style.userSelect = 'none';
@@ -156,6 +307,12 @@ function disableButtonContextAndSelection(button) {
   button.style.msUserSelect = 'none';
 }
 
+/**
+ * Bindet Pointer-Events eines Buttons an ein Keyboard-Flag.
+ * @param {HTMLElement} button - Button Element.
+ * @param {string} keyName - Keyboard-Flag (z.B. "LEFT", "SPACE").
+ * @returns {void}
+ */
 function bindButtonToKey(button, keyName) {
   button.addEventListener('pointerdown', e => setKeyFlag(e, keyName, true));
   button.addEventListener('pointerup', e => setKeyFlag(e, keyName, false));
@@ -163,27 +320,57 @@ function bindButtonToKey(button, keyName) {
   button.addEventListener('pointercancel', () => (GameState.keyboard[keyName] = false));
 }
 
+/**
+ * Setzt ein Keyboard-Flag im GameState.
+ * @param {PointerEvent} e - Pointer-Event.
+ * @param {string} keyName - Keyboard-Flag.
+ * @param {boolean} isDown - True = gedrückt, false = losgelassen.
+ * @returns {void}
+ */
 function setKeyFlag(e, keyName, isDown) {
   e.preventDefault();
   GameState.keyboard[keyName] = isDown;
 }
 
 // ---------- Assets ----------
+/**
+ * Wartet, bis Spiel-Assets geladen sind (oder Timeout).
+ * @returns {Promise<void>} Promise resolved, wenn bereit oder Timeout erreicht.
+ */
 function waitForGameAssets() {
   const start = Date.now();
   return new Promise(resolve => pollAssets(resolve, start, 20000));
 }
 
+/**
+ * Pollt in Intervallen, ob Assets bereit sind.
+ * @param {() => void} resolve - Promise-Resolve.
+ * @param {number} start - Startzeit (ms).
+ * @param {number} timeout - Timeout (ms).
+ * @returns {void}
+ */
 function pollAssets(resolve, start, timeout) {
   const id = setInterval(() => {
     if (assetsReadyNow() || Date.now() - start > timeout) { clearInterval(id); resolve(); }
   }, 200);
 }
 
+/**
+ * Kombinierte Prüfung, ob Assets bereit sind.
+ * @returns {boolean} True, wenn ready.
+ */
 function assetsReadyNow() { return classesReady() && imagesLoaded() && drawableReady(); }
 
+/**
+ * Prüft, ob alle <img> Tags vollständig geladen sind.
+ * @returns {boolean} True, wenn alle complete sind.
+ */
 function imagesLoaded() { return [...document.querySelectorAll('img')].every(img => img.complete); }
 
+/**
+ * Prüft, ob Kern-Klassen/Globals existieren.
+ * @returns {boolean} True, wenn alles vorhanden ist.
+ */
 function classesReady() {
   return typeof World !== 'undefined' &&
     typeof level1 !== 'undefined' &&
@@ -193,6 +380,10 @@ function classesReady() {
     typeof StatusBarSalsa !== 'undefined';
 }
 
+/**
+ * Prüft, ob DrawableObject-Assets geladen sind (falls Klasse vorhanden).
+ * @returns {boolean} True, wenn bereit.
+ */
 function drawableReady() {
   return typeof DrawableObject === 'undefined' || DrawableObject.areAllAssetsLoaded();
 }

@@ -1,9 +1,24 @@
-// models/character.assets.js
+/**
+ * @file models/character.assets.js
+ * @description
+ * Zentrale Asset-/Konfigurationsdatei für den Character (Pepe).
+ * - Enthält Sprite-Pfade für alle Animationen
+ * - Enthält Basis-Size/Speed-Konfiguration
+ * - Stellt eine Helper-Funktion bereit, um Assets auf eine Character-Instanz anzuwenden
+ *
+ * Exporte nach window:
+ * - window.CHARACTER_ASSETS
+ * - window.applyAssetsToCharacter(character)
+ */
 
 window.CHARACTER_ASSETS = {
+  /**
+   * Basiswerte für Größe, Start-Y und Laufgeschwindigkeit.
+   * @type {{height:number,width:number,y:number,speed:number}}
+   */
   size: { height: 280, width: 120, y: 0, speed: 10 },
 
-  IMAGES_IDLE: [
+  /** @type {string[]} */ IMAGES_IDLE: [
     'img/2_character_pepe/1_idle/idle/I-1.png',
     'img/2_character_pepe/1_idle/idle/I-2.png',
     'img/2_character_pepe/1_idle/idle/I-3.png',
@@ -16,7 +31,7 @@ window.CHARACTER_ASSETS = {
     'img/2_character_pepe/1_idle/idle/I-10.png'
   ],
 
-  IMAGES_LONG_IDLE: [
+  /** @type {string[]} */ IMAGES_LONG_IDLE: [
     'img/2_character_pepe/1_idle/long_idle/I-11.png',
     'img/2_character_pepe/1_idle/long_idle/I-12.png',
     'img/2_character_pepe/1_idle/long_idle/I-13.png',
@@ -29,7 +44,7 @@ window.CHARACTER_ASSETS = {
     'img/2_character_pepe/1_idle/long_idle/I-20.png'
   ],
 
-  IMAGES_WALKING: [
+  /** @type {string[]} */ IMAGES_WALKING: [
     'img/2_character_pepe/2_walk/W-21.png',
     'img/2_character_pepe/2_walk/W-22.png',
     'img/2_character_pepe/2_walk/W-23.png',
@@ -38,7 +53,7 @@ window.CHARACTER_ASSETS = {
     'img/2_character_pepe/2_walk/W-26.png'
   ],
 
-  IMAGES_JUMPING: [
+  /** @type {string[]} */ IMAGES_JUMPING: [
     'img/2_character_pepe/3_jump/J-31.png',
     'img/2_character_pepe/3_jump/J-32.png',
     'img/2_character_pepe/3_jump/J-33.png',
@@ -46,32 +61,37 @@ window.CHARACTER_ASSETS = {
     'img/2_character_pepe/3_jump/J-35.png'
   ],
 
-  IMAGES_FALLING: [
+  /** @type {string[]} */ IMAGES_FALLING: [
     'img/2_character_pepe/3_jump/J-36.png',
     'img/2_character_pepe/3_jump/J-37.png',
     'img/2_character_pepe/3_jump/J-38.png',
     'img/2_character_pepe/3_jump/J-39.png'
   ],
 
-  IMAGES_DEAD: [
+  /** @type {string[]} */ IMAGES_DEAD: [
     'img/2_character_pepe/5_dead/D-51.png',
     'img/2_character_pepe/5_dead/D-53.png',
     'img/2_character_pepe/5_dead/D-54.png'
   ],
 
-  IMAGES_HURT: [
+  /** @type {string[]} */ IMAGES_HURT: [
     'img/2_character_pepe/4_hurt/H-41.png',
     'img/2_character_pepe/4_hurt/H-42.png',
     'img/2_character_pepe/4_hurt/H-43.png'
   ],
 
-  IMAGES_THROW: [
+  /** @type {string[]} */ IMAGES_THROW: [
     'img/2_character_pepe/2_walk/W-21.png',
     'img/2_character_pepe/2_walk/W-22.png',
     'img/2_character_pepe/2_walk/W-23.png'
   ],
 };
 
+/**
+ * Wendet die zentral definierten Character-Assets auf eine Character-Instanz an.
+ * @param {Character} c - Character-Instanz, die konfiguriert werden soll.
+ * @returns {void}
+ */
 window.applyAssetsToCharacter = function (c) {
   const A = window.CHARACTER_ASSETS;
 

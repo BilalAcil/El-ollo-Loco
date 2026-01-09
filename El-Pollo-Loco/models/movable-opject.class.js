@@ -1,24 +1,47 @@
+/**
+ * @file models/movable-object.class.js
+ * @description
+ * Basisklasse für alle beweglichen Objekte (Physik, Kollisionen, Bewegung, Schaden, Animation).
+ * Erweitert {@link DrawableObject}.
+ */
+
+/**
+ * Bewegliches Objekt im Spiel (z.B. Character, Enemies, Items).
+ * @class
+ * @extends DrawableObject
+ */
 class MovableObject extends DrawableObject {
-  // Geschwindigkeit des Objekts (für horizontale Bewegung)
+  /** Horizontale Geschwindigkeit. @type {number} */
   speed = 0.15;
-  // Gibt an, ob sich das Objekt in die andere Richtung bewegt
+
+  /** Blick-/Bewegungsrichtung (true = links). @type {boolean} */
   otherDirection = false;
-  // Vertikale Geschwindigkeit (für Sprünge und Schwerkraft)
+
+  /** Vertikale Geschwindigkeit (Sprung/Schwerkraft). @type {number} */
   speedY = 0;
-  // Beschleunigung durch Schwerkraft
+
+  /** Beschleunigung durch Schwerkraft. @type {number} */
   acceleration = 2.0;
-  // Lebensenergie des Objekts
+
+  /** Lebensenergie (0–100). @type {number} */
   energy = 100;
-  // Zeitpunkt des letzten Treffers (in Millisekunden)
+
+  /** Timestamp des letzten Treffers (ms). @type {number} */
   lastHit = 0;
-  // Sprung-Sound vorbereiten
+
+  /** Jump-Sound. @type {HTMLAudioElement} */
   jumpSound = new Audio('audio/jump.mp3');
-  // Schmerz-Sound vorbereiten
+
+  /** Schmerz-Sound. @type {HTMLAudioElement} */
   painSound = new Audio('audio/pain.mp3');
 
+  /** Letzter Zeitpunkt, an dem Pain-Sound gespielt wurde. @type {number} */
+  lastPainSoundTime = 0;
 
   /**
-   * Wendet die Schwerkraft auf das Objekt an, indem die y-Position und die vertikale Geschwindigkeit regelmäßig angepasst werden.
+   * Startet die Schwerkraft-Schleife.
+   * Aktualisiert y-Position und speedY in festen Intervallen.
+   * @returns {void}
    */
   applyGravity() {
     setInterval(() => {
@@ -29,20 +52,25 @@ class MovableObject extends DrawableObject {
   }
 
   /**
-   * Prüft, ob das Objekt sich über dem Boden befindet.
+   * Prüft, ob das Objekt über dem Boden ist.
    * @returns {boolean}
    */
   isAboveGround() {
     return this.y < 150;
   }
 
+  /**
+   * Prüft, ob das Objekt deutlich fällt (für z.B. Stomp-Checks).
+   * @returns {boolean}
+   */
   isFalling() {
     return this.speedY < -2;
   }
 
   /**
-   * Prüft, ob dieses Objekt mit einem anderen kollidiert.
-   * @param {MovableObject} mo - Das andere Objekt
+   * Prüft Kollision mit einem anderen {@link MovableObject}.
+   * Nutzt collisionBox (falls vorhanden), sonst x/y/width/height.
+   * @param {MovableObject} mo - Zielobjekt.
    * @returns {boolean}
    */
   isColliding(mo) {
@@ -51,19 +79,33 @@ class MovableObject extends DrawableObject {
     return this.boxesOverlap(a, b);
   }
 
+  /**
+   * Liefert die Kollisionsbox für ein Objekt.
+   * @param {MovableObject} obj - Objekt mit optionaler collisionBox.
+   * @returns {{x:number, y:number, width:number, height:number}}
+   */
   getCollisionBox(obj) {
     return obj.collisionBox || { x: obj.x, y: obj.y, width: obj.width, height: obj.height };
   }
 
+  /**
+   * Prüft, ob zwei Axis-Aligned Bounding Boxes überlappen.
+   * @param {{x:number, y:number, width:number, height:number}} a
+   * @param {{x:number, y:number, width:number, height:number}} b
+   * @returns {boolean}
+   */
   boxesOverlap(a, b) {
-    return a.x + a.width > b.x &&
+    return (
+      a.x + a.width > b.x &&
       a.x < b.x + b.width &&
       a.y + a.height > b.y &&
-      a.y < b.y + b.height;
+      a.y < b.y + b.height
+    );
   }
 
   /**
-   * Reduziert die Energie des Objekts bei einem Treffer und merkt sich den Zeitpunkt.
+   * Wendet Standardschaden an (20) und triggert Schmerzsound + Death-Handling.
+   * @returns {void}
    */
   hit() {
     this.applyDamage(20);
@@ -71,14 +113,25 @@ class MovableObject extends DrawableObject {
     this.stopCountdownIfDead();
   }
 
+  /**
+   * Zieht Energie ab und setzt lastHit, solange das Objekt noch lebt.
+   * @param {number} amount - Schadenswert.
+   * @returns {void}
+   */
   applyDamage(amount) {
     this.energy = Math.max(0, this.energy - amount);
     if (this.energy > 0) this.lastHit = Date.now();
   }
 
+  /**
+   * Spielt den Schmerzsound mit Cooldown, um Sound-Spam zu vermeiden.
+   * @param {number} ms - Cooldown in Millisekunden.
+   * @returns {void}
+   */
   playPainSoundWithCooldown(ms) {
     const now = Date.now();
     if (this.lastPainSoundTime && now - this.lastPainSoundTime < ms) return;
+
     this.lastPainSoundTime = now;
     this.painSound.currentTime = 0;
     this.painSound.playbackRate = 1.2;
@@ -86,23 +139,27 @@ class MovableObject extends DrawableObject {
     this.painSound.play().catch(e => console.warn(e));
   }
 
+  /**
+   * Stoppt den Countdown, falls dieses Objekt tot ist (energy <= 0).
+   * @returns {void}
+   */
   stopCountdownIfDead() {
     if (this.energy > 0) return;
     this.world?.countdown?.stopCountdown();
   }
 
   /**
-   * Prüft, ob das Objekt kürzlich getroffen wurde (innerhalb der letzten 1 Sekunde).
+   * Prüft, ob das Objekt kürzlich getroffen wurde (unter 1 Sekunde).
    * @returns {boolean}
    */
   isHurt() {
-    let timePassed = new Date().getTime() - this.lastHit;
+    let timePassed = Date.now() - this.lastHit;
     timePassed = timePassed / 1000;
     return timePassed < 1;
   }
 
   /**
-   * Prüft, ob das Objekt keine Energie mehr hat.
+   * Prüft, ob das Objekt tot ist.
    * @returns {boolean}
    */
   isDead() {
@@ -110,18 +167,20 @@ class MovableObject extends DrawableObject {
   }
 
   /**
-   * Spielt eine Animation ab, indem das nächste Bild aus dem Array geladen wird.
-   * @param {string[]} images - Array mit Bildpfaden
+   * Spielt eine Sprite-Animation anhand eines Bildarrays ab.
+   * @param {string[]} images - Array mit Bildpfaden.
+   * @returns {void}
    */
   playAnimation(images) {
-    let i = this.currentImage % images.length;
-    let path = images[i];
+    const i = this.currentImage % images.length;
+    const path = images[i];
     this.img = this.imageCache[path];
     this.currentImage++;
   }
 
   /**
    * Bewegt das Objekt nach rechts.
+   * @returns {void}
    */
   moveRight() {
     this.x += this.speed;
@@ -129,22 +188,20 @@ class MovableObject extends DrawableObject {
 
   /**
    * Bewegt das Objekt nach links.
+   * @returns {void}
    */
   moveLeft() {
     this.x -= this.speed;
   }
 
   /**
-   * Lässt das Objekt springen, indem die vertikale Geschwindigkeit gesetzt wird.
+   * Lässt das Objekt springen und spielt den Jump-Sound ab.
+   * Im Endboss-Bereich ist der Sprung höher.
+   * @returns {void}
    */
   jump() {
-    if (this.atEndboss) {
-      this.speedY = 25; // Höherer Sprung im Endboss-Bereich
-    } else {
-      this.speedY = 20; // Normaler Sprung außerhalb
-    }
+    this.speedY = this.atEndboss ? 25 : 20;
 
-    // Sprung-Sound sofort abspielen
     this.jumpSound.currentTime = 0;
     this.jumpSound.playbackRate = 1.5;
     this.jumpSound.volume = 0.6;
