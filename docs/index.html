@@ -1,0 +1,3810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>js/audio-manager.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Globaler Audio-Wrapper: sammelt alle erstellten Audio-Instanzen und ermöglicht
+ein globales Mute/Unmute über window.setGlobalMute().</p></div>
+        
+
+        
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>window.isMuted</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Globaler Mute-Status.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>window.allGameAudio</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;HTMLAudioElement></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Liste aller Audio-Instanzen im Spiel.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>window.setGlobalMute</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Setzt global Mute und wendet es auf alle Audios an.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js_audio-manager.js.html">js/audio-manager.js</a>, <a href="js_audio-manager.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>js/game.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Zentrale Spiel-Logik außerhalb der World:</p>
+<ul>
+<li>Initialisiert Startscreen und Canvas</li>
+<li>Erstellt/pausiert/fortsetzt die World (Preload + Start)</li>
+<li>Verbindet Keyboard- und Canvas-Inputs (Pause, Movement, Throw)</li>
+<li>Stellt globale Funktionen für HTML onclick-Handler bereit (start/restart/home)</li>
+</ul>
+<p>Voraussetzungen (global vorhanden):</p>
+<ul>
+<li>GameState (z.B. { canvas, world, keyboard, isMuted, gameInitialized })</li>
+<li>UI-Helpers: show(), hide(), display()</li>
+<li>Audio: toggleMute(), restoreMuteFromStorage()</li>
+<li>Mobile: setupMobileControls()</li>
+<li>Asset-Waiter: waitForGameAssets()</li>
+<li>World-Klasse: World</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js_game.js.html">js/game.js</a>, <a href="js_game.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>js/ui.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>UI- und DOM-Helfer für das Spiel:</p>
+<ul>
+<li>Globaler GameState (Mute, Canvas, World, Keyboard, Init-Flag)</li>
+<li>DOM Utilities (show/hide/display)</li>
+<li>Anleitung (Instructions) öffnen/schließen</li>
+<li>Globales Mute inkl. localStorage Persistenz</li>
+<li>Endscreen Rendering inkl. Stats</li>
+<li>Mobile Controls (Touch-Buttons -&gt; Keyboard Flags)</li>
+<li>Asset-Waiter (wartet bis Klassen/Images/DrawableObject bereit sind)</li>
+</ul>
+<p>Exporte nach window:</p>
+<ul>
+<li>show/hide/display</li>
+<li>toggleMute/restoreMuteFromStorage</li>
+<li>openInstructions/closeInstructions</li>
+<li>showEndScreen/setupMobileControls/waitForGameAssets</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js_ui.js.html">js/ui.js</a>, <a href="js_ui.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/background-object.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Hintergrund-Objekt für das Level (z.B. Landschafts- oder Parallax-Bilder).
+Positioniert sich standardmäßig auf dem Boden (y = 480 - height).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_background-object.class.js.html">models/background-object.class.js</a>, <a href="models_background-object.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/bodyguard-statusbar.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Statusbar für den Bodyguard (Lebensanzeige).
+Kann optional &quot;fixed&quot; gezeichnet werden, d.h. unabhängig von der Kamera.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_bodyguard-statusbar.class.js.html">models/bodyguard-statusbar.class.js</a>, <a href="models_bodyguard-statusbar.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/bodyguard.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Bodyguard-Gegner im Endbossbereich.</p>
+<ul>
+<li>Springt einmal in den Boss-Bereich (jumpToEndboss)</li>
+<li>Startet danach eine Patrouille/Attacke im Bereich (startAttackLoop)</li>
+<li>Kann Schaden nehmen (hit) und sterben (die) inkl. Fall/Todesanimation</li>
+</ul>
+<p>Abhängigkeiten:</p>
+<ul>
+<li>MovableObject, BodyguardStatusBar</li>
+<li>World (optional, wird von World gesetzt: bodyguard.world = world)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_bodyguard.class.js.html">models/bodyguard.class.js</a>, <a href="models_bodyguard.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.animation.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Animation- und Idle-System für den Character.
+Wird per Object.assign an Character.prototype gehängt.</p>
+<p>Enthält:</p>
+<ul>
+<li>Haupt-Animation-Loop (50ms)</li>
+<li>Auswahl der richtigen Standing-Animation (hurt/air/walk/idle/long-idle)</li>
+<li>Idle- und Long-Idle-Logik inkl. Intervall-Handling</li>
+</ul>
+<p>Voraussetzungen:</p>
+<ul>
+<li>Character existiert global (class Character)</li>
+<li>Character hat u.a.: world, isPaused, isThrowing, freezeForBodyguard, lastMoveTime,
+IMAGES_* Arrays, playAnimation(), loadImage(), isAboveGround(), isHurt(), playDeathAnimation()</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.animation.js.html">models/character.animation.js</a>, <a href="models_character.animation.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.assets.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Zentrale Asset-/Konfigurationsdatei für den Character (Pepe).</p>
+<ul>
+<li>Enthält Sprite-Pfade für alle Animationen</li>
+<li>Enthält Basis-Size/Speed-Konfiguration</li>
+<li>Stellt eine Helper-Funktion bereit, um Assets auf eine Character-Instanz anzuwenden</li>
+</ul>
+<p>Exporte nach window:</p>
+<ul>
+<li>window.CHARACTER_ASSETS</li>
+<li>window.applyAssetsToCharacter(character)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.assets.js.html">models/character.assets.js</a>, <a href="models_character.assets.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Basisklasse für den Spieler-Charakter (Pepe).
+Enthält nur &quot;Kernzustand&quot; + Initialisierung.</p>
+<p>Aufgeteilte Logik liegt in:</p>
+<ul>
+<li>models/character.assets.js (applyAssetsToCharacter)</li>
+<li>models/character.movement.js (startMovementLoop, tickMovement, etc.)</li>
+<li>models/character.animation.js (startAnimationLoop, tickAnimation, etc.)</li>
+<li>models/character.gravity.js (applyGravity, etc.)</li>
+<li>models/character.combat.js (hit, playDeathAnimation, throwAnimation, etc.)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.class.js.html">models/character.class.js</a>, <a href="models_character.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.combat.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Combat- und Death-Logik für den Character.
+Wird per Object.assign an Character.prototype gehängt.</p>
+<p>Enthält:</p>
+<ul>
+<li>Wurfanimation (SalsaThrow) inkl. &quot;keine Salsa&quot; Feedback</li>
+<li>Todesanimation (Frames + Fallphysik + Sounds)</li>
+<li>Entfernen aus der World nach &quot;FallingWhenDead&quot;</li>
+</ul>
+<p>Voraussetzungen:</p>
+<ul>
+<li>Character existiert global</li>
+<li>World liefert: statusBarSalsa, throwableObjects, level.enemies, pauseAllMovements()</li>
+<li>SalsaThrow existiert global</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.combat.js.html">models/character.combat.js</a>, <a href="models_character.combat.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.gravity.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Gravity-/Physik-Loop für den Character.
+Wird per Object.assign an Character.prototype gehängt.</p>
+<p>Enthält:</p>
+<ul>
+<li>applyGravity(): startet den Gravity-Loop (25 FPS)</li>
+<li>shouldSkipGravity(): ignoriert Gravity bei Pause/Tod</li>
+<li>applyGravityStep(): Y-Position + speedY aktualisieren</li>
+<li>snapToGroundIfNeeded(): auf Boden &quot;snappen&quot; und speedY nullen</li>
+</ul>
+<p>Voraussetzungen:</p>
+<ul>
+<li>Character hat: y, speedY, acceleration, energy, isDying, isPaused, world?.isPaused</li>
+<li>Character hat: isAboveGround()</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.gravity.js.html">models/character.gravity.js</a>, <a href="models_character.gravity.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/character.movement.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Movement-/Input-Loop für den Character + Kamera-Logik.
+Wird per Object.assign an Character.prototype gehängt.</p>
+<p>Enthält:</p>
+<ul>
+<li>Movement-Loop (60 FPS): tickMovement()</li>
+<li>Input-Verarbeitung (LEFT/RIGHT/SPACE/D)</li>
+<li>Kamera-Verhalten inkl. Soft-Panning im Endbossbereich</li>
+<li>Knockback-Physik</li>
+<li>Endboss-Trigger + Bodyguard-Jump</li>
+<li>Idle-Rückkehr nach Action-Cooldown</li>
+</ul>
+<p>Voraussetzungen:</p>
+<ul>
+<li>Character hat u.a.: world, x, y, width, speedX, speedY, knockbackActive,
+atEndboss, freezeForBodyguard, lastActionTime, actionCooldown, lastMoveTime,
+currentAnimation, animationFinished</li>
+<li>Methoden aus anderen Dateien: throwAnimation(), handleMovement(), isHurt(), isDead(),
+isAboveGround(), jump(), moveRight(), moveLeft()</li>
+<li>World hat: keyboard, canvas, camera_x, isPaused, countdown, bodyguard,
+startEndbossCameraPanBack(), stopCameraMoveSound()</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_character.movement.js.html">models/character.movement.js</a>, <a href="models_character.movement.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/chicken-nest.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>ChickenNest ist ein statisches Objekt im Endbossbereich.
+Dient als Deko/Objekt und kann von der World ein-/ausgeblendet werden.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_chicken-nest.class.js.html">models/chicken-nest.class.js</a>, <a href="models_chicken-nest.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/chicken-small-class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Kleines Chicken (ChickenSmall) Gegner-Objekt.</p>
+<ul>
+<li>Läuft nach links</li>
+<li>Spielt Walking-Animation</li>
+<li>Respektiert Pause (this.isPaused / world.isPaused)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_chicken-small-class.js.html">models/chicken-small-class.js</a>, <a href="models_chicken-small-class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/chicken.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Normales Chicken (Gegner).</p>
+<ul>
+<li>Läuft nach links</li>
+<li>Walking-Animation</li>
+<li>Kann &quot;dead&quot; sein (dann stoppt Bewegung/Animation)</li>
+</ul>
+<p>Hinweis:
+ChickenSmall respektiert Pause (this.isPaused/world.isPaused).
+Hier ziehen wir das gleich, damit Verhalten konsistent ist.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_chicken.class.js.html">models/chicken.class.js</a>, <a href="models_chicken.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/cloud.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Cloud ist ein Hintergrund-Objekt, das konstant nach links driftet.
+Respektiert Pause (this.isPaused / world.isPaused), falls vorhanden.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_cloud.class.js.html">models/cloud.class.js</a>, <a href="models_cloud.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/coin.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Coin (Sammelobjekt). Wird von der World zufällig platziert und kann eingesammelt werden.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_coin.class.js.html">models/coin.class.js</a>, <a href="models_coin.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/corncob.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Corncob (Heil-Item). Wird von der World platziert und bei Kollision eingesammelt.
+Besitzt eine eigene kleinere Kollisionsbox.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_corncob.class.js.html">models/corncob.class.js</a>, <a href="models_corncob.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/countdown.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Countdown-UI (Icon + Zeit) inkl. Musiksteuerung.</p>
+<ul>
+<li>Startet/stoppt einen Countdown (Sekunden)</li>
+<li>Spielt Hintergrundmusik und Endboss-Musik</li>
+<li>Triggert Blink-Warnung bei 1:00 und 0:07</li>
+<li>Kann temporär ausgeblendet werden (Icon + Zeit)</li>
+</ul>
+<p>Voraussetzungen:</p>
+<ul>
+<li>DrawableObject mit draw(ctx), loadImage(path)</li>
+<li>World setzt: countdown.world = world</li>
+<li>World hat: character, statusBar, endGame()</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_countdown.class.js.html">models/countdown.class.js</a>, <a href="models_countdown.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/drawable-object.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Basisklasse für alle Objekte, die auf ein Canvas gezeichnet werden.</p>
+<ul>
+<li>Laden von Einzelbildern und Bild-Arrays (mit Cache)</li>
+<li>Zeichnen des aktuellen Bildes</li>
+<li>Optional: Debug-Frame (transparent) + Kollisionsbox</li>
+<li>Globales Asset-Tracking (totalAssets / loadedAssets)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_drawable-object.class.js.html">models/drawable-object.class.js</a>, <a href="models_drawable-object.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/endboss-stastus-bar.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Statusbar für den Endboss (HP-Anzeige).</p>
+<ul>
+<li>Lädt HP-Bilder (0..100)</li>
+<li>Spielt Hurt-Sound bei HP-Verlust</li>
+<li>Entfernt sich aus der World, wenn HP &lt;= 0</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_endboss-stastus-bar.class.js.html">models/endboss-stastus-bar.class.js</a>, <a href="models_endboss-stastus-bar.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/endboss.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Endboss (Boss-Chicken) mit Idle/Hurt/Dead Animation, Aktivierung nach Treffer,
+Fall-Animation nach Tod sowie World-Interaktionen (Bodyguard töten, Maracas spawnen).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_endboss.class.js.html">models/endboss.class.js</a>, <a href="models_endboss.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/keyboard.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Speichert den aktuellen Zustand der Eingaben (gedrückt / nicht gedrückt).
+Wird von game.js (KeyDown/KeyUp) gesetzt und von Character/World ausgelesen.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_keyboard.class.js.html">models/keyboard.class.js</a>, <a href="models_keyboard.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/level.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Datencontainer für ein Level (Gegner, Wolken, Hintergrundobjekte, Items und Level-Ende).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_level.class.js.html">models/level.class.js</a>, <a href="models_level.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/maracas.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Sammelobjekt: Maracas. Erscheint nach dem Endboss-Tod und triggert die Endsequenz.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_maracas.class.js.html">models/maracas.class.js</a>, <a href="models_maracas.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/movable-opject.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Basisklasse für alle beweglichen Objekte (Physik, Kollisionen, Bewegung, Schaden, Animation).
+Erweitert <a href="DrawableObject.html">DrawableObject</a>.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_movable-opject.class.js.html">models/movable-opject.class.js</a>, <a href="models_movable-opject.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/salsa-throw.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Wurfprojektil (Salsa-Flasche). Fliegt mit Ballistik, rotiert in der Luft und
+spielt beim Aufprall eine Splash-Animation ab.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_salsa-throw.class.js.html">models/salsa-throw.class.js</a>, <a href="models_salsa-throw.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/salsa.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Sammelobjekt &quot;Salsa&quot; (Flasche am Boden). Kann vom Character eingesammelt werden
+und erhöht die Salsa-Anzahl (Wurfmunition).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_salsa.class.js.html">models/salsa.class.js</a>, <a href="models_salsa.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/status-bar-coin.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Statusbar für gesammelte Coins (Icon + Counter).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_status-bar-coin.class.js.html">models/status-bar-coin.class.js</a>, <a href="models_status-bar-coin.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/status-bar-salsa.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Statusbar für Salsa-Flaschen (Icon + Counter) inkl. Blink-Feedback bei Fehlschlag.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_status-bar-salsa.class.js.html">models/status-bar-salsa.class.js</a>, <a href="models_status-bar-salsa.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/status-bar.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Lebensanzeige (HP-Statusbar) für den Spieler. Unterstützt Health-Prozentanzeige
+und ein grünes Blink-Feedback bei Heilung.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_status-bar.class.js.html">models/status-bar.class.js</a>, <a href="models_status-bar.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.camera.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Kamera- und Boss-Arena-Logik der World:</p>
+<ul>
+<li>weiches Kamera-Panning im Endbossbereich</li>
+<li>Kamera-Sound beim Panning</li>
+<li>Reaktion auf Bodyguard-Tod (Boss + UI einblenden)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.camera.js.html">models/world.camera.js</a>, <a href="models_world.camera.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.class.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Zentrale Spielwelt. Hält Referenzen auf Canvas/Context, Level, Spielfiguren,
+Statusbars, Collectibles und verwaltet Initialisierung (inkl. Pause-Startzustand).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.collision.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Kollisions- und Pickup-Logik der World.
+Enthält:</p>
+<ul>
+<li>Gegner-Kollisionen (Stomp / Kontakt-Schaden)</li>
+<li>Treffer durch Wurfobjekte (SalsaThrow)</li>
+<li>Pickups (Coin, Salsa, Corncob, Maracas)</li>
+<li>Maracas-Endsequenz (kurze Choreo + Level-Ende)</li>
+</ul>
+<p>Hinweis: Viele Methoden sind bewusst klein gehalten, damit pro Datei &lt; 400 LOC bleibt.</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.collision.js.html">models/world.collision.js</a>, <a href="models_world.collision.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.draw.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Rendering-/Draw-System der World.
+Verantwortlich für:</p>
+<ul>
+<li>Canvas löschen</li>
+<li>Kamera-Transformation (camera_x)</li>
+<li>Zeichnen von Background, Clouds, Collectibles, Enemies, Player, UI</li>
+<li>Objekt-Transforms (FlipX, Rotation, Alpha)</li>
+<li>Frame-Loop via requestAnimationFrame</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.draw.js.html">models/world.draw.js</a>, <a href="models_world.draw.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.pause.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Pause-/Resume-System der World.
+Verantwortlich für:</p>
+<ul>
+<li>Anhalten/fortsetzen von Bewegungen, Gegner- und Wolken-Intervallen</li>
+<li>Kollisionschecks stoppen/starten</li>
+<li>Actor-Pause (Character/Endboss/Bodyguard)</li>
+<li>Countdown/Musik pausieren/fortsetzen</li>
+<li>Optionales Pause-Overlay (Play/Pause Symbol)</li>
+<li>Einmalige &quot;Start-Landeanimation&quot; beim ersten Resume</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.pause.js.html">models/world.pause.js</a>, <a href="models_world.pause.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models/world.spawn.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Spawning-/Erzeugungslogik und &quot;Utility&quot;-Funktionen der World:</p>
+<ul>
+<li>Gegner erzeugen (Chickens)</li>
+<li>Sammelobjekte erzeugen (Coins, Salsas)</li>
+<li>Gegner töten/entfernen</li>
+<li>EndGame-Auslöser</li>
+<li>Pause-/Play-Overlay Rendering</li>
+<li>&quot;Shock&quot;-Effekt (kurzes Hüpfen von Objekten + Kamera-Pan)</li>
+</ul></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.spawn.js.html">models/world.spawn.js</a>, <a href="models_world.spawn.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="WorldCameraMixin.html">WorldCameraMixin</a></li></ul><h3>Classes</h3><ul><li><a href="BackgroundObject.html">BackgroundObject</a></li><li><a href="Bodyguard.html">Bodyguard</a></li><li><a href="BodyguardStatusBar.html">BodyguardStatusBar</a></li><li><a href="Character.html">Character</a></li><li><a href="Chicken.html">Chicken</a></li><li><a href="ChickenNest.html">ChickenNest</a></li><li><a href="ChickenSmall.html">ChickenSmall</a></li><li><a href="Cloud.html">Cloud</a></li><li><a href="Coin.html">Coin</a></li><li><a href="Corncob.html">Corncob</a></li><li><a href="Countdown.html">Countdown</a></li><li><a href="DrawableObject.html">DrawableObject</a></li><li><a href="EndBossStatusBar.html">EndBossStatusBar</a></li><li><a href="Endboss.html">Endboss</a></li><li><a href="Keyboard.html">Keyboard</a></li><li><a href="Level.html">Level</a></li><li><a href="Maracas.html">Maracas</a></li><li><a href="MovableObject.html">MovableObject</a></li><li><a href="Salsa.html">Salsa</a></li><li><a href="SalsaThrow.html">SalsaThrow</a></li><li><a href="StatusBar.html">StatusBar</a></li><li><a href="StatusBarCoin.html">StatusBarCoin</a></li><li><a href="StatusBarSalsa.html">StatusBarSalsa</a></li><li><a href="World.html">World</a></li><li><a href="window.Audio.html">Audio</a></li></ul><h3>Global</h3><ul><li><a href="global.html#KEY_MAP">KEY_MAP</a></li><li><a href="global.html#activateEndbossArea">activateEndbossArea</a></li><li><a href="global.html#addCoinGroup">addCoinGroup</a></li><li><a href="global.html#addObjectsToMap">addObjectsToMap</a></li><li><a href="global.html#addToMap">addToMap</a></li><li><a href="global.html#applyAlpha">applyAlpha</a></li><li><a href="global.html#applyBodyguardBounce">applyBodyguardBounce</a></li><li><a href="global.html#applyBodyguardSideHit">applyBodyguardSideHit</a></li><li><a href="global.html#applyBodyguardStomp">applyBodyguardStomp</a></li><li><a href="global.html#applyEndbossStomp">applyEndbossStomp</a></li><li><a href="global.html#applyGlobalMute">applyGlobalMute</a></li><li><a href="global.html#applyGravity">applyGravity</a></li><li><a href="global.html#applyGravityStep">applyGravityStep</a></li><li><a href="global.html#applyKeyFlag">applyKeyFlag</a></li><li><a href="global.html#applyKnockback">applyKnockback</a></li><li><a href="global.html#applyMuteState">applyMuteState</a></li><li><a href="global.html#applyObjectTransform">applyObjectTransform</a></li><li><a href="global.html#applyOverlayStyle">applyOverlayStyle</a></li><li><a href="global.html#applySalsaDamage">applySalsaDamage</a></li><li><a href="global.html#applySoftBlink">applySoftBlink</a></li><li><a href="global.html#assetsReadyNow">assetsReadyNow</a></li><li><a href="global.html#beginThrow">beginThrow</a></li><li><a href="global.html#bindButtonToKey">bindButtonToKey</a></li><li><a href="global.html#bindCanvasClick">bindCanvasClick</a></li><li><a href="global.html#blinkEnemySoft">blinkEnemySoft</a></li><li><a href="global.html#bounceCharacter">bounceCharacter</a></li><li><a href="global.html#bounceChickenNest">bounceChickenNest</a></li><li><a href="global.html#bounceCorncob">bounceCorncob</a></li><li><a href="global.html#bounceEndboss">bounceEndboss</a></li><li><a href="global.html#bounceEnemyToOriginalY">bounceEnemyToOriginalY</a></li><li><a href="global.html#bounceY">bounceY</a></li><li><a href="global.html#canStartThrow">canStartThrow</a></li><li><a href="global.html#cancelHealing">cancelHealing</a></li><li><a href="global.html#checkCollisions">checkCollisions</a></li><li><a href="global.html#checkEndbossDeath">checkEndbossDeath</a></li><li><a href="global.html#checkEndbossTrigger">checkEndbossTrigger</a></li><li><a href="global.html#clampCharacterToViewport">clampCharacterToViewport</a></li><li><a href="global.html#classesReady">classesReady</a></li><li><a href="global.html#clearCanvas">clearCanvas</a></li><li><a href="global.html#clearEnemyIntervals">clearEnemyIntervals</a></li><li><a href="global.html#closeInstructions">closeInstructions</a></li><li><a href="global.html#collectNormalEnemy">collectNormalEnemy</a></li><li><a href="global.html#createCoin">createCoin</a></li><li><a href="global.html#createCollisionState">createCollisionState</a></li><li><a href="global.html#createEnemies">createEnemies</a></li><li><a href="global.html#createGameWorld">createGameWorld</a></li><li><a href="global.html#createOverlay">createOverlay</a></li><li><a href="global.html#damageCharacterOrDie">damageCharacterOrDie</a></li><li><a href="global.html#damageEndbossBySalsa">damageEndbossBySalsa</a></li><li><a href="global.html#disableButtonContextAndSelection">disableButtonContextAndSelection</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawActorsAndEnemies">drawActorsAndEnemies</a></li><li><a href="global.html#drawBackgroundAndClouds">drawBackgroundAndClouds</a></li><li><a href="global.html#drawCameraLayer">drawCameraLayer</a></li><li><a href="global.html#drawCollectibles">drawCollectibles</a></li><li><a href="global.html#drawCountdown">drawCountdown</a></li><li><a href="global.html#drawOptionalWorldObjects">drawOptionalWorldObjects</a></li><li><a href="global.html#drawOverlayUI">drawOverlayUI</a></li><li><a href="global.html#drawThrowableObjects">drawThrowableObjects</a></li><li><a href="global.html#drawWorldObjects">drawWorldObjects</a></li><li><a href="global.html#drawableReady">drawableReady</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#endGame">endGame</a></li><li><a href="global.html#ensureStatsBox">ensureStatsBox</a></li><li><a href="global.html#exposeHtmlGlobals">exposeHtmlGlobals</a></li><li><a href="global.html#fadeOutThenRemove">fadeOutThenRemove</a></li><li><a href="global.html#finishDeathAnim">finishDeathAnim</a></li><li><a href="global.html#finishMaracasEnding">finishMaracasEnding</a></li><li><a href="global.html#finishSoftPanning">finishSoftPanning</a></li><li><a href="global.html#finishThrow">finishThrow</a></li><li><a href="global.html#finishThrowFrames">finishThrowFrames</a></li><li><a href="global.html#flipX">flipX</a></li><li><a href="global.html#followCharacterCamera">followCharacterCamera</a></li><li><a href="global.html#freezeWorldForMaracas">freezeWorldForMaracas</a></li><li><a href="global.html#generateChickens">generateChickens</a></li><li><a href="global.html#generateClouds">generateClouds</a></li><li><a href="global.html#generateCoins">generateCoins</a></li><li><a href="global.html#generateSalsas">generateSalsas</a></li><li><a href="global.html#getAllButtons">getAllButtons</a></li><li><a href="global.html#getBox">getBox</a></li><li><a href="global.html#getEndScreenRefs">getEndScreenRefs</a></li><li><a href="global.html#getEndStats">getEndStats</a></li><li><a href="global.html#getMobileButtons">getMobileButtons</a></li><li><a href="global.html#getRotationRadians">getRotationRadians</a></li><li><a href="global.html#getRunBounds">getRunBounds</a></li><li><a href="global.html#handleCanvasClick">handleCanvasClick</a></li><li><a href="global.html#handleCoinPickups">handleCoinPickups</a></li><li><a href="global.html#handleCollisionTick">handleCollisionTick</a></li><li><a href="global.html#handleCorncobPickup">handleCorncobPickup</a></li><li><a href="global.html#handleDeathAnim">handleDeathAnim</a></li><li><a href="global.html#handleEndbossContactDamage">handleEndbossContactDamage</a></li><li><a href="global.html#handleJumpAnimation">handleJumpAnimation</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleKeyUp">handleKeyUp</a></li><li><a href="global.html#handleMaracasPickup">handleMaracasPickup</a></li><li><a href="global.html#handleMovement">handleMovement</a></li><li><a href="global.html#handleNoSalsa">handleNoSalsa</a></li><li><a href="global.html#handleNormalEnemyContactDamage">handleNormalEnemyContactDamage</a></li><li><a href="global.html#handleNormalEnemyStomps">handleNormalEnemyStomps</a></li><li><a href="global.html#handleSalsaPickups">handleSalsaPickups</a></li><li><a href="global.html#handleSoftPanning">handleSoftPanning</a></li><li><a href="global.html#handleThrowableHits">handleThrowableHits</a></li><li><a href="global.html#hasAllMobileButtons">hasAllMobileButtons</a></li><li><a href="global.html#hasSalsa">hasSalsa</a></li><li><a href="global.html#hide">hide</a></li><li><a href="global.html#hideGameCanvasAndTitle">hideGameCanvasAndTitle</a></li><li><a href="global.html#hidePlaySymbol">hidePlaySymbol</a></li><li><a href="global.html#imagesLoaded">imagesLoaded</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#initGameCanvas">initGameCanvas</a></li><li><a href="global.html#isActualEnemy">isActualEnemy</a></li><li><a href="global.html#isGloballyImmune">isGloballyImmune</a></li><li><a href="global.html#isInIdleWindow">isInIdleWindow</a></li><li><a href="global.html#isJumpedOnEnemy">isJumpedOnEnemy</a></li><li><a href="global.html#isMuteKey">isMuteKey</a></li><li><a href="global.html#isOverlayPresent">isOverlayPresent</a></li><li><a href="global.html#isPauseKey">isPauseKey</a></li><li><a href="global.html#isStartScreenVisible">isStartScreenVisible</a></li><li><a href="global.html#isStompFromAbove">isStompFromAbove</a></li><li><a href="global.html#isWalking">isWalking</a></li><li><a href="global.html#jumpFromShock">jumpFromShock</a></li><li><a href="global.html#jumpIfNeeded">jumpIfNeeded</a></li><li><a href="global.html#killChickenBySalsa">killChickenBySalsa</a></li><li><a href="global.html#killEnemy">killEnemy</a></li><li><a href="global.html#knockbackAfterEndbossStomp">knockbackAfterEndbossStomp</a></li><li><a href="global.html#level1">level1</a></li><li><a href="global.html#lockEndbossCamera">lockEndbossCamera</a></li><li><a href="global.html#loseHtml">loseHtml</a></li><li><a href="global.html#maracasJump">maracasJump</a></li><li><a href="global.html#markEnemyDead">markEnemyDead</a></li><li><a href="global.html#markSalsaHit">markSalsaHit</a></li><li><a href="global.html#moveLeftIfNeeded">moveLeftIfNeeded</a></li><li><a href="global.html#moveRightIfNeeded">moveRightIfNeeded</a></li><li><a href="global.html#nextLevel">nextLevel</a></li><li><a href="global.html#onBodyguardDeath">onBodyguardDeath</a></li><li><a href="global.html#onWindowLoad">onWindowLoad</a></li><li><a href="global.html#openInstructions">openInstructions</a></li><li><a href="global.html#pauseActors">pauseActors</a></li><li><a href="global.html#pauseAllMovements">pauseAllMovements</a></li><li><a href="global.html#pauseBodyguard">pauseBodyguard</a></li><li><a href="global.html#pauseGame">pauseGame</a></li><li><a href="global.html#pauseWorldSilently">pauseWorldSilently</a></li><li><a href="global.html#playAirAnim">playAirAnim</a></li><li><a href="global.html#playCameraMoveSound">playCameraMoveSound</a></li><li><a href="global.html#playCoinSound">playCoinSound</a></li><li><a href="global.html#playDeathAnimation">playDeathAnimation</a></li><li><a href="global.html#playDeathSounds">playDeathSounds</a></li><li><a href="global.html#playHealPickupSound">playHealPickupSound</a></li><li><a href="global.html#playHitSound">playHitSound</a></li><li><a href="global.html#playHurtAnim">playHurtAnim</a></li><li><a href="global.html#playIdleAnimation">playIdleAnimation</a></li><li><a href="global.html#playIdleOrLongIdle">playIdleOrLongIdle</a></li><li><a href="global.html#playJumpSound">playJumpSound</a></li><li><a href="global.html#playLandingThenIdle">playLandingThenIdle</a></li><li><a href="global.html#playMaracasSound">playMaracasSound</a></li><li><a href="global.html#playSalsaPickupSound">playSalsaPickupSound</a></li><li><a href="global.html#playThrowFrames">playThrowFrames</a></li><li><a href="global.html#playWalkAnim">playWalkAnim</a></li><li><a href="global.html#pollAssets">pollAssets</a></li><li><a href="global.html#preloadWorld">preloadWorld</a></li><li><a href="global.html#processMovementInputs">processMovementInputs</a></li><li><a href="global.html#randomCoinBaseX">randomCoinBaseX</a></li><li><a href="global.html#randomCoinGroupSize">randomCoinGroupSize</a></li><li><a href="global.html#randomCoinY">randomCoinY</a></li><li><a href="global.html#removeEnemy">removeEnemy</a></li><li><a href="global.html#removeEnemySoon">removeEnemySoon</a></li><li><a href="global.html#removeFromWorld">removeFromWorld</a></li><li><a href="global.html#removeOverlay">removeOverlay</a></li><li><a href="global.html#removeSalsaAfterSplash">removeSalsaAfterSplash</a></li><li><a href="global.html#renderEndScreen">renderEndScreen</a></li><li><a href="global.html#renderObject">renderObject</a></li><li><a href="global.html#resetKeyboardInputs">resetKeyboardInputs</a></li><li><a href="global.html#resetKeyboardInputsAll">resetKeyboardInputsAll</a></li><li><a href="global.html#resetStatsBox">resetStatsBox</a></li><li><a href="global.html#resetWorldForRestart">resetWorldForRestart</a></li><li><a href="global.html#restartCollisionChecks">restartCollisionChecks</a></li><li><a href="global.html#restartGame">restartGame</a></li><li><a href="global.html#restoreMuteFromStorage">restoreMuteFromStorage</a></li><li><a href="global.html#resumeActors">resumeActors</a></li><li><a href="global.html#resumeAllMovements">resumeAllMovements</a></li><li><a href="global.html#resumeBodyguard">resumeBodyguard</a></li><li><a href="global.html#resumeCountdownSystem">resumeCountdownSystem</a></li><li><a href="global.html#resumeGame">resumeGame</a></li><li><a href="global.html#resumeWorld">resumeWorld</a></li><li><a href="global.html#resumeWorldAfterDelay">resumeWorldAfterDelay</a></li><li><a href="global.html#returnToHome">returnToHome</a></li><li><a href="global.html#runFirstStartLandingAnimation">runFirstStartLandingAnimation</a></li><li><a href="global.html#runMaracasChoreo">runMaracasChoreo</a></li><li><a href="global.html#saveMuteToStorage">saveMuteToStorage</a></li><li><a href="global.html#scanBodyguard">scanBodyguard</a></li><li><a href="global.html#scanEndboss">scanEndboss</a></li><li><a href="global.html#scanEnemyCollisions">scanEnemyCollisions</a></li><li><a href="global.html#scheduleDeathSounds">scheduleDeathSounds</a></li><li><a href="global.html#scheduleNextFrame">scheduleNextFrame</a></li><li><a href="global.html#setAlpha">setAlpha</a></li><li><a href="global.html#setDefaultDeathImage">setDefaultDeathImage</a></li><li><a href="global.html#setKeyFlag">setKeyFlag</a></li><li><a href="global.html#setPaused">setPaused</a></li><li><a href="global.html#setSalsaDeathImage">setSalsaDeathImage</a></li><li><a href="global.html#setStartFallFrame">setStartFallFrame</a></li><li><a href="global.html#setupMobileControls">setupMobileControls</a></li><li><a href="global.html#setupStartButton">setupStartButton</a></li><li><a href="global.html#shouldBlockPause">shouldBlockPause</a></li><li><a href="global.html#shouldFinishDeathAnim">shouldFinishDeathAnim</a></li><li><a href="global.html#shouldIgnoreCanvasClick">shouldIgnoreCanvasClick</a></li><li><a href="global.html#shouldRender">shouldRender</a></li><li><a href="global.html#shouldShowPauseOverlay">shouldShowPauseOverlay</a></li><li><a href="global.html#shouldSkipGravity">shouldSkipGravity</a></li><li><a href="global.html#shouldSkipMovementTick">shouldSkipMovementTick</a></li><li><a href="global.html#shouldStartPanBackNow">shouldStartPanBackNow</a></li><li><a href="global.html#show">show</a></li><li><a href="global.html#showEndScreen">showEndScreen</a></li><li><a href="global.html#showFallFrame">showFallFrame</a></li><li><a href="global.html#showFreezeFrame">showFreezeFrame</a></li><li><a href="global.html#showGameUIForRestart">showGameUIForRestart</a></li><li><a href="global.html#showJumpFrame">showJumpFrame</a></li><li><a href="global.html#showNextIdleFrame">showNextIdleFrame</a></li><li><a href="global.html#showPauseThenPlaySymbol">showPauseThenPlaySymbol</a></li><li><a href="global.html#showPlaySymbol">showPlaySymbol</a></li><li><a href="global.html#snapToGroundIfNeeded">snapToGroundIfNeeded</a></li><li><a href="global.html#spawnSalsaAndFinish">spawnSalsaAndFinish</a></li><li><a href="global.html#spawnSalsaThrow">spawnSalsaThrow</a></li><li><a href="global.html#startAnimationLoop">startAnimationLoop</a></li><li><a href="global.html#startCloudAnimations">startCloudAnimations</a></li><li><a href="global.html#startDeathFallAnim">startDeathFallAnim</a></li><li><a href="global.html#startDeathState">startDeathState</a></li><li><a href="global.html#startEndbossCameraPan">startEndbossCameraPan</a></li><li><a href="global.html#startEndbossCameraPanBack">startEndbossCameraPanBack</a></li><li><a href="global.html#startEnemyAnimations">startEnemyAnimations</a></li><li><a href="global.html#startFallingWhenDead">startFallingWhenDead</a></li><li><a href="global.html#startGame">startGame</a></li><li><a href="global.html#startGameLogic">startGameLogic</a></li><li><a href="global.html#startIdleAfterLanding">startIdleAfterLanding</a></li><li><a href="global.html#startIdleIfNeeded">startIdleIfNeeded</a></li><li><a href="global.html#startLongIdleAnimation">startLongIdleAnimation</a></li><li><a href="global.html#startLongIdleIfNeeded">startLongIdleIfNeeded</a></li><li><a href="global.html#startMaracasSequence">startMaracasSequence</a></li><li><a href="global.html#startMaracasWalkOff">startMaracasWalkOff</a></li><li><a href="global.html#startMovementLoop">startMovementLoop</a></li><li><a href="global.html#startPanBackOnce">startPanBackOnce</a></li><li><a href="global.html#statsHtml">statsHtml</a></li><li><a href="global.html#stepDeathFallAnim">stepDeathFallAnim</a></li><li><a href="global.html#stepDeathFallPhysics">stepDeathFallPhysics</a></li><li><a href="global.html#stepDeathFrames">stepDeathFrames</a></li><li><a href="global.html#stop">stop</a></li><li><a href="global.html#stopAllEnemyIntervals">stopAllEnemyIntervals</a></li><li><a href="global.html#stopCameraMoveSound">stopCameraMoveSound</a></li><li><a href="global.html#stopCloudIntervals">stopCloudIntervals</a></li><li><a href="global.html#stopCollisionChecks">stopCollisionChecks</a></li><li><a href="global.html#stopEnemyIntervals">stopEnemyIntervals</a></li><li><a href="global.html#stopGame">stopGame</a></li><li><a href="global.html#stopGameIfAvailable">stopGameIfAvailable</a></li><li><a href="global.html#stopIdleInterval">stopIdleInterval</a></li><li><a href="global.html#stopLongIdleAnimation">stopLongIdleAnimation</a></li><li><a href="global.html#switchToIdleIfNeeded">switchToIdleIfNeeded</a></li><li><a href="global.html#syncWorldMute">syncWorldMute</a></li><li><a href="global.html#throwAnimation">throwAnimation</a></li><li><a href="global.html#throwIfNeeded">throwIfNeeded</a></li><li><a href="global.html#tickAnimation">tickAnimation</a></li><li><a href="global.html#tickMovement">tickMovement</a></li><li><a href="global.html#toggleMobileControlsForStart">toggleMobileControlsForStart</a></li><li><a href="global.html#toggleMute">toggleMute</a></li><li><a href="global.html#togglePause">togglePause</a></li><li><a href="global.html#translateBack">translateBack</a></li><li><a href="global.html#translateToCenter">translateToCenter</a></li><li><a href="global.html#triggerBodyguardJump">triggerBodyguardJump</a></li><li><a href="global.html#tryEndbossContactHit">tryEndbossContactHit</a></li><li><a href="global.html#tryNormalEnemyContactHit">tryNormalEnemyContactHit</a></li><li><a href="global.html#trySalsaHit">trySalsaHit</a></li><li><a href="global.html#updateCamera">updateCamera</a></li><li><a href="global.html#updateMuteButtonText">updateMuteButtonText</a></li><li><a href="global.html#updateScreenForGameStart">updateScreenForGameStart</a></li><li><a href="global.html#updateStandingAnimation">updateStandingAnimation</a></li><li><a href="global.html#waitForGameAssets">waitForGameAssets</a></li><li><a href="global.html#waitForLandingThenIdle">waitForLandingThenIdle</a></li><li><a href="global.html#winHtml">winHtml</a></li><li><a href="global.html#withCamera">withCamera</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 09 2026 10:39:41 GMT+0100 (Mitteleuropäische Normalzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
