@@ -348,9 +348,6 @@ function showGameUIForRestart() {
  * Placeholder für Level 2.
  * @returns {void}
  */
-function nextLevel() {
-  alert("Level 2: Hol dir die Gitarre! (noch in Arbeit 😎)");
-}
 
 /**
  * Kehrt zum Start zurück, stoppt Musik/Timer und lädt die Seite neu.

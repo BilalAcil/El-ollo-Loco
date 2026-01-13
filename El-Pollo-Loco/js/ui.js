@@ -230,7 +230,7 @@ function renderEndScreen(container, statsBox, stats, win) {
  */
 function winHtml() {
   return `<h2 id="end-message">🪇 Du hast die Maracas zurückgeholt! 🪇</h2>
-  <button onclick="nextLevel()">🎸 Gitarre holen</button>
+  <button class="btn-wip" data-hover="⚙️ in Bearbeitung">🎸 Gitarre holen</button>
   <button onclick="returnToHome()">🏠 Zurück zum Start</button>`;
 }
 

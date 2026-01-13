@@ -305,6 +305,27 @@ h3 {
   transform: scale(1.05);
 }
 
+#end-screen button.btn-wip {
+  position: relative;
+}
+
+#end-screen button.btn-wip:hover {
+  color: transparent;
+  /* originalen Text unsichtbar machen */
+}
+
+#end-screen button.btn-wip:hover::after {
+  content: attr(data-hover);
+  color: black;
+  /* Textfarbe für Hover-Text */
+  position: absolute;
+  inset: 0;
+  /* füllt den Button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 #stats-box {
   margin-top: 15px;
   padding: 12px;
