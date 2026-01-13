@@ -1,19 +1,21 @@
+//#region Character assets + configuration
+
 /**
  * @file models/character.assets.js
  * @description
- * Zentrale Asset-/Konfigurationsdatei für den Character (Pepe).
- * - Enthält Sprite-Pfade für alle Animationen
- * - Enthält Basis-Size/Speed-Konfiguration
- * - Stellt eine Helper-Funktion bereit, um Assets auf eine Character-Instanz anzuwenden
+ * Central asset/config file for the character (Pepe).
+ * - Contains sprite paths for all animations
+ * - Contains base size/speed configuration
+ * - Provides a helper function to apply assets to a Character instance
  *
- * Exporte nach window:
+ * Exposed on window:
  * - window.CHARACTER_ASSETS
  * - window.applyAssetsToCharacter(character)
  */
 
 window.CHARACTER_ASSETS = {
   /**
-   * Basiswerte für Größe, Start-Y und Laufgeschwindigkeit.
+   * Base values for size, initial Y position, and walking speed.
    * @type {{height:number,width:number,y:number,speed:number}}
    */
   size: { height: 280, width: 120, y: 0, speed: 10 },
@@ -88,8 +90,8 @@ window.CHARACTER_ASSETS = {
 };
 
 /**
- * Wendet die zentral definierten Character-Assets auf eine Character-Instanz an.
- * @param {Character} c - Character-Instanz, die konfiguriert werden soll.
+ * Applies the centrally defined character assets to a Character instance.
+ * @param {Character} c - Character instance to configure.
  * @returns {void}
  */
 window.applyAssetsToCharacter = function (c) {
@@ -109,3 +111,5 @@ window.applyAssetsToCharacter = function (c) {
   c.IMAGES_HURT = A.IMAGES_HURT;
   c.IMAGES_THROW = A.IMAGES_THROW;
 };
+
+//#endregion

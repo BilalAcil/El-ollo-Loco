@@ -1,11 +1,13 @@
+//#region Coin class
+
 /**
  * @file models/coin.class.js
  * @description
- * Coin (Sammelobjekt). Wird von der World zufällig platziert und kann eingesammelt werden.
+ * Coin (collectible). Placed randomly by the World and can be collected.
  */
 
 /**
- * Coin (Sammelobjekt).
+ * Coin (collectible).
  * @class
  * @extends MovableObject
  */
@@ -18,9 +20,9 @@ class Coin extends MovableObject {
   IMAGE = 'img/8_coin/coin_1.png';
 
   /**
-   * Erstellt eine Coin an der gewünschten Position.
-   * @param {number} x - X-Position.
-   * @param {number} [y=400] - Y-Position (Standard: 400).
+   * Creates a coin at the given position.
+   * @param {number} x - X position.
+   * @param {number} [y=400] - Y position (default: 400).
    */
   constructor(x, y = 400) {
     super();
@@ -29,3 +31,5 @@ class Coin extends MovableObject {
     this.y = y;
   }
 }
+
+//#endregion

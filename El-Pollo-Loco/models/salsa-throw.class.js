@@ -1,12 +1,14 @@
+//#region SalsaThrow class
+
 /**
  * @file models/salsa-throw.class.js
  * @description
- * Wurfprojektil (Salsa-Flasche). Fliegt mit Ballistik, rotiert in der Luft und
- * spielt beim Aufprall eine Splash-Animation ab.
+ * Throw projectile (salsa bottle). Flies with ballistics, rotates in the air and
+ * plays a splash animation on impact.
  */
 
 /**
- * Salsa-Wurf-Projektil.
+ * Salsa throw projectile.
  * @class
  * @extends MovableObject
  */
@@ -17,25 +19,25 @@ class SalsaThrow extends MovableObject {
   /** @type {number} */
   height = 50;
 
-  /** Horizontale Startgeschwindigkeit. @type {number} */
+  /** Initial horizontal speed. @type {number} */
   speedX = 8;
 
-  /** Vertikale Startgeschwindigkeit. @type {number} */
+  /** Initial vertical speed. @type {number} */
   speedY = 10;
 
-  /** Vertikale Beschleunigung (Schwerkraft für das Projektil). @type {number} */
+  /** Vertical acceleration (gravity for the projectile). @type {number} */
   acceleration = 0.45;
 
   /**
-   * Wurfrichtung: true = links, false = rechts.
+   * Throw direction: true = left, false = right.
    * @type {boolean}
    */
   direction;
 
-  /** Treffer-Flag (verhindert mehrfachen Ground-Hit). @type {boolean} */
+  /** Hit flag (prevents multiple ground hits). @type {boolean} */
   hasHit = false;
 
-  /** Rotations-Frames. @type {string[]} */
+  /** Rotation frames. @type {string[]} */
   IMAGES_ROTATION = [
     'img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png',
     'img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png',
@@ -43,7 +45,7 @@ class SalsaThrow extends MovableObject {
     'img/6_salsa_bottle/bottle_rotation/4_bottle_rotation.png'
   ];
 
-  /** Splash-Frames nach Aufprall. @type {string[]} */
+  /** Splash frames after impact. @type {string[]} */
   IMAGES_SPLASH = [
     'img/6_salsa_bottle/bottle_rotation/bottle_splash/1_bottle_splash.png',
     'img/6_salsa_bottle/bottle_rotation/bottle_splash/2_bottle_splash.png',
@@ -53,9 +55,9 @@ class SalsaThrow extends MovableObject {
   ];
 
   /**
-   * @param {number} x - Start-X Position.
-   * @param {number} y - Start-Y Position.
-   * @param {boolean} direction - true = links, false = rechts.
+   * @param {number} x - Start X position.
+   * @param {number} y - Start Y position.
+   * @param {boolean} direction - true = left, false = right.
    */
   constructor(x, y, direction) {
     super().loadImage(this.IMAGES_ROTATION[0]);
@@ -67,11 +69,13 @@ class SalsaThrow extends MovableObject {
     this.throw();
   }
 
+  //#region Setup
+
   /**
-   * Setzt Startposition und Richtung.
+   * Sets start position and direction.
    * @param {number} x
    * @param {number} y
-   * @param {boolean} direction - true = links, false = rechts.
+   * @param {boolean} direction - true = left, false = right.
    * @returns {void}
    */
   setStartPosition(x, y, direction) {
@@ -81,7 +85,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Initialisiert Audio-Elemente für Rotation und Treffer.
+   * Initializes audio elements for rotation and impact.
    * @returns {void}
    */
   initSounds() {
@@ -94,8 +98,12 @@ class SalsaThrow extends MovableObject {
     this.hitSound.volume = 0.5;
   }
 
+  //#endregion
+
+  //#region Throw loop
+
   /**
-   * Startet den Wurf: Sound + Bewegungs- und Rotations-Loop.
+   * Starts the throw: sound + movement and rotation loops.
    * @returns {void}
    */
   throw() {
@@ -105,7 +113,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Spielt den Rotationssound ab.
+   * Plays the rotation sound.
    * @returns {void}
    */
   playRotationSound() {
@@ -114,7 +122,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Startet den Bewegungs-Loop (Ballistik).
+   * Starts the movement loop (ballistics).
    * @returns {void}
    */
   startMoveLoop() {
@@ -122,7 +130,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Ein Tick der Bewegung: X/Y anpassen und Bodenkontakt prüfen.
+   * One movement tick: update X/Y and check ground contact.
    * @returns {void}
    */
   tickMove() {
@@ -132,7 +140,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Bewegt das Projektil horizontal inkl. leichter Abbremsung.
+   * Moves the projectile horizontally with slight damping.
    * @returns {void}
    */
   moveX() {
@@ -141,7 +149,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Bewegt das Projektil vertikal (Parabel).
+   * Moves the projectile vertically (parabola).
    * @returns {void}
    */
   moveY() {
@@ -149,8 +157,12 @@ class SalsaThrow extends MovableObject {
     this.speedY -= this.acceleration;
   }
 
+  //#endregion
+
+  //#region Ground hit + splash
+
   /**
-   * Prüft, ob der Boden erreicht wurde (und noch kein Hit passiert ist).
+   * Checks if the ground was reached (and no hit happened yet).
    * @returns {boolean}
    */
   isGroundHit() {
@@ -158,7 +170,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Behandelt den Bodentreffer: Flag setzen, Sound, Splash starten.
+   * Handles ground hit: set flag, play sound, start splash.
    * @returns {void}
    */
   onGroundHit() {
@@ -168,7 +180,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Spielt den Hit-Sound ab.
+   * Plays the hit sound.
    * @returns {void}
    */
   playHitSound() {
@@ -177,7 +189,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Startet die Rotations-Animation.
+   * Starts the rotation animation.
    * @returns {void}
    */
   startRotationLoop() {
@@ -187,7 +199,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Stoppt den Rotationssound (z.B. beim Treffer).
+   * Stops the rotation sound (e.g. on impact).
    * @returns {void}
    */
   stopSound() {
@@ -197,9 +209,9 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Startet die Splash-Animation und stoppt Bewegung/Rotation.
-   * Optionaler Callback wird nach dem Splash ausgeführt.
-   * @param {Function} [callback] - Wird nach dem Splash aufgerufen.
+   * Starts the splash animation and stops movement/rotation.
+   * An optional callback is executed after the splash.
+   * @param {Function} [callback] - Called after the splash finishes.
    * @returns {void}
    */
   splashAnimation(callback) {
@@ -210,7 +222,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Stoppt Move- und Rotation-Intervalle.
+   * Stops move and rotation intervals.
    * @returns {void}
    */
   stopIntervals() {
@@ -219,7 +231,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Setzt Geschwindigkeiten auf 0 (nach Treffer).
+   * Resets speeds to 0 (after impact).
    * @returns {void}
    */
   resetSpeeds() {
@@ -228,7 +240,7 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Spielt die Splash-Frames nacheinander ab.
+   * Plays the splash frames sequentially.
    * @param {Function} [callback]
    * @returns {void}
    */
@@ -241,8 +253,8 @@ class SalsaThrow extends MovableObject {
   }
 
   /**
-   * Beendet die Splash-Animation: unsichtbar machen und Callback ausführen.
-   * @param {number} intervalId - Interval-ID des Splash-Loops.
+   * Finishes the splash animation: make invisible and run callback.
+   * @param {number} intervalId - Interval id of the splash loop.
    * @param {Function} [callback]
    * @returns {void}
    */
@@ -255,4 +267,8 @@ class SalsaThrow extends MovableObject {
       if (callback) callback();
     }, 200);
   }
+
+  //#endregion
 }
+
+//#endregion

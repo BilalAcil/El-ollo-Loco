@@ -1,6 +1,8 @@
+//#region Bodyguard damage/death mixin
+
 /**
  * @file bodyguard.damage-death.js
- * @description Hit/Death/Fall/Remove als Mixin.
+ * @description Hit/death/fall/remove logic as a mixin.
  */
 
 window.BodyguardDamageDeath = {
@@ -109,6 +111,7 @@ window.BodyguardDamageDeath = {
   },
 
   playDieSoundDelayed(ms) {
+    // Delay the sound a bit so the hit/death transition feels smoother.
     setTimeout(() => {
       if (this.isDead) this.playDieSound();
     }, ms);
@@ -157,3 +160,5 @@ window.BodyguardDamageDeath = {
     if (i > -1) enemies.splice(i, 1);
   }
 };
+
+//#endregion

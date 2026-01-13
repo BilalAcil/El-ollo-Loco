@@ -1,32 +1,34 @@
+//#region Maracas class
+
 /**
  * @file models/maracas.class.js
  * @description
- * Sammelobjekt: Maracas. Erscheint nach dem Endboss-Tod und triggert die Endsequenz.
+ * Collectible: maracas. Appears after the endboss dies and triggers the end sequence.
  */
 
 /**
- * Maracas-Collectible (triggert Endsequenz bei Kollision).
+ * Maracas collectible (triggers end sequence on collision).
  * @class
  * @extends MovableObject
  */
 class Maracas extends MovableObject {
-  /** Höhe des Objekts. @type {number} */
+  /** Object height. @type {number} */
   height = 40;
 
-  /** Breite des Objekts. @type {number} */
+  /** Object width. @type {number} */
   width = 60;
 
-  /** Y-Position in der Welt. @type {number} */
+  /** Y position in the world. @type {number} */
   y = 380;
 
-  /** Drehwinkel in Grad (für Rendering). @type {number} */
+  /** Rotation angle in degrees (for rendering). @type {number} */
   rotation = -50;
 
-  /** Bildpfad für die Maracas. @type {string} */
+  /** Image path for the maracas. @type {string} */
   IMAGE = 'img/14_maracas/maracas.png';
 
   /**
-   * Erstellt eine Maracas an der vorgesehenen Position.
+   * Creates a maracas collectible at the intended position.
    */
   constructor() {
     super();
@@ -34,3 +36,5 @@ class Maracas extends MovableObject {
     this.x = 4545;
   }
 }
+
+//#endregion

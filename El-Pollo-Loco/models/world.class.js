@@ -1,124 +1,126 @@
+//#region World class
+
 /**
  * @file models/world.class.js
  * @description
- * Zentrale Spielwelt. Hält Referenzen auf Canvas/Context, Level, Spielfiguren,
- * Statusbars, Collectibles und verwaltet Initialisierung (inkl. Pause-Startzustand).
+ * Central game world. Holds references to canvas/context, level, characters,
+ * status bars, collectibles and manages initialization (including initial pause state).
  */
 class World {
   /**
-   * Der Spieler-Charakter (Pepe).
+   * The player character (Pepe).
    * @type {Character}
    */
   character = new Character();
 
   /**
-   * Aktuelles Level-Objekt (z.B. level1).
+   * Current level object (e.g. level1).
    * @type {Level}
    */
   level = level1;
 
   /**
-   * Canvas-Element, auf dem gerendert wird.
+   * Canvas element used for rendering.
    * @type {HTMLCanvasElement}
    */
   canvas;
 
   /**
-   * 2D-Render-Kontext der Canvas.
+   * Canvas 2D rendering context.
    * @type {CanvasRenderingContext2D}
    */
   ctx;
 
   /**
-   * Eingabe-Controller (Keyboard).
+   * Input controller (keyboard).
    * @type {Keyboard}
    */
   keyboard;
 
   /**
-   * Countdown-System inkl. Musik.
+   * Countdown system incl. music.
    * @type {Countdown}
    */
   countdown = new Countdown();
 
   /**
-   * Aktuelle Kamera-Translation auf der X-Achse.
+   * Current camera translation on the X axis.
    * @type {number}
    */
   camera_x = 0;
 
   /**
-   * Lebensanzeige des Spielers.
+   * Player health bar.
    * @type {StatusBar}
    */
   statusBar = new StatusBar();
 
   /**
-   * Salsa-Statusanzeige.
+   * Salsa status bar.
    * @type {StatusBarSalsa}
    */
   statusBarSalsa = new StatusBarSalsa();
 
   /**
-   * Coin-Statusanzeige.
+   * Coin status bar.
    * @type {StatusBarCoin}
    */
   statusBarCoin = new StatusBarCoin();
 
   /**
-   * Statusbar für den Bodyguard (wird dynamisch erzeugt).
+   * Status bar for the bodyguard (created dynamically).
    * @type {BodyguardStatusBar|null}
    */
   bodyguardStatus = null;
 
   /**
-   * Maracas-Collectible (erscheint nach Boss/Story-Event).
+   * Maracas collectible (appears after boss/story event).
    * @type {Maracas|null}
    */
   maracas = null;
 
   /**
-   * Heil-Item (Maiskolben).
+   * Healing item (corncob).
    * @type {Corncob|null}
    */
   corncob = new Corncob();
 
   /**
-   * Deko-/Objekt im Endbossbereich.
+   * Decoration/object in the endboss area.
    * @type {ChickenNest}
    */
   chickenNest = new ChickenNest();
 
   /**
-   * Bodyguard-Gegner (Gatekeeper vor dem Endboss).
+   * Bodyguard enemy (gatekeeper before the endboss).
    * @type {Bodyguard}
    */
   bodyguard = new Bodyguard();
 
   /**
-   * Sammelbare Coins im Level.
+   * Collectible coins in the level.
    * @type {Coin[]}
    */
   coins = [];
 
   /**
-   * Sammelbare Salsa-Flaschen im Level.
+   * Collectible salsa bottles in the level.
    * @type {Salsa[]}
    */
   salsas = [];
 
   /**
-   * Geworfene Objekte (z.B. SalsaThrow).
+   * Thrown objects (e.g. SalsaThrow).
    * @type {MovableObject[]}
    */
   throwableObjects = [];
 
   /**
-   * Erstellt eine neue World-Instanz, initialisiert Kontext, Sounds, Referenzen und
-   * setzt das Spiel initial auf Pause (Startscreen/Play-Symbol).
+   * Creates a new world instance, initializes context, sounds, references and
+   * starts the game in a paused state (start screen / play symbol).
    *
-   * @param {HTMLCanvasElement} canvas - Canvas, auf der das Spiel gezeichnet wird.
-   * @param {Keyboard} keyboard - Keyboard-Instanz für Eingaben.
+   * @param {HTMLCanvasElement} canvas - Canvas to render the game on.
+   * @param {Keyboard} keyboard - Keyboard instance for inputs.
    */
   constructor(canvas, keyboard) {
     this.initContext(canvas);
@@ -131,10 +133,12 @@ class World {
     this.showPlaySymbol();
   }
 
+  //#region Init
+
   /**
-   * Speichert Canvas + Context für das Rendering.
+   * Stores canvas and context for rendering.
    *
-   * @param {HTMLCanvasElement} canvas - Canvas-Element.
+   * @param {HTMLCanvasElement} canvas - Canvas element.
    * @returns {void}
    */
   initContext(canvas) {
@@ -143,121 +147,121 @@ class World {
   }
 
   /**
-   * Speichert die Keyboard-Referenz und setzt Pause-Overlay initial aus.
+   * Stores the keyboard reference and disables pause overlay initially.
    *
-   * @param {Keyboard} keyboard - Keyboard-Instanz.
+   * @param {Keyboard} keyboard - Keyboard instance.
    * @returns {void}
    */
   initInput(keyboard) {
     this.keyboard = keyboard;
 
     /**
-     * Steuert, ob beim Pausieren ein Overlay (⏸/▶) gezeigt werden darf.
+     * Controls whether a pause overlay (⏸/▶) may be shown when pausing.
      * @type {boolean}
      */
     this.allowPauseOverlay = false;
   }
 
   /**
-   * Initialisiert Laufzeit-Flags und Hit-Timer.
+   * Initializes runtime flags and hit timers.
    *
    * @returns {void}
    */
   initFlags() {
     /**
-     * Timestamp des letzten Kontaktschadens durch normale Gegner.
+     * Timestamp of the last contact-damage hit by normal enemies.
      * @type {number}
      */
     this.lastEnemyHit = 0;
 
     /**
-     * Timestamp des letzten Kontaktschadens durch Endboss.
+     * Timestamp of the last contact-damage hit by the endboss.
      * @type {number}
      */
     this.lastEndbossHit = 0;
 
     /**
-     * True während der Maracas-Endsequenz (keine Pause/Eingaben).
+     * True while the maracas end sequence is running (no pause/inputs).
      * @type {boolean}
      */
     this.isMaracasSequence = false;
 
     /**
-     * True nachdem der Bodyguard tot ist (Boss-Arena wird geöffnet).
+     * True after the bodyguard has died (boss arena opens).
      * @type {boolean}
      */
     this.hasBodyguardDied = false;
 
     /**
-     * Flag, ob nach Bodyguard-Tod die Kamera zurückfahren soll.
+     * Flag that the camera should pan back after bodyguard death.
      * @type {boolean}
      */
     this.shouldStartCameraPanBack = false;
   }
 
   /**
-   * Initialisiert Kamera-Panning-Parameter und den Kamera-Bewegungssound.
+   * Initializes camera panning parameters and the camera movement sound.
    *
    * @returns {void}
    */
   initCamera() {
     /**
-     * True während eines soften Kamera-Pans.
+     * True while a smooth camera pan is active.
      * @type {boolean}
      */
     this.isCameraPanning = false;
 
     /**
-     * Zielwert für {@link World#camera_x} während eines Pans.
+     * Target value for {@link World#camera_x} during a pan.
      * @type {number|null}
      */
     this.cameraTargetX = null;
 
     /**
-     * Geschwindigkeit des Kamera-Pans.
+     * Camera pan speed.
      * @type {number}
      */
     this.cameraPanSpeed = 2;
 
     /**
-     * Gesperrter Kamera-Wert in der Endboss-Arena (optional gesetzt).
+     * Locked camera value inside the endboss arena (optionally set).
      * @type {number|undefined}
      */
     this.endbossCameraX = undefined;
 
     /**
-     * Sound beim Kamera-Verschieben.
+     * Sound played while the camera is moving.
      * @type {HTMLAudioElement}
      */
     this.cameraMoveSound = this.createSound('audio/push-stone.mp3', 0.4, true);
   }
 
   /**
-   * Initialisiert wiederverwendbare Soundeffekte.
+   * Initializes reusable sound effects.
    *
    * @returns {void}
    */
   initSounds() {
     /**
-     * Heilungssound (Maiskolben).
+     * Healing sound (corncob).
      * @type {HTMLAudioElement}
      */
     this.healSound = this.createSound('audio/heart-1.mp3', 0.5);
 
     /**
-     * Endboss-Hurt-Sound (für Trefferfeedback).
+     * Endboss hurt sound (hit feedback).
      * @type {HTMLAudioElement}
      */
     this.endbossHurtSound = this.createSound('audio/endboss-hurt.mp3', 0.6);
   }
 
   /**
-   * Erstellt ein Audio-Objekt mit Standard-Einstellungen.
+   * Creates an audio object with default settings.
    *
-   * @param {string} src - Pfad zur Audiodatei.
-   * @param {number} [volume=1] - Lautstärke (0.0–1.0).
-   * @param {boolean} [loop=false] - Ob der Sound geloopt werden soll.
-   * @returns {HTMLAudioElement} Fertig initialisiertes Audio-Element.
+   * @param {string} src - Path to the audio file.
+   * @param {number} [volume=1] - Volume (0.0–1.0).
+   * @param {boolean} [loop=false] - Whether the sound should loop.
+   * @returns {HTMLAudioElement} Initialized audio element.
    */
   createSound(src, volume = 1, loop = false) {
     const sound = new Audio(src);
@@ -268,11 +272,11 @@ class World {
   }
 
   /**
-   * Initialisiert World-Referenzen/Subsysteme:
-   * - startet das Rendern
-   * - baut die Level-Objekte zusammen
-   * - setzt World-Referenzen für Bodyguard/Countdown
-   * - startet die Kollisionschecks
+   * Initializes world references/subsystems:
+   * - starts rendering
+   * - builds the level objects
+   * - sets world references for bodyguard/countdown
+   * - starts collision checks
    *
    * @returns {void}
    */
@@ -280,7 +284,7 @@ class World {
     this.draw();
     this.setWorld();
 
-    // Gegenseitige Referenzen
+    // Cross references
     this.bodyguard.world = this;
     this.countdown.world = this;
 
@@ -288,14 +292,14 @@ class World {
   }
 
   /**
-   * Setzt die World initial auf Pause, damit beim Laden nichts losläuft,
-   * bevor der Spieler "Start" klickt.
+   * Sets the world to an initial paused state so nothing moves
+   * before the player clicks "Start".
    *
    * @returns {void}
    */
   initPauseState() {
     /**
-     * True wenn die Welt pausiert ist.
+     * True if the world is paused.
      * @type {boolean}
      */
     this.isPaused = true;
@@ -307,7 +311,7 @@ class World {
   }
 
   /**
-   * Pausiert Countdown + Musik (falls vorhanden).
+   * Pauses countdown + music (if available).
    *
    * @returns {void}
    */
@@ -317,13 +321,17 @@ class World {
     this.countdown.pauseCountdown();
   }
 
+  //#endregion
+
+  //#region World setup
+
   /**
-   * Baut die World-Inhalte auf:
-   * - World-Ref am Character setzen
-   * - Coins/Salsas generieren
-   * - Gegnerliste neu aufbauen (Chickens + Bodyguard + Endboss/Statusbar)
-   * - Endboss + EndbossBar konfigurieren
-   * - Bodyguard-Gate anwenden (Boss/Bar/Nest verstecken bis Bodyguard tot)
+   * Builds the world content:
+   * - links world ref on the character
+   * - generates coins/salsas
+   * - rebuilds enemy list (chickens + bodyguard + endboss/statusbar)
+   * - configures endboss + endboss bar
+   * - applies the bodyguard gate (hide boss/bar/nest until bodyguard is dead)
    *
    * @returns {void}
    */
@@ -337,7 +345,7 @@ class World {
   }
 
   /**
-   * Verknüpft World-Referenzen in abhängigen Objekten.
+   * Links world references into dependent objects.
    *
    * @returns {void}
    */
@@ -346,7 +354,7 @@ class World {
   }
 
   /**
-   * Erzeugt alle Sammelobjekte (Coins + Salsas).
+   * Generates all collectibles (coins + salsa bottles).
    *
    * @returns {void}
    */
@@ -356,10 +364,10 @@ class World {
   }
 
   /**
-   * Rekonstruiert die Gegnerliste:
-   * - erzeugt neue Chickens
-   * - behält Endboss + Endboss-Statusbar aus dem Level
-   * - setzt Endboss/EndbossBar Referenzen
+   * Rebuilds the enemy list:
+   * - generates new chickens
+   * - keeps endboss + endboss status bar from the level
+   * - sets endboss/endbossBar references
    *
    * @returns {void}
    */
@@ -375,7 +383,7 @@ class World {
   }
 
   /**
-   * Initialisiert den Endboss (World-Ref, Energie, Death-State).
+   * Initializes the endboss (world ref, energy, death state).
    *
    * @returns {void}
    */
@@ -387,7 +395,7 @@ class World {
   }
 
   /**
-   * Initialisiert die Endboss-Statusbar (World-Ref, 100%).
+   * Initializes the endboss status bar (world ref, 100%).
    *
    * @returns {void}
    */
@@ -398,7 +406,7 @@ class World {
   }
 
   /**
-   * Versteckt Endboss, Endboss-Statusbar und Nest solange der Bodyguard lebt.
+   * Hides endboss, endboss status bar and nest while the bodyguard is alive.
    *
    * @returns {void}
    */
@@ -410,8 +418,12 @@ class World {
     if (this.chickenNest) this.chickenNest.visible = false;
   }
 
+  //#endregion
+
   // NOTE:
   // generateCoins(), generateSalsas(), generateChickens(), checkCollisions(), draw(),
-  // pauseAllMovements(), showPlaySymbol() etc. sind in deinen anderen Dateien/Modulen
-  // und werden dort separat per JSDoc dokumentiert.
+  // pauseAllMovements(), showPlaySymbol(), etc. are implemented in your other files/modules
+  // and are documented there via JSDoc.
 }
+
+//#endregion

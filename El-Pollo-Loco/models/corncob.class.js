@@ -1,12 +1,14 @@
+//#region Corncob class
+
 /**
  * @file models/corncob.class.js
  * @description
- * Corncob (Heil-Item). Wird von der World platziert und bei Kollision eingesammelt.
- * Besitzt eine eigene kleinere Kollisionsbox.
+ * Corncob (healing item). Placed by the World and collected on collision.
+ * Has its own smaller collision box.
  */
 
 /**
- * Corncob (Heil-Item).
+ * Corncob (healing item).
  * @class
  * @extends MovableObject
  */
@@ -19,7 +21,7 @@ class Corncob extends MovableObject {
   IMAGE = 'img/12_corncob/corncob.png';
 
   /**
-   * Erstellt den Corncob, lädt das Bild und setzt die Position.
+   * Creates the corncob, loads the image, and sets its position.
    */
   constructor() {
     super();
@@ -28,7 +30,7 @@ class Corncob extends MovableObject {
   }
 
   /**
-   * Kleinere Kollisionsbox als das Sprite (faireres Einsammeln).
+   * Smaller collision box than the sprite (fairer pickup).
    * @returns {{x:number,y:number,width:number,height:number}}
    */
   get collisionBox() {
@@ -40,3 +42,5 @@ class Corncob extends MovableObject {
     };
   }
 }
+
+//#endregion

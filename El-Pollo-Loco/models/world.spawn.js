@@ -1,13 +1,15 @@
+//#region World spawn/utilities system
+
 /**
  * @file models/world.spawn.js
  * @description
- * Spawning-/Erzeugungslogik und "Utility"-Funktionen der World:
- * - Gegner erzeugen (Chickens)
- * - Sammelobjekte erzeugen (Coins, Salsas)
- * - Gegner töten/entfernen
- * - EndGame-Auslöser
- * - Pause-/Play-Overlay Rendering
- * - "Shock"-Effekt (kurzes Hüpfen von Objekten + Kamera-Pan)
+ * Spawning + utility functions for the World:
+ * - spawn enemies (chickens)
+ * - spawn collectibles (coins, salsas)
+ * - kill/remove enemies
+ * - endGame trigger
+ * - pause/play overlay rendering
+ * - "shock" effect (small bounce + camera pan)
  */
 
 Object.assign(World.prototype, {
@@ -53,27 +55,33 @@ Object.assign(World.prototype, {
 });
 
 /**
- * Erzeugt alle Chicken-Enemies für das Level.
- * @returns {Array<MovableObject>} Array mit erzeugten Gegnern.
+ * Generates all chicken enemies for the level.
+ *
+ * @this {World}
+ * @returns {Array<MovableObject>}
  */
 function generateChickens() {
   return [...this.createEnemies(8, Chicken), ...this.createEnemies(4, ChickenSmall)];
 }
 
 /**
- * Erstellt eine definierte Anzahl von Enemies per Konstruktor.
+ * Creates a number of enemies using a constructor.
+ *
  * @template T
- * @param {number} count - Anzahl der zu erzeugenden Instanzen.
- * @param {Function} Ctor - Klassenkonstruktor (z.B. Chicken).
- * @returns {T[]} Array mit Instanzen.
+ * @this {World}
+ * @param {number} count
+ * @param {Function} Ctor
+ * @returns {T[]}
  */
 function createEnemies(count, Ctor) {
   return Array.from({ length: count }, () => new Ctor());
 }
 
 /**
- * Tötet einen normalen Gegner (setzt isDead, Death-Image, entfernt ihn nach Delay).
- * @param {MovableObject} enemy - Der zu tötende Gegner.
+ * Kills a normal enemy (sets isDead, death image, removes after delay).
+ *
+ * @this {World}
+ * @param {MovableObject} enemy
  * @returns {void}
  */
 function killEnemy(enemy) {
@@ -84,7 +92,9 @@ function killEnemy(enemy) {
 }
 
 /**
- * Markiert einen Gegner als tot.
+ * Marks an enemy as dead.
+ *
+ * @this {World}
  * @param {MovableObject} enemy
  * @returns {void}
  */
@@ -93,7 +103,9 @@ function markEnemyDead(enemy) {
 }
 
 /**
- * Setzt das Standard-Todesbild für Chickens.
+ * Sets default death image for chickens.
+ *
+ * @this {World}
  * @param {MovableObject} enemy
  * @returns {void}
  */
@@ -102,9 +114,11 @@ function setDefaultDeathImage(enemy) {
 }
 
 /**
- * Entfernt einen Gegner nach einer Verzögerung aus dem enemies-Array.
+ * Removes an enemy from enemies array after a delay.
+ *
+ * @this {World}
  * @param {MovableObject} enemy
- * @param {number} ms - Delay in Millisekunden.
+ * @param {number} ms
  * @returns {void}
  */
 function removeEnemySoon(enemy, ms) {
@@ -112,7 +126,9 @@ function removeEnemySoon(enemy, ms) {
 }
 
 /**
- * Entfernt einen Gegner sofort aus dem enemies-Array.
+ * Removes an enemy immediately from enemies array.
+ *
+ * @this {World}
  * @param {MovableObject} enemy
  * @returns {void}
  */
@@ -122,8 +138,10 @@ function removeEnemy(enemy) {
 }
 
 /**
- * Erzeugt Coin-Objekte in Gruppen (max. 10 Coins).
- * @returns {Coin[]} Array der erzeugten Coins.
+ * Generates coin objects in groups (max 10 coins).
+ *
+ * @this {World}
+ * @returns {Coin[]}
  */
 function generateCoins() {
   const coins = [];
@@ -132,19 +150,25 @@ function generateCoins() {
 }
 
 /**
- * Fügt eine Coin-Gruppe hinzu (1–3 Coins) bis zum Limit.
- * @param {Coin[]} coins - Zielarray.
- * @param {number} limit - Maximale Anzahl Coins.
+ * Adds a coin group (1–3 coins) up to the limit.
+ *
+ * @this {World}
+ * @param {Coin[]} coins
+ * @param {number} limit
  * @returns {void}
  */
 function addCoinGroup(coins, limit) {
   const baseX = this.randomCoinBaseX();
   const groupSize = this.randomCoinGroupSize();
-  for (let i = 0; i < groupSize && coins.length < limit; i++) coins.push(this.createCoin(baseX, i));
+  for (let i = 0; i < groupSize && coins.length < limit; i++) {
+    coins.push(this.createCoin(baseX, i));
+  }
 }
 
 /**
- * Liefert eine zufällige X-Basisposition für Coins.
+ * Random base X position for coin groups.
+ *
+ * @this {World}
  * @returns {number}
  */
 function randomCoinBaseX() {
@@ -152,17 +176,21 @@ function randomCoinBaseX() {
 }
 
 /**
- * Bestimmt, ob Coins einzeln oder als kleine Gruppe spawnen.
- * @returns {number} Gruppengröße (1–3).
+ * Determines group size (1–3).
+ *
+ * @this {World}
+ * @returns {number}
  */
 function randomCoinGroupSize() {
   return Math.random() < 0.4 ? 2 + Math.floor(Math.random() * 2) : 1;
 }
 
 /**
- * Erstellt einen Coin relativ zur Gruppenbasis.
- * @param {number} baseX - Gruppenbasis-X.
- * @param {number} index - Index innerhalb der Gruppe.
+ * Creates a coin relative to group base.
+ *
+ * @this {World}
+ * @param {number} baseX
+ * @param {number} index
  * @returns {Coin}
  */
 function createCoin(baseX, index) {
@@ -172,7 +200,9 @@ function createCoin(baseX, index) {
 }
 
 /**
- * Liefert eine zufällige Y-Position für Coins.
+ * Random Y position for coins.
+ *
+ * @this {World}
  * @returns {number}
  */
 function randomCoinY() {
@@ -180,8 +210,10 @@ function randomCoinY() {
 }
 
 /**
- * Erzeugt Salsa-Pickups (standardmäßig 5 Stück) verteilt im Level.
- * @returns {Salsa[]} Array der erzeugten Salsas.
+ * Generates salsa pickups (default 5) spread across the level.
+ *
+ * @this {World}
+ * @returns {Salsa[]}
  */
 function generateSalsas() {
   const salsas = [];
@@ -194,20 +226,29 @@ function generateSalsas() {
 }
 
 /**
- * Prüft, ob ein Objekt als "echter Gegner" zählt (keine UI-Elemente wie Statusbars).
- * @param {*} enemy - Objekt aus level.enemies.
+ * Checks if an object counts as a "real enemy" (not UI elements like status bars).
+ *
+ * NOTE:
+ * Bodyguard is handled separately in world.collision.core.js, so we keep this filter
+ * limited to normal enemies + endboss.
+ *
+ * @this {World}
+ * @param {*} enemy
  * @returns {boolean}
  */
 function isActualEnemy(enemy) {
-  return (enemy instanceof Chicken || enemy instanceof ChickenSmall || enemy instanceof Endboss) &&
-    !(enemy instanceof EndBossStatusBar);
+  return (
+    (enemy instanceof Chicken || enemy instanceof ChickenSmall || enemy instanceof Endboss) &&
+    !(enemy instanceof EndBossStatusBar)
+  );
 }
 
 /**
- * Beendet das Spiel (Win/Lose) und zeigt nach Delay den Endscreen.
- * Friert vorher alles ein.
+ * Ends the game (win/lose) and shows end screen after a delay.
+ * Freezes everything first.
  *
- * @param {boolean} [win=false] - true = gewonnen, false = verloren.
+ * @this {World}
+ * @param {boolean} [win=false]
  * @returns {void}
  */
 function endGame(win = false) {
@@ -217,9 +258,10 @@ function endGame(win = false) {
 }
 
 /**
- * Zeigt kurz ein Pause-Overlay (⏸), blendet es aus und zeigt danach das Play-Symbol (▶).
- * Wird ignoriert, wenn der Startscreen sichtbar ist.
+ * Shows a short pause overlay (⏸), fades it out, then shows the play symbol (▶).
+ * Ignored if start screen is visible.
  *
+ * @this {World}
  * @returns {void}
  */
 function showPauseThenPlaySymbol() {
@@ -231,9 +273,10 @@ function showPauseThenPlaySymbol() {
 }
 
 /**
- * Zeigt das dauerhafte Play-Symbol (▶) in der Mitte.
- * Wird ignoriert, wenn der Startscreen sichtbar ist oder bereits angezeigt.
+ * Shows the persistent play symbol (▶) centered.
+ * Ignored if start screen is visible or already present.
  *
+ * @this {World}
  * @returns {void}
  */
 function showPlaySymbol() {
@@ -245,7 +288,9 @@ function showPlaySymbol() {
 }
 
 /**
- * Entfernt das Play-Symbol (▶), falls vorhanden.
+ * Removes the play symbol (▶) if present.
+ *
+ * @this {World}
  * @returns {void}
  */
 function hidePlaySymbol() {
@@ -253,7 +298,9 @@ function hidePlaySymbol() {
 }
 
 /**
- * Prüft, ob der Startscreen aktuell sichtbar ist.
+ * Returns true if start screen is currently visible.
+ *
+ * @this {World}
  * @returns {boolean}
  */
 function isStartScreenVisible() {
@@ -262,8 +309,10 @@ function isStartScreenVisible() {
 }
 
 /**
- * Prüft, ob ein Overlay-Element mit bestimmter ID existiert.
- * @param {string} id - DOM id des Overlays.
+ * Returns true if an overlay element exists by id.
+ *
+ * @this {World}
+ * @param {string} id
  * @returns {boolean}
  */
 function isOverlayPresent(id) {
@@ -271,9 +320,11 @@ function isOverlayPresent(id) {
 }
 
 /**
- * Erstellt ein Overlay-DIV mit Symbol.
- * @param {string} id - DOM id.
- * @param {string} symbol - HTML/String Symbol (z.B. ▶).
+ * Creates an overlay DIV with a symbol.
+ *
+ * @this {World}
+ * @param {string} id
+ * @param {string} symbol
  * @returns {HTMLDivElement}
  */
 function createOverlay(id, symbol) {
@@ -284,11 +335,11 @@ function createOverlay(id, symbol) {
 }
 
 /**
- * Wendet Standard-Styles für Overlays an (zentriert, groß, halbtransparent).
- * (Kompakt gehalten, damit dein Datei-/Zeilenlimit passt.)
+ * Applies default styles for overlays (centered, big, semi-transparent).
  *
- * @param {HTMLElement} el - Overlay-Element.
- * @param {number} [opacity=0.4] - Deckkraft.
+ * @this {World}
+ * @param {HTMLElement} el
+ * @param {number} [opacity=0.4]
  * @returns {void}
  */
 function applyOverlayStyle(el, opacity = 0.4) {
@@ -299,23 +350,29 @@ function applyOverlayStyle(el, opacity = 0.4) {
 }
 
 /**
- * Blendet ein Element nach kurzer Wartezeit aus und entfernt es anschließend.
+ * Fades an element out after a short wait, then removes it.
  *
- * @param {HTMLElement} el - Element, das entfernt werden soll.
- * @param {number} waitMs - Wartezeit vor Fade-Out.
- * @param {number} fadeMs - Dauer (ungefähr) des Fade-Outs.
- * @param {Function} [onDone] - Callback nach dem Entfernen.
+ * @this {World}
+ * @param {HTMLElement} el
+ * @param {number} waitMs
+ * @param {number} fadeMs
+ * @param {Function} [onDone]
  * @returns {void}
  */
 function fadeOutThenRemove(el, waitMs, fadeMs, onDone) {
   setTimeout(() => {
     el.style.opacity = "0";
-    setTimeout(() => { el.remove(); onDone?.(); }, fadeMs);
+    setTimeout(() => {
+      el.remove();
+      onDone?.();
+    }, fadeMs);
   }, waitMs);
 }
 
 /**
- * Entfernt ein Overlay per ID, falls es existiert.
+ * Removes an overlay by id if it exists.
+ *
+ * @this {World}
  * @param {string} id
  * @returns {void}
  */
@@ -325,12 +382,13 @@ function removeOverlay(id) {
 }
 
 /**
- * "Shock"-Effekt nach dem Bodyguard-Landing:
- * - Character hüpft
- * - Endboss hüpft
- * - Nest und Corncob hüpfen
- * - Kamera-Pan in den Endbossbereich starten
+ * Shock effect after the bodyguard landing:
+ * - bounce character
+ * - bounce endboss
+ * - bounce nest + corncob
+ * - start camera pan into endboss arena
  *
+ * @this {World}
  * @returns {void}
  */
 function jumpFromShock() {
@@ -342,7 +400,9 @@ function jumpFromShock() {
 }
 
 /**
- * Lässt den Character kurz nach oben "bouncen".
+ * Bounces the character up briefly.
+ *
+ * @this {World}
  * @returns {void}
  */
 function bounceCharacter() {
@@ -351,7 +411,9 @@ function bounceCharacter() {
 }
 
 /**
- * Lässt den Endboss kurz nach oben "bouncen" und spielt Hurt-Animation.
+ * Bounces the endboss up briefly and plays its hurt frames.
+ *
+ * @this {World}
  * @returns {void}
  */
 function bounceEndboss() {
@@ -364,12 +426,13 @@ function bounceEndboss() {
 }
 
 /**
- * Bouncet einen Gegner kurz und setzt ihn danach wieder exakt auf die ursprüngliche Y-Position.
+ * Bounces an enemy and then snaps it back exactly to its original Y.
  *
+ * @this {World}
  * @param {MovableObject} enemy
- * @param {number} step - Schrittweite pro Tick (Pixel).
- * @param {number} repeats - Anzahl der Ticks.
- * @param {number} intervalMs - Tick-Intervall.
+ * @param {number} step
+ * @param {number} repeats
+ * @param {number} intervalMs
  * @returns {void}
  */
 function bounceEnemyToOriginalY(enemy, step, repeats, intervalMs) {
@@ -384,7 +447,9 @@ function bounceEnemyToOriginalY(enemy, step, repeats, intervalMs) {
 }
 
 /**
- * Lässt das ChickenNest kurz "bouncen".
+ * Bounces the chicken nest briefly.
+ *
+ * @this {World}
  * @returns {void}
  */
 function bounceChickenNest() {
@@ -395,7 +460,9 @@ function bounceChickenNest() {
 }
 
 /**
- * Lässt den Corncob kurz "bouncen".
+ * Bounces the corncob briefly.
+ *
+ * @this {World}
  * @returns {void}
  */
 function bounceCorncob() {
@@ -404,13 +471,19 @@ function bounceCorncob() {
 }
 
 /**
- * Generische Bounce-Utility: Objekt wird mehrere Ticks nach oben bewegt und danach zurückgesetzt.
+ * Generic bounce helper: moves an object up for several ticks and then pushes it back down.
  *
- * @param {MovableObject} obj - Zielobjekt.
- * @param {number} step - Pixel nach oben pro Tick.
- * @param {number} repeats - Anzahl Ticks.
- * @param {number} intervalMs - Tick-Intervall.
- * @param {number} compensateDown - Zusätzliche Down-Korrektur am Ende (z.B. für Character).
+ * NOTE:
+ * This uses "add back" at the end (step * repeats + compensateDown). That matches your
+ * original behavior, but if you ever see drift with repeated calls, prefer "snap back"
+ * to originalY (like bounceEnemyToOriginalY does).
+ *
+ * @this {World}
+ * @param {MovableObject} obj
+ * @param {number} step
+ * @param {number} repeats
+ * @param {number} intervalMs
+ * @param {number} compensateDown
  * @returns {void}
  */
 function bounceY(obj, step, repeats, intervalMs, compensateDown) {
@@ -422,3 +495,5 @@ function bounceY(obj, step, repeats, intervalMs, compensateDown) {
     obj.y += step * repeats + compensateDown;
   }, intervalMs);
 }
+
+//#endregion

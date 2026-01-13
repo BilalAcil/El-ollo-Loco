@@ -1,30 +1,34 @@
+//#region Keyboard class
+
 /**
  * @file models/keyboard.class.js
  * @description
- * Speichert den aktuellen Zustand der Eingaben (gedrückt / nicht gedrückt).
- * Wird von game.js (KeyDown/KeyUp) gesetzt und von Character/World ausgelesen.
+ * Stores the current input state (pressed / not pressed).
+ * Updated by game.js (KeyDown/KeyUp) and read by Character/World.
  */
 
 /**
- * Keyboard-State-Container für Steuerungstasten.
+ * Keyboard state container for control keys.
  * @class
  */
 class Keyboard {
-  /** Pfeiltaste links gedrückt. @type {boolean} */
+  /** Left arrow key pressed. @type {boolean} */
   LEFT = false;
 
-  /** Pfeiltaste rechts gedrückt. @type {boolean} */
+  /** Right arrow key pressed. @type {boolean} */
   RIGHT = false;
 
-  /** Pfeiltaste runter gedrückt. @type {boolean} */
+  /** Down arrow key pressed. @type {boolean} */
   DOWN = false;
 
-  /** Pfeiltaste hoch gedrückt. @type {boolean} */
+  /** Up arrow key pressed. @type {boolean} */
   UP = false;
 
-  /** Leertaste gedrückt (Springen). @type {boolean} */
+  /** Spacebar pressed (jump). @type {boolean} */
   SPACE = false;
 
-  /** Taste D gedrückt (Werfen). @type {boolean} */
+  /** D key pressed (throw). @type {boolean} */
   D = false;
 }
+
+//#endregion

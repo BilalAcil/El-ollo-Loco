@@ -1,24 +1,26 @@
+//#region Character movement + camera mixin
+
 /**
  * @file models/character.movement.js
  * @description
- * Movement-/Input-Loop für den Character + Kamera-Logik.
- * Wird per Object.assign an Character.prototype gehängt.
+ * Movement/input loop for the character + camera logic.
+ * Attached via Object.assign to Character.prototype.
  *
- * Enthält:
- * - Movement-Loop (60 FPS): tickMovement()
- * - Input-Verarbeitung (LEFT/RIGHT/SPACE/D)
- * - Kamera-Verhalten inkl. Soft-Panning im Endbossbereich
- * - Knockback-Physik
- * - Endboss-Trigger + Bodyguard-Jump
- * - Idle-Rückkehr nach Action-Cooldown
+ * Includes:
+ * - Movement loop (60 FPS): tickMovement()
+ * - Input handling (LEFT/RIGHT/SPACE/D)
+ * - Camera behavior incl. soft panning in the endboss area
+ * - Knockback physics
+ * - Endboss trigger + bodyguard jump
+ * - Return to idle after action cooldown
  *
- * Voraussetzungen:
- * - Character hat u.a.: world, x, y, width, speedX, speedY, knockbackActive,
+ * Requirements:
+ * - Character has: world, x, y, width, speedX, speedY, knockbackActive,
  *   atEndboss, freezeForBodyguard, lastActionTime, actionCooldown, lastMoveTime,
  *   currentAnimation, animationFinished
- * - Methoden aus anderen Dateien: throwAnimation(), handleMovement(), isHurt(), isDead(),
+ * - Methods from other files: throwAnimation(), handleMovement(), isHurt(), isDead(),
  *   isAboveGround(), jump(), moveRight(), moveLeft()
- * - World hat: keyboard, canvas, camera_x, isPaused, countdown, bodyguard,
+ * - World has: keyboard, canvas, camera_x, isPaused, countdown, bodyguard,
  *   startEndbossCameraPanBack(), stopCameraMoveSound()
  */
 
@@ -46,8 +48,12 @@ Object.assign(Character.prototype, {
   switchToIdleIfNeeded,
 });
 
+//#endregion
+
+//#region Movement loop (60 FPS)
+
 /**
- * Startet den Movement-Loop (60 FPS).
+ * Starts the movement loop (60 FPS).
  * @this {Character}
  * @returns {void}
  */
@@ -56,12 +62,12 @@ function startMovementLoop() {
 }
 
 /**
- * Ein Tick des Movement-Loops:
- * - Kamera updaten
- * - Knockback anwenden
- * - Inputs verarbeiten (außer Freeze)
- * - Endboss-Trigger prüfen
- * - ggf. auf Idle zurückschalten
+ * One tick of the movement loop:
+ * - update camera
+ * - apply knockback
+ * - process inputs (unless frozen)
+ * - check endboss trigger
+ * - optionally switch back to idle
  * @this {Character}
  * @returns {void}
  */
@@ -76,9 +82,9 @@ function tickMovement() {
 }
 
 /**
- * Prüft, ob Movement-Tick übersprungen werden soll (Pause/fehlende World).
+ * Checks whether the movement tick should be skipped (pause/missing world).
  * @this {Character}
- * @returns {boolean} True, wenn Tick übersprungen werden soll.
+ * @returns {boolean} True if the tick should be skipped.
  */
 function shouldSkipMovementTick() {
   if (this.isPaused) return true;
@@ -87,7 +93,7 @@ function shouldSkipMovementTick() {
 }
 
 /**
- * Liest Tastenzustände und führt Bewegung/Action aus.
+ * Reads key states and performs movement/actions.
  * @this {Character}
  * @returns {void}
  */
@@ -99,9 +105,13 @@ function processMovementInputs() {
   this.throwIfNeeded();
 }
 
+//#endregion
+
+//#region Movement bounds
+
 /**
- * Berechnet die erlaubten X-Grenzen.
- * Im Endbossbereich wird die Bewegung auf den Viewport begrenzt.
+ * Calculates the allowed X bounds.
+ * In the endboss area, movement is limited to the current viewport.
  * @this {Character}
  * @returns {{minX:number,maxX:number}}
  */
@@ -119,10 +129,14 @@ function getRunBounds() {
   return { minX, maxX };
 }
 
+//#endregion
+
+//#region Input handling
+
 /**
- * Bewegt nach rechts, falls RIGHT gedrückt und innerhalb Grenze.
+ * Moves right if RIGHT is pressed and within bounds.
  * @this {Character}
- * @param {number} maxX - Maximale X-Position.
+ * @param {number} maxX - Maximum X position.
  * @returns {void}
  */
 function moveRightIfNeeded(maxX) {
@@ -134,9 +148,9 @@ function moveRightIfNeeded(maxX) {
 }
 
 /**
- * Bewegt nach links, falls LEFT gedrückt und innerhalb Grenze.
+ * Moves left if LEFT is pressed and within bounds.
  * @this {Character}
- * @param {number} minX - Minimale X-Position.
+ * @param {number} minX - Minimum X position.
  * @returns {void}
  */
 function moveLeftIfNeeded(minX) {
@@ -148,7 +162,7 @@ function moveLeftIfNeeded(minX) {
 }
 
 /**
- * Springt, falls SPACE gedrückt und Character am Boden ist.
+ * Jumps if SPACE is pressed and the character is on the ground.
  * @this {Character}
  * @returns {void}
  */
@@ -160,7 +174,7 @@ function jumpIfNeeded() {
 }
 
 /**
- * Wirft Salsa, falls D gedrückt und Animationen es erlauben.
+ * Throws salsa if D is pressed and animations allow it.
  * @this {Character}
  * @returns {void}
  */
@@ -172,11 +186,15 @@ function throwIfNeeded() {
   }
 }
 
+//#endregion
+
+//#region Camera behavior
+
 /**
- * Aktualisiert die Kamera:
- * - ggf. Pan-Back starten
- * - Soft-Panning ausführen
- * - Endboss-Kamera locken oder normal folgen
+ * Updates the camera:
+ * - starts pan-back if needed
+ * - runs soft panning
+ * - locks endboss camera or follows normally
  * @this {Character}
  * @returns {void}
  */
@@ -188,9 +206,9 @@ function updateCamera() {
 }
 
 /**
- * Prüft, ob das Zurück-Panning gestartet werden soll (Bodyguard tot etc.).
+ * Checks whether camera pan-back should start now (bodyguard dead, etc.).
  * @this {Character}
- * @returns {boolean} True, wenn Pan-Back jetzt starten soll.
+ * @returns {boolean} True if pan-back should start now.
  */
 function shouldStartPanBackNow() {
   return this.atEndboss &&
@@ -201,7 +219,7 @@ function shouldStartPanBackNow() {
 }
 
 /**
- * Startet das Zurück-Panning genau einmal.
+ * Starts the pan-back exactly once.
  * @this {Character}
  * @returns {void}
  */
@@ -211,9 +229,9 @@ function startPanBackOnce() {
 }
 
 /**
- * Führt Soft-Panning aus, wenn aktiv.
+ * Handles soft panning if active.
  * @this {Character}
- * @returns {boolean} True, wenn Soft-Panning verarbeitet wurde.
+ * @returns {boolean} True if soft panning was processed.
  */
 function handleSoftPanning() {
   if (!this.world.isCameraPanning) return false;
@@ -228,9 +246,9 @@ function handleSoftPanning() {
 }
 
 /**
- * Beendet Soft-Panning und speichert die Endboss-Kameraposition.
+ * Finishes soft panning and stores the endboss camera position.
  * @this {Character}
- * @param {number} target - Zielwert der Kamera.
+ * @param {number} target - Camera target X value.
  * @returns {void}
  */
 function finishSoftPanning(target) {
@@ -241,7 +259,7 @@ function finishSoftPanning(target) {
 }
 
 /**
- * Fixiert die Kamera im Endbossbereich auf endbossCameraX.
+ * Locks the camera in the endboss area to endbossCameraX.
  * @this {Character}
  * @returns {void}
  */
@@ -252,7 +270,7 @@ function lockEndbossCamera() {
 }
 
 /**
- * Standardkamera: folgt dem Character.
+ * Default camera: follows the character.
  * @this {Character}
  * @returns {void}
  */
@@ -260,8 +278,12 @@ function followCharacterCamera() {
   this.world.camera_x = -this.x + 100;
 }
 
+//#endregion
+
+//#region Knockback physics
+
 /**
- * Wendet Knockback an und lässt ihn auslaufen.
+ * Applies knockback and lets it decay over time.
  * @this {Character}
  * @returns {void}
  */
@@ -274,8 +296,12 @@ function applyKnockback() {
   this.speedX = 0;
 }
 
+//#endregion
+
+//#region Endboss trigger + bodyguard jump
+
 /**
- * Prüft, ob der Endbossbereich betreten wird.
+ * Checks whether the endboss area is entered.
  * @this {Character}
  * @returns {void}
  */
@@ -285,10 +311,10 @@ function checkEndbossTrigger() {
 }
 
 /**
- * Aktiviert Endbossbereich:
- * - Bossmusik starten
- * - Countdown ggf. kurz verstecken
- * - Spieler einfrieren für Bodyguard-Sprung
+ * Activates the endboss area:
+ * - start boss music
+ * - optionally hide the countdown briefly
+ * - freeze the player for the bodyguard jump
  * @this {Character}
  * @returns {void}
  */
@@ -305,7 +331,7 @@ function activateEndbossArea() {
 }
 
 /**
- * Löst den Bodyguard-Jump aus (nur einmal).
+ * Triggers the bodyguard jump (only once).
  * @this {Character}
  * @returns {void}
  */
@@ -315,8 +341,12 @@ function triggerBodyguardJump() {
   this.world.bodyguard.hasJumped = true;
 }
 
+//#endregion
+
+//#region Return to idle after actions
+
 /**
- * Schaltet nach Action-Cooldown zurück auf Idle (wenn erlaubt).
+ * Switches back to idle after the action cooldown (if allowed).
  * @this {Character}
  * @returns {void}
  */
@@ -330,3 +360,5 @@ function switchToIdleIfNeeded() {
 
   if (idleAllowed) this.currentAnimation = 'idle';
 }
+
+//#endregion

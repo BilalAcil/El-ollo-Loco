@@ -1,14 +1,16 @@
+//#region ChickenSmall class
+
 /**
  * @file models/chicken-small.class.js
  * @description
- * Kleines Chicken (ChickenSmall) Gegner-Objekt.
- * - Läuft nach links
- * - Spielt Walking-Animation
- * - Respektiert Pause (this.isPaused / world.isPaused)
+ * Small chicken (ChickenSmall) enemy object.
+ * - Moves to the left
+ * - Plays a walking animation
+ * - Respects pause (this.isPaused / world.isPaused)
  */
 
 /**
- * Kleines Chicken (Gegner).
+ * Small chicken (enemy).
  * @class
  * @extends MovableObject
  */
@@ -33,7 +35,7 @@ class ChickenSmall extends MovableObject {
   IMAGE_DEAD = 'img/3_enemies_chicken/chicken_small/2_dead/dead.png';
 
   /**
-   * Erstellt ein ChickenSmall, setzt random Position/Speed und startet Animation/Movement.
+   * Creates a ChickenSmall, sets random position/speed, and starts animation/movement.
    */
   constructor() {
     super().loadImage('img/3_enemies_chicken/chicken_small/1_walk/1_w.png');
@@ -45,7 +47,7 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Setzt eine zufällige X-Spawnposition.
+   * Sets a random X spawn position.
    * @returns {void}
    */
   initSpawn() {
@@ -53,7 +55,7 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Setzt zufällige Laufgeschwindigkeit.
+   * Sets a random walking speed.
    * @returns {void}
    */
   initMovementSpeed() {
@@ -61,7 +63,7 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Startet Movement- und Animations-Intervalle.
+   * Starts movement and animation intervals.
    * @returns {void}
    */
   animate() {
@@ -70,7 +72,7 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Movement-Loop (60 FPS): läuft nach links, wenn nicht tot/pausiert.
+   * Movement loop (60 FPS): moves left if not dead/paused.
    * @returns {void}
    */
   startMoveLoop() {
@@ -81,7 +83,7 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Animations-Loop: spielt Walking-Frames, wenn nicht tot/pausiert.
+   * Animation loop: plays walking frames if not dead/paused.
    * @returns {void}
    */
   startAnimationLoop() {
@@ -92,11 +94,13 @@ class ChickenSmall extends MovableObject {
   }
 
   /**
-   * Prüft, ob Movement/Animation in diesem Tick übersprungen werden soll.
-   * @returns {boolean} True, wenn tot oder pausiert.
+   * Checks whether movement/animation should be skipped in this tick.
+   * @returns {boolean} True if dead or paused.
    */
   shouldSkipTick() {
     if (this.isDead) return true;
     return this.isPaused || this.world?.isPaused;
   }
 }
+
+//#endregion

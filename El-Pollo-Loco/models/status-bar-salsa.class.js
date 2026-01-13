@@ -1,18 +1,20 @@
+//#region StatusBarSalsa class
+
 /**
  * @file models/status-bar-salsa.class.js
  * @description
- * Statusbar für Salsa-Flaschen (Icon + Counter) inkl. Blink-Feedback bei Fehlschlag.
+ * Status bar for salsa bottles (icon + counter) including blink feedback on failure.
  */
 
 /**
- * Zeigt oben links ein Salsa-Icon und die aktuelle Salsa-Anzahl an.
- * Kann kurz blinken (unsichtbar/sichtbar), z. B. wenn der Spieler werfen will, aber keine Salsa hat.
+ * Displays a salsa icon and the current salsa count in the top-left corner.
+ * Can blink briefly (hidden/visible), e.g. when the player tries to throw but has no salsa.
  * @class
  * @extends DrawableObject
  */
 class StatusBarSalsa extends DrawableObject {
   /**
-   * Erstellt die Salsa-Statusbar und setzt Standard-Position/Größe sowie Initialwerte.
+   * Creates the salsa status bar and sets default position/size and initial values.
    */
   constructor() {
     super();
@@ -34,26 +36,26 @@ class StatusBarSalsa extends DrawableObject {
     this.y = 25;
 
     /**
-     * Aktuelle Anzahl gesammelter Salsa-Flaschen.
+     * Current number of collected salsa bottles.
      * @type {number}
      */
     this.salsaCount = 0;
 
     /**
-     * True, wenn gerade eine Blink-Animation läuft.
+     * True while a blink animation is running.
      * @type {boolean}
      */
     this.isBlinking = false;
 
     /**
-     * Sichtbarkeit der Statusbar (wird beim Blinken umgeschaltet).
+     * Visibility of the status bar (toggled during blinking).
      * @type {boolean}
      */
     this.visible = true;
   }
 
   /**
-   * Erhöht die Salsa-Anzahl um 1.
+   * Increases the salsa count by 1.
    * @returns {void}
    */
   addSalsa() {
@@ -61,8 +63,8 @@ class StatusBarSalsa extends DrawableObject {
   }
 
   /**
-   * Lässt die Statusbar kurz blinken (an/aus), z. B. bei "Wurf fehlgeschlagen".
-   * Verhindert, dass mehrere Blink-Intervalle gleichzeitig laufen.
+   * Makes the status bar blink briefly (on/off), e.g. on "throw failed".
+   * Prevents multiple blink intervals from running at the same time.
    * @returns {void}
    */
   blinkOnFail() {
@@ -77,7 +79,7 @@ class StatusBarSalsa extends DrawableObject {
       this.visible = !this.visible;
       blinkCount++;
 
-      // 3× an/aus => 6 Wechsel
+      // 3× on/off => 6 toggles
       if (blinkCount >= 6) {
         clearInterval(blinkInterval);
         this.visible = true;
@@ -87,10 +89,10 @@ class StatusBarSalsa extends DrawableObject {
   }
 
   /**
-   * Zeichnet das Salsa-Icon und den Zähler.
-   * Wird beim Blinken ggf. übersprungen (wenn visible=false).
+   * Draws the salsa icon and the counter.
+   * During blinking this may be skipped (when visible=false).
    * @override
-   * @param {CanvasRenderingContext2D} ctx - Canvas-2D-Kontext.
+   * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
    * @returns {void}
    */
   draw(ctx) {
@@ -103,3 +105,5 @@ class StatusBarSalsa extends DrawableObject {
     ctx.fillText(` ${this.salsaCount}`, this.x + 45, this.y + 35);
   }
 }
+
+//#endregion

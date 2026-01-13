@@ -1,6 +1,8 @@
+//#region Bodyguard jump mixin
+
 /**
  * @file bodyguard.jump.js
- * @description Jump-Into-Endboss Logik als Mixin.
+ * @description Jump-into-endboss logic as a mixin.
  */
 
 window.BodyguardJump = {
@@ -99,9 +101,12 @@ window.BodyguardJump = {
   },
 
   startAttackAfterDelay(ms) {
+    // Give the landing animation some time before starting the attack loop.
     setTimeout(() => {
       if (this.isDead) return;
       this.startAttackLoop();
     }, ms);
   }
 };
+
+//#endregion

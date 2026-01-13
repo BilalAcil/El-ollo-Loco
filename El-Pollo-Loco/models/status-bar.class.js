@@ -1,21 +1,23 @@
+//#region StatusBar class
+
 /**
  * @file models/status-bar.class.js
  * @description
- * Lebensanzeige (HP-Statusbar) für den Spieler. Unterstützt Health-Prozentanzeige
- * und ein grünes Blink-Feedback bei Heilung.
+ * Player health bar (HP status bar). Supports health percentage display
+ * and a green blink feedback when healing.
  */
 
 /**
- * Statusbar für die Lebensenergie (Health) des Spielers.
- * Zeigt abhängig vom Prozentwert ein passendes Bild an und kann bei Heilung grün blinken.
+ * Status bar for the player's health energy.
+ * Displays a matching image depending on the percentage value and can blink green on healing.
  *
  * @class
  * @extends DrawableObject
  */
 class StatusBar extends DrawableObject {
   /**
-   * Bildpfade für die Health-Statusbar (blau 0–100 + grün 100 als Heal-Feedback).
-   * Index-Zuordnung erfolgt über {@link resolveImageIndex}.
+   * Image paths for the health bar (blue 0–100 + green 100 as heal feedback).
+   * Index mapping is handled by {@link resolveImageIndex}.
    * @type {string[]}
    */
   IMAGES = [
@@ -29,19 +31,19 @@ class StatusBar extends DrawableObject {
   ];
 
   /**
-   * Aktueller Health-Wert in Prozent (0–100).
+   * Current health value in percent (0–100).
    * @type {number}
    */
   percentage = 100;
 
   /**
-   * Referenz auf das aktuelle Blink-Interval (falls aktiv).
+   * Reference to the current blink interval (if active).
    * @type {number|null}
    */
   blinkInterval = null;
 
   /**
-   * Erstellt die Statusbar, lädt die Images und setzt Standard-Position/Größe.
+   * Creates the status bar, loads images and sets default position/size.
    */
   constructor() {
     super();
@@ -64,10 +66,10 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Setzt den Health-Prozentwert und aktualisiert das angezeigte Bild.
-   * Hinweis: hier wird NICHT geklammert; der Aufrufer sollte bereits 0–100 liefern.
+   * Sets the health percentage and updates the displayed image.
+   * Note: this does NOT clamp; callers should already pass 0–100.
    *
-   * @param {number} percentage - Neuer Health-Prozentwert (0–100).
+   * @param {number} percentage - New health percentage (0–100).
    * @returns {void}
    */
   setPercentage(percentage) {
@@ -77,7 +79,7 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Bestimmt den passenden Image-Index für den aktuellen {@link percentage}-Wert.
+   * Resolves the matching image index for the current {@link percentage}.
    *
    * @returns {number} Index in {@link IMAGES} (0–5).
    */
@@ -91,8 +93,8 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Lässt die Statusbar grün blinken, um Heilung anzuzeigen.
-   * Startet den Blink-Loop neu, falls bereits einer läuft.
+   * Makes the status bar blink green to indicate healing.
+   * Restarts the blink loop if one is already running.
    *
    * @returns {void}
    */
@@ -103,7 +105,7 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Liefert die gecachten Image-Objekte für "normal" (blau 100) und "green" (grün 100).
+   * Returns cached image objects for "normal" (blue 100) and "green" (green 100).
    *
    * @returns {{ normal: HTMLImageElement, green: HTMLImageElement }}
    */
@@ -115,9 +117,9 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Stoppt ein ggf. laufendes Blink-Interval und setzt das Bild auf die normale Ansicht.
+   * Stops a running blink interval (if any) and resets the image to the normal view.
    *
-   * @param {HTMLImageElement} normalImage - Das "normale" Image (blau 100).
+   * @param {HTMLImageElement} normalImage - The "normal" image (blue 100).
    * @returns {void}
    */
   resetBlink(normalImage) {
@@ -129,10 +131,10 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Startet den Blink-Loop zwischen normal/grün.
-   * Blinkt für eine definierte Anzahl an Umschaltungen.
+   * Starts the blink loop between normal/green.
+   * Blinks for a defined amount of toggles.
    *
-   * @param {{ normal: HTMLImageElement, green: HTMLImageElement }} images - Normal- und Grün-Image.
+   * @param {{ normal: HTMLImageElement, green: HTMLImageElement }} images - Normal and green images.
    * @returns {void}
    */
   startBlinkLoop({ normal, green }) {
@@ -142,17 +144,17 @@ class StatusBar extends DrawableObject {
     this.blinkInterval = setInterval(() => {
       this.toggleBlinkImage(normal, green);
 
-      // Wir zählen nur, wenn "grün" sichtbar ist => ein "Blink" pro Grün-Phase
+      // Count only when "green" is visible => one "blink" per green phase
       if (this.img === green) blinkCount++;
       if (blinkCount >= totalBlinks) this.finishBlink(normal);
     }, 300);
   }
 
   /**
-   * Wechselt das aktuell angezeigte Bild zwischen normal und grün.
+   * Toggles the current image between normal and green.
    *
-   * @param {HTMLImageElement} normal - Normales Image (blau 100).
-   * @param {HTMLImageElement} green - Grünes Image (grün 100).
+   * @param {HTMLImageElement} normal - Normal image (blue 100).
+   * @param {HTMLImageElement} green - Green image (green 100).
    * @returns {void}
    */
   toggleBlinkImage(normal, green) {
@@ -160,9 +162,9 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Beendet die Blink-Animation und stellt die normale Ansicht wieder her.
+   * Finishes the blink animation and restores the normal view.
    *
-   * @param {HTMLImageElement} normalImage - Normales Image (blau 100).
+   * @param {HTMLImageElement} normalImage - Normal image (blue 100).
    * @returns {void}
    */
   finishBlink(normalImage) {
@@ -172,7 +174,7 @@ class StatusBar extends DrawableObject {
   }
 
   /**
-   * Stoppt ein laufendes Blinken sofort und setzt die Statusbar auf die normale Ansicht zurück.
+   * Stops blinking immediately and resets the status bar to the normal view.
    *
    * @returns {void}
    */
@@ -188,3 +190,5 @@ class StatusBar extends DrawableObject {
     this.img = normalImage;
   }
 }
+
+//#endregion

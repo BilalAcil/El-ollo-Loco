@@ -1,6 +1,8 @@
+//#region Bodyguard sounds mixin
+
 /**
  * @file bodyguard.sounds.js
- * @description Sounds + Helper für Bodyguard.
+ * @description Sounds + helper utilities for the bodyguard.
  */
 
 window.BodyguardSounds = {
@@ -12,7 +14,7 @@ window.BodyguardSounds = {
     this.hurtSound.volume = 0.6;
     this.hurtSound.load();
 
-    // dieSound lazy per ensureDieSound()
+    // dieSound is created lazily via ensureDieSound()
     this.dieSound = null;
   },
 
@@ -33,7 +35,7 @@ window.BodyguardSounds = {
   playHurtSound() {
     if (!this.hurtSound) return;
     this.hurtSound.currentTime = 0;
-    this.hurtSound.play().catch(e => console.warn('Soundfehler:', e));
+    this.hurtSound.play().catch(e => console.warn('Sound error:', e));
   },
 
   ensureDieSound() {
@@ -47,3 +49,5 @@ window.BodyguardSounds = {
     this.playSafe(this.dieSound);
   }
 };
+
+//#endregion

@@ -1,14 +1,16 @@
+//#region World pause/resume system
+
 /**
  * @file models/world.pause.js
  * @description
- * Pause-/Resume-System der World.
- * Verantwortlich für:
- * - Anhalten/fortsetzen von Bewegungen, Gegner- und Wolken-Intervallen
- * - Kollisionschecks stoppen/starten
- * - Actor-Pause (Character/Endboss/Bodyguard)
- * - Countdown/Musik pausieren/fortsetzen
- * - Optionales Pause-Overlay (Play/Pause Symbol)
- * - Einmalige "Start-Landeanimation" beim ersten Resume
+ * World pause/resume system.
+ * Responsible for:
+ * - stopping/resuming movement, enemy/cloud intervals
+ * - stopping/restarting collision checks
+ * - actor pause (Character/Endboss/Bodyguard)
+ * - pausing/resuming countdown + music
+ * - optional pause overlay (play/pause symbol)
+ * - one-time "start landing animation" on first resume
  */
 
 Object.assign(World.prototype, {
@@ -49,14 +51,15 @@ Object.assign(World.prototype, {
 });
 
 /**
- * Stoppt (friert) die komplette Welt ein:
- * - Wolkenbewegung
- * - Gegnerbewegung/-animation
- * - Bodyguard (falls eigene Loops)
- * - Kollisionschecks
- * - Keyboard-Inputs zurücksetzen
- * - isPaused setzen
+ * Freezes the whole world:
+ * - cloud movement
+ * - enemy movement/animation
+ * - bodyguard (if it has own loops)
+ * - collision checks
+ * - reset keyboard inputs
+ * - set isPaused
  *
+ * @this {World}
  * @returns {void}
  */
 function pauseAllMovements() {
@@ -69,12 +72,13 @@ function pauseAllMovements() {
 }
 
 /**
- * Setzt die Welt fort:
- * - Wolken animieren
- * - Gegner animieren
- * - Bodyguard fortsetzen
- * - Kollisionschecks neu starten
+ * Resumes the world:
+ * - restart cloud animations
+ * - restart enemy animations
+ * - resume bodyguard
+ * - restart collision checks
  *
+ * @this {World}
  * @returns {void}
  */
 function resumeAllMovements() {
@@ -86,9 +90,10 @@ function resumeAllMovements() {
 }
 
 /**
- * Setzt den Pause-Status der Welt.
+ * Sets the world's pause state.
  *
- * @param {boolean} value - true = pausiert, false = läuft.
+ * @this {World}
+ * @param {boolean} value - true = paused, false = running.
  * @returns {void}
  */
 function setPaused(value) {
@@ -96,8 +101,9 @@ function setPaused(value) {
 }
 
 /**
- * Stoppt die Wolken-Intervalle (moveInterval).
+ * Stops cloud intervals (moveInterval).
  *
+ * @this {World}
  * @returns {void}
  */
 function stopCloudIntervals() {
@@ -105,8 +111,9 @@ function stopCloudIntervals() {
 }
 
 /**
- * Startet die Wolken-Animationen erneut (falls animate() vorhanden).
+ * Restarts cloud animations (if animate() exists).
  *
+ * @this {World}
  * @returns {void}
  */
 function startCloudAnimations() {
@@ -114,8 +121,9 @@ function startCloudAnimations() {
 }
 
 /**
- * Stoppt alle Gegner-Intervalle (Move/Animation/Fall).
+ * Stops all enemy intervals (move/animation/fall).
  *
+ * @this {World}
  * @returns {void}
  */
 function stopAllEnemyIntervals() {
@@ -123,9 +131,10 @@ function stopAllEnemyIntervals() {
 }
 
 /**
- * Stoppt die bekannten Interval-Handles eines Gegners.
+ * Stops known interval handles on an enemy object.
  *
- * @param {*} e - Enemy-Objekt (z.B. Chicken, Endboss, Bodyguard, etc.)
+ * @this {World}
+ * @param {*} e - Enemy object (Chicken, Endboss, Bodyguard, etc.)
  * @returns {void}
  */
 function stopEnemyIntervals(e) {
@@ -135,8 +144,9 @@ function stopEnemyIntervals(e) {
 }
 
 /**
- * Startet die Enemy-Animationen erneut (falls animate() vorhanden).
+ * Restarts enemy animations (if animate() exists).
  *
+ * @this {World}
  * @returns {void}
  */
 function startEnemyAnimations() {
@@ -144,8 +154,9 @@ function startEnemyAnimations() {
 }
 
 /**
- * Pausiert den Bodyguard (falls pause() existiert).
+ * Pauses the bodyguard (if pause() exists).
  *
+ * @this {World}
  * @returns {void}
  */
 function pauseBodyguard() {
@@ -153,8 +164,9 @@ function pauseBodyguard() {
 }
 
 /**
- * Setzt den Bodyguard fort (falls resume() existiert).
+ * Resumes the bodyguard (if resume() exists).
  *
+ * @this {World}
  * @returns {void}
  */
 function resumeBodyguard() {
@@ -162,8 +174,9 @@ function resumeBodyguard() {
 }
 
 /**
- * Stoppt den Kollisions-Check-Loop.
+ * Stops the collision check loop.
  *
+ * @this {World}
  * @returns {void}
  */
 function stopCollisionChecks() {
@@ -171,8 +184,9 @@ function stopCollisionChecks() {
 }
 
 /**
- * Startet Kollisionschecks neu (setzt ein neues Interval über checkCollisions()).
+ * Restarts collision checks (creates a new interval via checkCollisions()).
  *
+ * @this {World}
  * @returns {void}
  */
 function restartCollisionChecks() {
@@ -180,8 +194,9 @@ function restartCollisionChecks() {
 }
 
 /**
- * Setzt alle Keyboard-Flags auf false (z.B. LEFT/RIGHT/SPACE/D).
+ * Resets all keyboard flags to false (LEFT/RIGHT/SPACE/D, etc.).
  *
+ * @this {World}
  * @returns {void}
  */
 function resetKeyboardInputsAll() {
@@ -189,12 +204,13 @@ function resetKeyboardInputsAll() {
 }
 
 /**
- * Pausiert das Spiel "offiziell":
- * - Blockiert Pause in bestimmten Zuständen (Bodyguard-Jump, Freeze, Endboss tot, Maracas-Sequenz)
- * - Pausiert Bewegungen + Actors + Countdown/Musik
- * - Optional: zeigt Pause-Overlay, danach Play-Symbol
+ * Officially pauses the game:
+ * - blocks pause in certain states (bodyguard jump, freeze, endboss dead, maracas sequence)
+ * - pauses movements + actors + countdown/music
+ * - optionally shows a pause overlay, then play symbol
  *
- * @param {boolean} [showOverlay=true] - Ob ein Pause-Overlay visuell gezeigt werden soll.
+ * @this {World}
+ * @param {boolean} [showOverlay=true] - Whether to show a pause overlay visually.
  * @returns {void}
  */
 function pauseGame(showOverlay = true) {
@@ -207,16 +223,18 @@ function pauseGame(showOverlay = true) {
   this.pauseCountdownSystem();
 
   if (this.shouldShowPauseOverlay(showOverlay)) {
-    this.showPauseThenPlaySymbol();
+    // NOTE: expected to exist elsewhere (world.ui / world.overlay)
+    this.showPauseThenPlaySymbol?.();
   }
 }
 
 /**
- * Setzt das Spiel fort:
- * - Einmalige Start-Landeanimation (nur beim allerersten Resume)
- * - Bewegungen + Actors + Countdown/Musik fortsetzen
- * - Play-Symbol ausblenden
+ * Resumes the game:
+ * - one-time start landing animation (only on the very first resume)
+ * - resumes movements + actors + countdown/music
+ * - hides play symbol
  *
+ * @this {World}
  * @returns {void}
  */
 function resumeGame() {
@@ -227,12 +245,13 @@ function resumeGame() {
   this.resumeAllMovements();
   this.resumeActors();
   this.resumeCountdownSystem();
-  this.hidePlaySymbol();
+  this.hidePlaySymbol?.();
 }
 
 /**
- * Prüft, ob Pause aktuell gesperrt ist (z.B. während spezieller Sequenzen).
+ * Checks if pausing is currently blocked (during special sequences).
  *
+ * @this {World}
  * @returns {boolean}
  */
 function shouldBlockPause() {
@@ -245,8 +264,9 @@ function shouldBlockPause() {
 }
 
 /**
- * Pausiert die wichtigsten Actors (Character, Endboss, Bodyguard) – falls Methoden existieren.
+ * Pauses the key actors (Character, Endboss, Bodyguard) if methods exist.
  *
+ * @this {World}
  * @returns {void}
  */
 function pauseActors() {
@@ -256,8 +276,9 @@ function pauseActors() {
 }
 
 /**
- * Setzt die wichtigsten Actors fort (Character, Endboss, Bodyguard) – falls Methoden existieren.
+ * Resumes the key actors (Character, Endboss, Bodyguard) if methods exist.
  *
+ * @this {World}
  * @returns {void}
  */
 function resumeActors() {
@@ -267,8 +288,9 @@ function resumeActors() {
 }
 
 /**
- * Prüft, ob ein Pause-Overlay gezeigt werden soll.
+ * Whether a pause overlay should be shown.
  *
+ * @this {World}
  * @param {boolean} showOverlay
  * @returns {boolean}
  */
@@ -277,10 +299,11 @@ function shouldShowPauseOverlay(showOverlay) {
 }
 
 /**
- * Setzt Countdown-System fort:
- * - Startet Countdown, falls noch nicht gestartet
- * - Musik + Timer wieder laufen lassen
+ * Resumes the countdown system:
+ * - starts countdown if not started
+ * - resumes music + timer
  *
+ * @this {World}
  * @returns {void}
  */
 function resumeCountdownSystem() {
@@ -291,9 +314,10 @@ function resumeCountdownSystem() {
 }
 
 /**
- * Führt beim allerersten Resume eine kleine "Pepe landet" Animation aus.
- * Läuft nur einmal pro World (guarded via hasStartedOnce).
+ * Runs a small "Pepe landing" animation on the very first resume.
+ * Runs only once per World instance (guarded via hasStartedOnce).
  *
+ * @this {World}
  * @returns {void}
  */
 function runFirstStartLandingAnimation() {
@@ -306,8 +330,9 @@ function runFirstStartLandingAnimation() {
 }
 
 /**
- * Setzt das initiale "Falling"-Frame (Start-Fall-Optik).
+ * Sets the initial "falling" frame (start fall look).
  *
+ * @this {World}
  * @returns {void}
  */
 function setStartFallFrame() {
@@ -315,9 +340,10 @@ function setStartFallFrame() {
 }
 
 /**
- * Wartet, bis der Character den Boden erreicht (nicht mehr isAboveGround()).
- * Danach wird {@link playLandingThenIdle} ausgelöst.
+ * Waits until the character is on the ground (not above ground anymore).
+ * Then triggers {@link playLandingThenIdle}.
  *
+ * @this {World}
  * @returns {void}
  */
 function waitForLandingThenIdle() {
@@ -329,8 +355,9 @@ function waitForLandingThenIdle() {
 }
 
 /**
- * Zeigt ein kurzes Landing-Frame und geht dann nach kurzer Verzögerung in Idle über.
+ * Shows a short landing frame and then transitions to idle after a small delay.
  *
+ * @this {World}
  * @returns {void}
  */
 function playLandingThenIdle() {
@@ -339,21 +366,25 @@ function playLandingThenIdle() {
 }
 
 /**
- * Startet Idle nach der Landing-Animation.
- * Fallback: falls playIdleAnimation nicht existiert, wird ein Standing-Frame verwendet.
+ * Starts idle after landing animation.
+ * Fallback: if playIdleAnimation doesn't exist, uses a standing frame.
  *
+ * @this {World}
  * @returns {void}
  */
 function startIdleAfterLanding() {
   if (this.character.playIdleAnimation) this.character.playIdleAnimation();
-  else this.character.loadImage(this.character.IMAGES_STANDING[0]);
+  else this.character.loadImage(this.character.IMAGES_STANDING?.[0] || this.character.IMAGES_IDLE?.[0] || "");
 }
 
 /**
- * Stoppt das Spiel vollständig (aktuell: identisch zu pauseAllMovements()).
+ * Stops the game completely (currently: identical to pauseAllMovements()).
  *
+ * @this {World}
  * @returns {void}
  */
 function stop() {
   this.pauseAllMovements();
 }
+
+//#endregion

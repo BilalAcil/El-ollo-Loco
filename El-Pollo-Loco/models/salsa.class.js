@@ -1,12 +1,14 @@
+//#region Salsa class
+
 /**
  * @file models/salsa.class.js
  * @description
- * Sammelobjekt "Salsa" (Flasche am Boden). Kann vom Character eingesammelt werden
- * und erhöht die Salsa-Anzahl (Wurfmunition).
+ * Collectible "Salsa" (bottle on the ground). Can be collected by the character
+ * and increases the salsa amount (throw ammo).
  */
 
 /**
- * Salsa-Sammelobjekt.
+ * Salsa collectible object.
  * @class
  * @extends MovableObject
  */
@@ -17,28 +19,28 @@ class Salsa extends MovableObject {
   /** @type {number} */
   width = 40;
 
-  /** Standard-Y Position im Level. @type {number} */
+  /** Default Y position in the level. @type {number} */
   y = 400;
 
-  /** Bildpfade der Salsa-Flasche (Standbilder). @type {string[]} */
+  /** Image paths for the salsa bottle (static frames). @type {string[]} */
   IMAGES = [
     'img/6_salsa_bottle/1_salsa_bottle_on_ground.png',
     'img/6_salsa_bottle/2_salsa_bottle_on_ground.png'
   ];
 
   /**
-   * @param {number} x - X-Position der Salsa im Level.
-   * @param {number} [y=400] - Y-Position (optional, Standard = 400).
+   * @param {number} x - X position of the salsa in the level.
+   * @param {number} [y=400] - Y position (optional, default = 400).
    */
   constructor(x, y) {
     super();
-    this.loadImage(this.IMAGES[0]); // erstes Bild laden
+    this.loadImage(this.IMAGES[0]); // load first frame
     this.x = x;
     this.y = (typeof y === 'number') ? y : 400;
   }
 
   /**
-   * Kollisionsbox der Salsa (kleiner als das Sprite für fairere Kollisionen).
+   * Salsa collision box (smaller than the sprite for fairer collisions).
    * @returns {{x:number,y:number,width:number,height:number}}
    */
   get collisionBox() {
@@ -50,3 +52,5 @@ class Salsa extends MovableObject {
     };
   }
 }
+
+//#endregion

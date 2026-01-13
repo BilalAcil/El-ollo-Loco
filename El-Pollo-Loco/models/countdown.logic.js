@@ -1,13 +1,16 @@
+//#region Countdown logic mixin
+
 /**
  * @file models/countdown.logic.js
- * @description Countdown-Logik (Timer, Audio, Blink, Hide, Endboss-Delay) als Mixin.
+ * @description Countdown logic (timer, audio, blink, hide, endboss delay) as a mixin.
  *
- * Voraussetzung:
- * - Countdown.class.js hängt dieses Mixin an Countdown.prototype
+ * Requirement:
+ * - Countdown.class.js attaches this mixin to Countdown.prototype
  */
 
 window.CountdownLogic = {
-  // ---------- Init ----------
+  //#region Initialization
+
   initView() {
     this.currentMusic = "normal";
     this.imagePath = 'img/11_countdown/3208749.png';
@@ -49,7 +52,10 @@ window.CountdownLogic = {
     this.endBossMusicTimeout = null;
   },
 
-  // ---------- Audio helpers ----------
+  //#endregion
+
+  //#region Audio helpers
+
   createAudio(src, volume = 1) {
     const a = new Audio(src);
     a.volume = volume;
@@ -66,11 +72,14 @@ window.CountdownLogic = {
     try {
       if (audio && audio.paused) await audio.play();
     } catch (e) {
-      console.warn("Audio-Play-Fehler:", e);
+      console.warn("Audio play error:", e);
     }
   },
 
-  // ---------- Countdown ----------
+  //#endregion
+
+  //#region Countdown
+
   startCountdown() {
     if (this.isStarted) return;
     this.isStarted = true;
@@ -109,7 +118,10 @@ window.CountdownLogic = {
     pepe.startFallingWhenDead();
   },
 
-  // ---------- Music switching ----------
+  //#endregion
+
+  //#region Music switching
+
   playBackgroundMusic() {
     this.currentMusic = "normal";
     if (this.bgMusic1?.paused) this.bgMusic1.currentTime = 0;
@@ -170,7 +182,10 @@ window.CountdownLogic = {
     }
   },
 
-  // ---------- Blink warning ----------
+  //#endregion
+
+  //#region Blink warning
+
   triggerOneMinuteWarning(force = false) {
     if (this.isBlinking && !force) return;
     this.resetBlink();
@@ -211,7 +226,10 @@ window.CountdownLogic = {
     this.blinkVisible = true;
   },
 
-  // ---------- Stop / reset ----------
+  //#endregion
+
+  //#region Stop / reset
+
   stopCountdown() {
     this.stopMainInterval();
     this.resetTimeState();
@@ -259,7 +277,10 @@ window.CountdownLogic = {
     });
   },
 
-  // ---------- Pause / resume timer ----------
+  //#endregion
+
+  //#region Pause / resume timer
+
   pauseCountdown() {
     this.isPaused = true;
   },
@@ -269,7 +290,10 @@ window.CountdownLogic = {
     this.isPaused = false;
   },
 
-  // ---------- Hide ----------
+  //#endregion
+
+  //#region Hide
+
   hideTemporarily(duration = 2000) {
     this.isTemporarilyHidden = true;
 
@@ -282,5 +306,9 @@ window.CountdownLogic = {
       this.isTemporarilyHidden = false;
       this.hideTimeout = null;
     }, duration);
-  }
+  },
+
+  //#endregion
 };
+
+//#endregion

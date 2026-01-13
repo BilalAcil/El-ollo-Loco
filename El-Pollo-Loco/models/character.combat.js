@@ -1,18 +1,20 @@
+//#region Character combat + death mixin
+
 /**
  * @file models/character.combat.js
  * @description
- * Combat- und Death-Logik für den Character.
- * Wird per Object.assign an Character.prototype gehängt.
+ * Combat and death logic for the character.
+ * Attached via Object.assign to Character.prototype.
  *
- * Enthält:
- * - Wurfanimation (SalsaThrow) inkl. "keine Salsa" Feedback
- * - Todesanimation (Frames + Fallphysik + Sounds)
- * - Entfernen aus der World nach "FallingWhenDead"
+ * Includes:
+ * - Throw animation (SalsaThrow) incl. "no salsa" feedback
+ * - Death animation (frames + falling physics + sounds)
+ * - Removing the character from the world after "FallingWhenDead"
  *
- * Voraussetzungen:
- * - Character existiert global
- * - World liefert: statusBarSalsa, throwableObjects, level.enemies, pauseAllMovements()
- * - SalsaThrow existiert global
+ * Requirements:
+ * - Character exists globally
+ * - World provides: statusBarSalsa, throwableObjects, level.enemies, pauseAllMovements()
+ * - SalsaThrow exists globally
  */
 
 Object.assign(Character.prototype, {
@@ -42,8 +44,12 @@ Object.assign(Character.prototype, {
   removeFromWorld,
 });
 
+//#endregion
+
+//#region Throw animation (SalsaThrow)
+
 /**
- * Startet die Wurfanimation, wenn möglich und Salsa vorhanden ist.
+ * Starts the throw animation if possible and salsa is available.
  * @this {Character}
  * @returns {void}
  */
@@ -55,25 +61,25 @@ function throwAnimation() {
 }
 
 /**
- * Prüft, ob ein Wurf gestartet werden darf.
+ * Checks whether a throw can be started.
  * @this {Character}
- * @returns {boolean} True, wenn keine laufende Wurfanimation und Animation fertig.
+ * @returns {boolean} True if no throw animation is running and the animation is finished.
  */
 function canStartThrow() {
   return this.animationFinished && !this.isThrowing;
 }
 
 /**
- * Prüft, ob der Character noch Salsa im Inventar hat.
+ * Checks whether the character still has salsa in the inventory.
  * @this {Character}
- * @returns {boolean} True, wenn salsaCount > 0.
+ * @returns {boolean} True if salsaCount > 0.
  */
 function hasSalsa() {
   return this.world?.statusBarSalsa && this.world.statusBarSalsa.salsaCount > 0;
 }
 
 /**
- * Feedback, wenn keine Salsa vorhanden ist (Sound + Blink).
+ * Feedback when no salsa is available (sound + blink).
  * @this {Character}
  * @returns {void}
  */
@@ -86,7 +92,7 @@ function handleNoSalsa() {
 }
 
 /**
- * Setzt Flags und startet den Wurf-Sound.
+ * Sets flags and starts the throw sound.
  * @this {Character}
  * @returns {void}
  */
@@ -99,7 +105,7 @@ function beginThrow() {
 }
 
 /**
- * Spielt die Wurf-Frames ab und beendet danach die Sequenz.
+ * Plays the throw frames and finishes the sequence afterwards.
  * @this {Character}
  * @returns {void}
  */
@@ -114,9 +120,9 @@ function playThrowFrames() {
 }
 
 /**
- * Beendet das Frame-Intervall und spawnt anschließend das Wurfobjekt.
+ * Stops the frame interval and spawns the throwable object afterwards.
  * @this {Character}
- * @param {number} id - Intervall-ID.
+ * @param {number} id - Interval ID.
  * @returns {void}
  */
 function finishThrowFrames(id) {
@@ -125,7 +131,7 @@ function finishThrowFrames(id) {
 }
 
 /**
- * Zieht Salsa ab, erstellt das Wurfobjekt und setzt Status zurück.
+ * Decreases salsa, creates the throwable object, and resets the state.
  * @this {Character}
  * @returns {void}
  */
@@ -137,7 +143,7 @@ function spawnSalsaAndFinish() {
 }
 
 /**
- * Erstellt ein SalsaThrow-Objekt und fügt es der Welt hinzu.
+ * Creates a SalsaThrow object and adds it to the world.
  * @this {Character}
  * @returns {void}
  */
@@ -152,7 +158,7 @@ function spawnSalsaThrow() {
 }
 
 /**
- * Setzt Wurfstatus zurück und zeigt Idle-Frame.
+ * Resets the throw state and shows the idle frame.
  * @this {Character}
  * @returns {void}
  */
@@ -162,8 +168,12 @@ function finishThrow() {
   this.isThrowing = false;
 }
 
+//#endregion
+
+//#region Death animation
+
 /**
- * Startet die Todesanimation (einmalig) inkl. Sounds + Fallanimation.
+ * Starts the death animation (once) incl. sounds + falling animation.
  * @this {Character}
  * @returns {void}
  */
@@ -175,7 +185,7 @@ function playDeathAnimation() {
 }
 
 /**
- * Setzt Startwerte für die Todesanimation und pausiert die Welt.
+ * Sets initial values for the death animation and pauses world movement.
  * @this {Character}
  * @returns {void}
  */
@@ -188,7 +198,7 @@ function startDeathState() {
 }
 
 /**
- * Plant das Abspielen der Todes-Sounds.
+ * Schedules playing the death sounds.
  * @this {Character}
  * @param {number} ms - Delay in ms.
  * @returns {void}
@@ -198,7 +208,7 @@ function scheduleDeathSounds(ms) {
 }
 
 /**
- * Spielt Todes- und Fail-Sound.
+ * Plays death and fail sounds.
  * @this {Character}
  * @returns {void}
  */
@@ -214,7 +224,7 @@ function playDeathSounds() {
 }
 
 /**
- * Startet das Intervall, das Frames + Fallphysik der Todesanimation steuert.
+ * Starts the interval that drives death frames + falling physics.
  * @this {Character}
  * @returns {void}
  */
@@ -223,7 +233,7 @@ function startDeathFallAnim() {
 }
 
 /**
- * Ein Step der Todesanimation (Frame + Physik + ggf. Ende).
+ * One step of the death animation (frame + physics + optional finish).
  * @this {Character}
  * @returns {void}
  */
@@ -234,7 +244,7 @@ function stepDeathFallAnim() {
 }
 
 /**
- * Zeigt den nächsten Dead-Frame (bis Ende des Arrays).
+ * Shows the next dead frame (until the end of the array).
  * @this {Character}
  * @returns {void}
  */
@@ -244,7 +254,7 @@ function stepDeathFrames() {
 }
 
 /**
- * Aktualisiert Fallphysik während Death-Anim.
+ * Updates falling physics during the death animation.
  * @this {Character}
  * @returns {void}
  */
@@ -254,16 +264,16 @@ function stepDeathFallPhysics() {
 }
 
 /**
- * Prüft, ob die Death-Animation beendet werden soll.
+ * Checks whether the death animation should finish.
  * @this {Character}
- * @returns {boolean} True, wenn außerhalb des Bildes oder alle Frames durch sind.
+ * @returns {boolean} True if off-screen or all frames are done.
  */
 function shouldFinishDeathAnim() {
   return this.y > 480 || this.deathFrameIndex >= this.IMAGES_DEAD.length;
 }
 
 /**
- * Beendet die Death-Animation und setzt finalen Dead-Frame.
+ * Finishes the death animation and sets the final dead frame.
  * @this {Character}
  * @returns {void}
  */
@@ -273,8 +283,12 @@ function finishDeathAnim() {
   this.loadImage(this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]);
 }
 
+//#endregion
+
+//#region Falling after death + removal
+
 /**
- * Lässt den Character nach dem Tod weiter nach unten fallen und entfernt ihn dann aus der World.
+ * Lets the character keep falling after death and removes it from the world afterwards.
  * @this {Character}
  * @returns {void}
  */
@@ -290,7 +304,7 @@ function startFallingWhenDead() {
 }
 
 /**
- * Entfernt den Character aus der Gegnerliste (World.level.enemies), falls vorhanden.
+ * Removes the character from the enemies list (World.level.enemies), if present.
  * @this {Character}
  * @returns {void}
  */
@@ -301,3 +315,5 @@ function removeFromWorld() {
   const idx = enemies.indexOf(this);
   if (idx > -1) enemies.splice(idx, 1);
 }
+
+//#endregion

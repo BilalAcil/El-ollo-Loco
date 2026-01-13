@@ -1,12 +1,14 @@
+//#region Cloud class
+
 /**
  * @file models/cloud.class.js
  * @description
- * Cloud ist ein Hintergrund-Objekt, das konstant nach links driftet.
- * Respektiert Pause (this.isPaused / world.isPaused), falls vorhanden.
+ * Cloud is a background object that constantly drifts to the left.
+ * Respects pause (this.isPaused / world.isPaused), if available.
  */
 
 /**
- * Wolke im Hintergrund.
+ * Background cloud.
  * @class
  * @extends MovableObject
  */
@@ -18,8 +20,8 @@ class Cloud extends MovableObject {
   /** @type {number|null} */ moveInterval = null;
 
   /**
-   * Erstellt eine Cloud an Position x und startet die Bewegung.
-   * @param {number} [x=0] - Start-X-Position.
+   * Creates a Cloud at position x and starts movement.
+   * @param {number} [x=0] - Starting X position.
    */
   constructor(x = 0) {
     super().loadImage('img/5_background/layers/4_clouds/1.png');
@@ -29,7 +31,7 @@ class Cloud extends MovableObject {
   }
 
   /**
-   * Startet die Cloud-Bewegung.
+   * Starts the cloud movement.
    * @returns {void}
    */
   animate() {
@@ -37,7 +39,7 @@ class Cloud extends MovableObject {
   }
 
   /**
-   * Startet das Intervall, das die Cloud nach links bewegt (60 FPS).
+   * Starts the interval that moves the cloud to the left (60 FPS).
    * @returns {void}
    */
   startMoveLoop() {
@@ -48,10 +50,12 @@ class Cloud extends MovableObject {
   }
 
   /**
-   * Prüft, ob Bewegung in diesem Tick übersprungen werden soll.
-   * @returns {boolean} True, wenn pausiert.
+   * Checks whether movement should be skipped in this tick.
+   * @returns {boolean} True if paused.
    */
   shouldSkipTick() {
     return this.isPaused || this.world?.isPaused;
   }
 }
+
+//#endregion

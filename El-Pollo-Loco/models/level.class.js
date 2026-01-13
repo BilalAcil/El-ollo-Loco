@@ -1,36 +1,38 @@
+//#region Level class
+
 /**
  * @file models/level.class.js
  * @description
- * Datencontainer für ein Level (Gegner, Wolken, Hintergrundobjekte, Items und Level-Ende).
+ * Data container for a level (enemies, clouds, background objects, items, and level end).
  */
 
 /**
- * Repräsentiert ein Spiellevel mit allen relevanten Objektsammlungen.
+ * Represents a game level with all relevant object collections.
  * @class
  */
 class Level {
-  /** Liste der Gegner im Level. @type {MovableObject[]} */
+  /** List of enemies in the level. @type {MovableObject[]} */
   enemies;
 
-  /** Liste der Wolken im Level. @type {MovableObject[]} */
+  /** List of clouds in the level. @type {MovableObject[]} */
   clouds;
 
-  /** Hintergrundobjekte (Layer, Deko, etc.). @type {DrawableObject[]} */
+  /** Background objects (layers, decoration, etc.). @type {DrawableObject[]} */
   backgroundObjects;
 
-  /** Optionale Maiskolben im Level. @type {Corncob[]} */
+  /** Optional corncobs in the level. @type {Corncob[]} */
   corncobs;
 
-  /** X-Koordinate, an der das Level endet. @type {number} */
+  /** X coordinate where the level ends. @type {number} */
   level_end_x;
 
   /**
-   * Erstellt ein neues Level.
-   * @param {MovableObject[]} enemies - Gegner im Level.
-   * @param {MovableObject[]} clouds - Wolken/Parallax-Objekte.
-   * @param {DrawableObject[]} backgroundObjects - Hintergrundobjekte (z.B. Layer).
-   * @param {Corncob[]} [corncobs=[]] - Sammelitems (Maiskolben).
-   * @param {number} [level_end_x=4500] - X-Position des Level-Endes.
+   * Creates a new level.
+   * @param {MovableObject[]} enemies - Enemies in the level.
+   * @param {MovableObject[]} clouds - Clouds/parallax objects.
+   * @param {DrawableObject[]} backgroundObjects - Background objects (e.g. layers).
+   * @param {Corncob[]} [corncobs=[]] - Collectibles (corncobs).
+   * @param {number} [level_end_x=4500] - X position of the level end.
    */
   constructor(enemies, clouds, backgroundObjects, corncobs = [], level_end_x = 4500) {
     this.enemies = enemies;
@@ -40,3 +42,5 @@ class Level {
     this.level_end_x = level_end_x;
   }
 }
+
+//#endregion

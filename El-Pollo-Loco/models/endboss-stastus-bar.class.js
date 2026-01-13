@@ -1,20 +1,22 @@
+//#region EndBossStatusBar class
+
 /**
  * @file models/endboss-status-bar.class.js
  * @description
- * Statusbar für den Endboss (HP-Anzeige).
- * - Lädt HP-Bilder (0..100)
- * - Spielt Hurt-Sound bei HP-Verlust
- * - Entfernt sich aus der World, wenn HP <= 0
+ * Status bar for the endboss (HP display).
+ * - Loads HP images (0..100)
+ * - Plays a hurt sound when HP decreases
+ * - Removes itself from the world when HP <= 0
  */
 
 /**
- * EndBossStatusBar zeigt die Lebenspunkte des Endbosses an.
+ * EndBossStatusBar displays the endboss' health points.
  * @class
  * @extends DrawableObject
  */
 class EndBossStatusBar extends DrawableObject {
   /**
-   * Bildpfade für die unterschiedlichen HP-Stufen.
+   * Image paths for the different HP levels.
    * Index 0 = 0%, 5 = 100%.
    * @type {string[]}
    */
@@ -36,8 +38,8 @@ class EndBossStatusBar extends DrawableObject {
   hurtSound;
 
   /**
-   * Erstellt die Endboss-Statusbar und setzt Position/Größe.
-   * @param {World} world - Referenz auf die World (für Entfernen/Camera-Infos).
+   * Creates the endboss status bar and sets position/size.
+   * @param {World} world - Reference to the world (removal/camera info).
    */
   constructor(world) {
     super();
@@ -48,7 +50,7 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Initialisiert Assets, Größe und Position.
+   * Initializes assets, size, and position.
    * @returns {void}
    */
   initView() {
@@ -60,7 +62,7 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Initialisiert den Hurt-Sound.
+   * Initializes the hurt sound.
    * @returns {void}
    */
   initAudio() {
@@ -69,10 +71,10 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Setzt den HP-Prozentwert und aktualisiert das angezeigte Bild.
-   * Spielt Hurt-Sound, wenn die HP sinken.
-   * Entfernt die Statusbar bei 0%.
-   * @param {number} percentage - Neue HP in Prozent (0..100).
+   * Sets the HP percentage value and updates the displayed image.
+   * Plays a hurt sound when HP decreases.
+   * Removes the status bar at 0%.
+   * @param {number} percentage - New HP in percent (0..100).
    * @returns {void}
    */
   setPercentage(percentage) {
@@ -85,17 +87,17 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Spielt den Hurt-Sound (mit safe fallback).
+   * Plays the hurt sound (with a safe fallback).
    * @returns {void}
    */
   playHurtSound() {
     if (!this.hurtSound) return;
     this.hurtSound.currentTime = 0;
-    this.hurtSound.play().catch(e => console.warn('Endboss Hurt Sound:', e));
+    this.hurtSound.play().catch(e => console.warn('Endboss hurt sound:', e));
   }
 
   /**
-   * Wählt das passende Bild aus dem Cache anhand der Prozentstufe.
+   * Selects the matching image from the cache based on the percentage level.
    * @returns {void}
    */
   updateImageByPercentage() {
@@ -104,7 +106,7 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Entfernt die Statusbar aus `world.level.enemies`.
+   * Removes the status bar from `world.level.enemies`.
    * @returns {void}
    */
   removeFromWorld() {
@@ -116,7 +118,7 @@ class EndBossStatusBar extends DrawableObject {
   }
 
   /**
-   * Mappt percentage auf den Bildindex (0..5).
+   * Maps percentage to the image index (0..5).
    * @returns {number}
    */
   resolveImageIndex() {
@@ -128,3 +130,5 @@ class EndBossStatusBar extends DrawableObject {
     return 0;
   }
 }
+
+//#endregion

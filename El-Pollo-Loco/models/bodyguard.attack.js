@@ -1,6 +1,8 @@
+//#region Bodyguard attack mixin
+
 /**
  * @file bodyguard.attack.js
- * @description Patrol/Attack Loop als Mixin.
+ * @description Patrol/attack loop as a mixin.
  */
 
 window.BodyguardAttack = {
@@ -36,6 +38,8 @@ window.BodyguardAttack = {
 
   turnAroundAfterStop(direction, speed) {
     this.speedX = 0;
+
+    // Delay the direction switch to create a short "stop" at the boundary.
     setTimeout(() => {
       if (this.isDead) return;
       this.otherDirection = direction;
@@ -48,3 +52,5 @@ window.BodyguardAttack = {
     this.lastDirection = this.otherDirection;
   }
 };
+
+//#endregion

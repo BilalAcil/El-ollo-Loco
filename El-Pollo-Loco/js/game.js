@@ -1,32 +1,37 @@
+//#region Game bootstrap (DOM + Window events)
+
 /**
  * @file game.js
  * @description
- * Zentrale Spiel-Logik außerhalb der World:
- * - Initialisiert Startscreen und Canvas
- * - Erstellt/pausiert/fortsetzt die World (Preload + Start)
- * - Verbindet Keyboard- und Canvas-Inputs (Pause, Movement, Throw)
- * - Stellt globale Funktionen für HTML onclick-Handler bereit (start/restart/home)
+ * Central game logic outside the World:
+ * - Initializes start screen and canvas
+ * - Creates / pauses / resumes the World (preload + start)
+ * - Connects keyboard and canvas inputs (pause, movement, throw)
+ * - Exposes global functions for HTML onclick handlers (start/restart/home)
  *
- * Voraussetzungen (global vorhanden):
- * - GameState (z.B. { canvas, world, keyboard, isMuted, gameInitialized })
- * - UI-Helpers: show(), hide(), display()
+ * Requirements (available globally):
+ * - GameState (e.g. { canvas, world, keyboard, isMuted, gameInitialized })
+ * - UI helpers: show(), hide(), display()
  * - Audio: toggleMute(), restoreMuteFromStorage()
  * - Mobile: setupMobileControls()
- * - Asset-Waiter: waitForGameAssets()
- * - World-Klasse: World
+ * - Asset waiter: waitForGameAssets()
+ * - World class: World
  */
 
 window.addEventListener("DOMContentLoaded", init);
 window.addEventListener("load", onWindowLoad);
 
-// ---------- Screen Init ----------
+//#endregion
+
+//#region Screen initialization
+
 /**
- * Initialisiert Startscreen/Canvas sobald das DOM bereit ist.
+ * Initializes start screen and canvas once the DOM is ready.
  * @returns {void}
  */
 function init() {
   GameState.canvas = document.getElementById('canvas');
-  if (!GameState.canvas) return console.error("❌ Canvas nicht gefunden!");
+  if (!GameState.canvas) return console.error("❌ Canvas not found!");
 
   show('start-screen');
   hide('end-screen');
@@ -34,9 +39,12 @@ function init() {
   display('game-name', 'none');
 }
 
-// ---------- Preload / Start ----------
+//#endregion
+
+//#region Preload / Start
+
 /**
- * Erzeugt die World genau einmal zum Vorladen aller Assets und pausiert sie sofort.
+ * Creates the World exactly once to preload all assets and immediately pauses it.
  * @returns {void}
  */
 function preloadWorld() {
@@ -49,7 +57,7 @@ function preloadWorld() {
 }
 
 /**
- * Startet das Spiel: UI umschalten, Mobile-Controls aktivieren und World fortsetzen.
+ * Starts the game: switches UI, enables mobile controls, and resumes the World.
  * @returns {void}
  */
 function startGame() {
@@ -59,7 +67,7 @@ function startGame() {
 }
 
 /**
- * Schaltet UI von Startscreen auf Spielansicht um.
+ * Switches UI from start screen to gameplay view.
  * @returns {void}
  */
 function updateScreenForGameStart() {
@@ -70,7 +78,7 @@ function updateScreenForGameStart() {
 }
 
 /**
- * Aktiviert Mobile-Controls nur auf kleineren Screens im Landscape-Modus.
+ * Enables mobile controls only on smaller screens in landscape mode.
  * @returns {void}
  */
 function toggleMobileControlsForStart() {
@@ -83,14 +91,14 @@ function toggleMobileControlsForStart() {
 }
 
 /**
- * Setzt das Fortsetzen der World zeitverzögert ab (z.B. um UI-Transitionen abzuwarten).
- * @param {number} [delay=200] - Verzögerung in Millisekunden.
+ * Resumes the World after a delay (e.g. to wait for UI transitions).
+ * @param {number} [delay=200] - Delay in milliseconds.
  * @returns {void}
  */
 function resumeWorldAfterDelay(delay = 200) { setTimeout(resumeWorld, delay); }
 
 /**
- * Setzt die World fort (inkl. Pause-Overlay-Erlaubnis).
+ * Resumes the World (and allows the pause overlay).
  * @returns {void}
  */
 function resumeWorld() {
@@ -103,7 +111,7 @@ function resumeWorld() {
 }
 
 /**
- * Pausiert die World ohne visuelles Pause/Play-Overlay.
+ * Pauses the World without showing the pause/play overlay.
  * @returns {void}
  */
 function pauseWorldSilently() {
@@ -114,9 +122,12 @@ function pauseWorldSilently() {
   else w.isPaused = true;
 }
 
-// ---------- Start Button ----------
+//#endregion
+
+//#region Start button
+
 /**
- * Macht den Start-Button klickbar und weist den Handler zu.
+ * Makes the start button clickable and assigns the click handler.
  * @returns {void}
  */
 function setupStartButton() {
@@ -125,18 +136,18 @@ function setupStartButton() {
 
   btn.classList.remove('loading', 'hidden');
   btn.removeAttribute('disabled');
-  btn.textContent = '🎮 Spiel starten';
+  btn.textContent = '🎮 Start game';
   btn.onclick = startGame;
 }
 
 /**
- * Wird beim Window-Load ausgeführt:
- * - Mute-Status wiederherstellen
- * - Mobile-Controls vorbereiten
- * - World vorladen
- * - Auf Assets warten
- * - Start-Button aktivieren
- * - onclick-Globals exportieren
+ * Runs on window load:
+ * - restore mute state
+ * - prepare mobile controls
+ * - preload World
+ * - wait for assets
+ * - enable start button
+ * - expose onclick globals
  * @returns {Promise<void>}
  */
 async function onWindowLoad() {
@@ -148,9 +159,12 @@ async function onWindowLoad() {
   exposeHtmlGlobals();
 }
 
-// ---------- World Creation ----------
+//#endregion
+
+//#region World creation
+
 /**
- * Erzeugt die World und verbindet Canvas-Click-Handler.
+ * Creates the World and binds canvas click handlers.
  * @returns {void}
  */
 function startGameLogic() {
@@ -159,16 +173,16 @@ function startGameLogic() {
 }
 
 /**
- * (Re-)liest das Canvas-Element in den GameState ein.
+ * Reads the canvas element into GameState again.
  * @returns {void}
  */
 function initGameCanvas() {
   GameState.canvas = document.getElementById('canvas');
-  if (!GameState.canvas) console.error('❌ Canvas nicht gefunden!');
+  if (!GameState.canvas) console.error('❌ Canvas not found!');
 }
 
 /**
- * Erstellt eine neue World-Instanz (falls Canvas vorhanden).
+ * Creates a new World instance (if a canvas exists).
  * @returns {void}
  */
 function createGameWorld() {
@@ -178,7 +192,7 @@ function createGameWorld() {
 }
 
 /**
- * Synchronisiert Mute-Status vom GameState in die World.
+ * Syncs the mute state from GameState to the World.
  * @returns {void}
  */
 function syncWorldMute() {
@@ -186,7 +200,7 @@ function syncWorldMute() {
 }
 
 /**
- * Bindet Click auf dem Canvas (Pause/Resume).
+ * Binds a click handler to the canvas (pause/resume).
  * @returns {void}
  */
 function bindCanvasClick() {
@@ -195,7 +209,7 @@ function bindCanvasClick() {
 }
 
 /**
- * Canvas-Click: toggelt Pause, außer während der Maracas-Endsequenz.
+ * Canvas click: toggles pause, except during the maracas end sequence.
  * @returns {void}
  */
 function handleCanvasClick() {
@@ -204,17 +218,20 @@ function handleCanvasClick() {
 }
 
 /**
- * Prüft, ob Canvas-Klick ignoriert werden soll.
- * @returns {boolean} True, wenn keine World existiert oder Maracas-Sequenz läuft.
+ * Checks whether the canvas click should be ignored.
+ * @returns {boolean} True if no World exists or the maracas sequence is running.
  */
 function shouldIgnoreCanvasClick() {
   const w = GameState.world;
   return !w || w.isMaracasSequence;
 }
 
-// ---------- Stop ----------
+//#endregion
+
+//#region Stop game
+
 /**
- * Stoppt das Spiel über die World-API (z.B. bei Game Over).
+ * Stops the game via the World API (e.g. on game over).
  * @returns {void}
  */
 function stopGame() {
@@ -222,12 +239,15 @@ function stopGame() {
   if (w?.stop) w.stop();
 }
 
-// ---------- Keyboard ----------
+//#endregion
+
+//#region Keyboard input
+
 window.addEventListener('keydown', handleKeyDown);
 window.addEventListener('keyup', handleKeyUp);
 
 /**
- * Mappt Browser-Tasten auf Properties des Keyboard-Objekts im GameState.
+ * Maps browser keys to properties of the Keyboard object in GameState.
  * @type {Record<string, string>}
  */
 const KEY_MAP = {
@@ -241,11 +261,11 @@ const KEY_MAP = {
 };
 
 /**
- * KeyDown-Handler:
- * - Mute auf "M"
- * - Bewegungen/Wurf/Pause an Keyboard-Flags binden
- * - Pause nur wenn keine Maracas-Sequenz läuft
- * @param {KeyboardEvent} e - Tastatur-Event.
+ * KeyDown handler:
+ * - toggles mute on "M"
+ * - binds movement/throw/pause to keyboard flags
+ * - pause only if no maracas sequence is running
+ * @param {KeyboardEvent} e - Keyboard event.
  * @returns {void}
  */
 function handleKeyDown(e) {
@@ -258,14 +278,14 @@ function handleKeyDown(e) {
 }
 
 /**
- * KeyUp-Handler: setzt Keyboard-Flags zurück.
- * @param {KeyboardEvent} e - Tastatur-Event.
+ * KeyUp handler: resets keyboard flags.
+ * @param {KeyboardEvent} e - Keyboard event.
  * @returns {void}
  */
 function handleKeyUp(e) { applyKeyFlag(e, false); }
 
 /**
- * Schaltet zwischen Pause und Resume (wenn möglich).
+ * Toggles between pause and resume (if possible).
  * @returns {void}
  */
 function togglePause() {
@@ -275,9 +295,9 @@ function togglePause() {
 }
 
 /**
- * Setzt einen Keyboard-Flag im GameState passend zur gedrückten Taste.
- * @param {KeyboardEvent} e - Tastatur-Event.
- * @param {boolean} isDown - True bei KeyDown, False bei KeyUp.
+ * Sets a keyboard flag in GameState according to the pressed key.
+ * @param {KeyboardEvent} e - Keyboard event.
+ * @param {boolean} isDown - True on keydown, false on keyup.
  * @returns {void}
  */
 function applyKeyFlag(e, isDown) {
@@ -287,22 +307,25 @@ function applyKeyFlag(e, isDown) {
 }
 
 /**
- * Prüft, ob die Taste eine Mute-Taste ist.
- * @param {KeyboardEvent} e - Tastatur-Event.
- * @returns {boolean} True bei "m" oder "M".
+ * Checks if the pressed key is a mute key.
+ * @param {KeyboardEvent} e - Keyboard event.
+ * @returns {boolean} True for "m" or "M".
  */
 function isMuteKey(e) { return e.key === 'm' || e.key === 'M'; }
 
 /**
- * Prüft, ob die Taste eine Pause-Taste ist.
- * @param {KeyboardEvent} e - Tastatur-Event.
- * @returns {boolean} True bei "p" oder "P".
+ * Checks if the pressed key is a pause key.
+ * @param {KeyboardEvent} e - Keyboard event.
+ * @returns {boolean} True for "p" or "P".
  */
 function isPauseKey(e) { return e.key === 'p' || e.key === 'P'; }
 
-// ---------- Restart / Home ----------
+//#endregion
+
+//#region Restart / Home
+
 /**
- * Startet das Spiel neu: World resetten, UI zurücksetzen, preload + resume.
+ * Restarts the game: resets the World, resets UI, preload + resume.
  * @returns {void}
  */
 function restartGame() {
@@ -314,7 +337,7 @@ function restartGame() {
 }
 
 /**
- * Setzt die World zurück, sodass sie neu erstellt werden kann.
+ * Resets the World so it can be created again.
  * @returns {void}
  */
 function resetWorldForRestart() {
@@ -324,7 +347,7 @@ function resetWorldForRestart() {
 }
 
 /**
- * Setzt die Stats-Box im Endscreen zurück.
+ * Resets the stats box on the end screen.
  * @returns {void}
  */
 function resetStatsBox() {
@@ -335,7 +358,7 @@ function resetStatsBox() {
 }
 
 /**
- * Blendet Endscreen aus und zeigt Canvas + Titel wieder an.
+ * Hides the end screen and shows canvas + title again.
  * @returns {void}
  */
 function showGameUIForRestart() {
@@ -345,12 +368,12 @@ function showGameUIForRestart() {
 }
 
 /**
- * Placeholder für Level 2.
+ * Placeholder for level 2.
  * @returns {void}
  */
 
 /**
- * Kehrt zum Start zurück, stoppt Musik/Timer und lädt die Seite neu.
+ * Returns to the start screen, stops music/timers, and reloads the page.
  * @returns {void}
  */
 function returnToHome() {
@@ -365,9 +388,12 @@ function returnToHome() {
   location.reload();
 }
 
-// ---------- Expose for HTML onclick ----------
+//#endregion
+
+//#region Expose functions for HTML onclick
+
 /**
- * Exportiert Funktionen nach window, damit sie in HTML onclick-Handlern nutzbar sind.
+ * Exposes functions on window so they can be used in HTML onclick handlers.
  * @returns {void}
  */
 function exposeHtmlGlobals() {
@@ -376,4 +402,9 @@ function exposeHtmlGlobals() {
   window.returnToHome = returnToHome;
   window.stopGame = stopGame;
 }
-// ---------- End Screen ----------
+
+//#endregion
+
+//#region End screen
+// (Intentionally left as a section marker for end screen related code)
+//#endregion

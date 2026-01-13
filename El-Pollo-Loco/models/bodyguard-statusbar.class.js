@@ -1,18 +1,20 @@
+//#region BodyguardStatusBar class
+
 /**
  * @file bodyguard-statusbar.class.js
  * @description
- * Statusbar für den Bodyguard (Lebensanzeige).
- * Kann optional "fixed" gezeichnet werden, d.h. unabhängig von der Kamera.
+ * Status bar for the bodyguard (health display).
+ * Can optionally be drawn as "fixed", meaning independent from the camera.
  */
 
 /**
- * Statusbar (HP) für den Bodyguard.
+ * Bodyguard HP status bar.
  * @class
  * @extends DrawableObject
  */
 class BodyguardStatusBar extends DrawableObject {
   /**
-   * Bildpfade für die Anzeige (0% bis 100%).
+   * Image paths for the display (0% to 100%).
    * @type {string[]}
    */
   IMAGES = [
@@ -31,8 +33,8 @@ class BodyguardStatusBar extends DrawableObject {
   world;
 
   /**
-   * Erstellt eine Bodyguard-Statusbar und verknüpft sie mit der Welt.
-   * @param {World} world - Referenz auf die Spielwelt (für Kamera und Entfernen).
+   * Creates a bodyguard status bar and links it to the world.
+   * @param {World} world - Reference to the game world (camera + removal).
    */
   constructor(world) {
     super();
@@ -46,9 +48,9 @@ class BodyguardStatusBar extends DrawableObject {
   }
 
   /**
-   * Zeichnet die Statusbar.
-   * Wenn `fixed` gesetzt ist, wird sie unabhängig von der Kamera gerendert.
-   * @param {CanvasRenderingContext2D} ctx - Canvas-Kontext.
+   * Draws the status bar.
+   * If `fixed` is set, it is rendered independent from the camera.
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
    * @returns {void}
    */
   draw(ctx) {
@@ -63,9 +65,9 @@ class BodyguardStatusBar extends DrawableObject {
   }
 
   /**
-   * Setzt den aktuellen Prozentwert und wählt das passende Bild.
-   * Entfernt sich aus der Welt, wenn der Wert 0 erreicht.
-   * @param {number} percentage - Neuer Prozentwert (0–100).
+   * Sets the current percentage value and selects the matching image.
+   * Removes itself from the world once the value reaches 0.
+   * @param {number} percentage - New percentage value (0–100).
    * @returns {void}
    */
   setPercentage(percentage) {
@@ -79,7 +81,7 @@ class BodyguardStatusBar extends DrawableObject {
   }
 
   /**
-   * Entfernt die Statusbar aus der Welt-Referenz.
+   * Removes the status bar from the world reference.
    * @returns {void}
    */
   removeFromWorld() {
@@ -87,7 +89,7 @@ class BodyguardStatusBar extends DrawableObject {
   }
 
   /**
-   * Bestimmt anhand des Prozentwertes den Index im IMAGES-Array.
+   * Resolves the image index based on the current percentage value.
    * @returns {number} Index (0–5).
    */
   resolveImageIndex() {
@@ -99,3 +101,5 @@ class BodyguardStatusBar extends DrawableObject {
     return 0;
   }
 }
+
+//#endregion

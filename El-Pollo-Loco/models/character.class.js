@@ -1,10 +1,12 @@
+//#region Character class
+
 /**
  * @file models/character.class.js
  * @description
- * Basisklasse für den Spieler-Charakter (Pepe).
- * Enthält nur "Kernzustand" + Initialisierung.
+ * Base class for the player character (Pepe).
+ * Contains only the "core state" + initialization.
  *
- * Aufgeteilte Logik liegt in:
+ * Split logic lives in:
  * - models/character.assets.js (applyAssetsToCharacter)
  * - models/character.movement.js (startMovementLoop, tickMovement, etc.)
  * - models/character.animation.js (startAnimationLoop, tickAnimation, etc.)
@@ -13,7 +15,7 @@
  */
 
 /**
- * Spieler-Character (Pepe).
+ * Player character (Pepe).
  * @class
  * @extends MovableObject
  */
@@ -46,7 +48,7 @@ class Character extends MovableObject {
   totalPausedTime = 0;
 
   /**
-   * Erstellt den Character und initialisiert Assets, Physik, State, Sounds und Idle-System.
+   * Creates the character and initializes assets, physics, state, sounds, and the idle system.
    */
   constructor() {
     super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
@@ -61,7 +63,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Lädt alle benötigten Sprite-Assets (Idle/Walk/Jump/Throw/Hurt/Dead/LongIdle).
+   * Loads all required sprite assets (idle/walk/jump/throw/hurt/dead/long-idle).
    * @returns {void}
    */
   initImages() {
@@ -76,7 +78,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Initialisiert die Physik (Gravity kommt aus character.gravity.js).
+   * Initializes physics (gravity comes from character.gravity.js).
    * @returns {void}
    */
   initPhysics() {
@@ -84,7 +86,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Initialisiert Spielzustände/Flags.
+   * Initializes game state/flags.
    * @returns {void}
    */
   initState() {
@@ -93,7 +95,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Initialisiert Character-Sounds (z.B. Wurf-Sound).
+   * Initializes character sounds (e.g. throw sound).
    * @returns {void}
    */
   initSounds() {
@@ -102,7 +104,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Initialisiert Idle-System (Timer & Flags für Idle/LongIdle).
+   * Initializes the idle system (timers + flags for idle/long-idle).
    * @returns {void}
    */
   initIdleSystem() {
@@ -114,7 +116,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Kollisionsbox des Characters (kleiner als Sprite).
+   * Character collision box (smaller than the sprite).
    * @returns {{x:number,y:number,width:number,height:number}}
    */
   get collisionBox() {
@@ -127,16 +129,16 @@ class Character extends MovableObject {
   }
 
   /**
-   * Prüft, ob der Character über dem Boden ist.
-   * @returns {boolean} True, wenn y kleiner als Ground-Level.
+   * Checks whether the character is above the ground.
+   * @returns {boolean} True if y is smaller than the ground level.
    */
   isAboveGround() {
     return this.y < 155;
   }
 
   /**
-   * Zeichnet optional die Hitbox (aktuell transparent).
-   * @param {CanvasRenderingContext2D} ctx - Canvas-Kontext.
+   * Optionally draws the hitbox (currently transparent).
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
    * @returns {void}
    */
   drawFrame(ctx) {
@@ -149,8 +151,8 @@ class Character extends MovableObject {
   }
 
   /**
-   * Startet Movement- und Animation-Loops.
-   * Implementierungen liegen in character.movement.js / character.animation.js
+   * Starts movement and animation loops.
+   * Implementations live in character.movement.js / character.animation.js.
    * @returns {void}
    */
   animate() {
@@ -159,7 +161,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Pausiert den Character (beeinflusst Loops über isPaused).
+   * Pauses the character (loops react via isPaused).
    * @returns {void}
    */
   pause() {
@@ -169,7 +171,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Setzt den Character fort und kompensiert Pausenzeit für Idle-Timer.
+   * Resumes the character and compensates pause time for idle timers.
    * @returns {void}
    */
   resume() {
@@ -179,7 +181,7 @@ class Character extends MovableObject {
   }
 
   /**
-   * Verschiebt lastMoveTime um die Pausenzeit, damit Idle/LongIdle korrekt bleiben.
+   * Shifts lastMoveTime by the pause duration so idle/long-idle stays accurate.
    * @returns {void}
    */
   applyPauseTimeCompensation() {
@@ -187,3 +189,5 @@ class Character extends MovableObject {
     this.lastMoveTime += Date.now() - this.pauseStartTime;
   }
 }
+
+//#endregion

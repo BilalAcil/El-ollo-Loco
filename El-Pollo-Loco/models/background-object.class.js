@@ -1,12 +1,14 @@
+//#region BackgroundObject class
+
 /**
  * @file background-object.class.js
  * @description
- * Hintergrund-Objekt für das Level (z.B. Landschafts- oder Parallax-Bilder).
- * Positioniert sich standardmäßig auf dem Boden (y = 480 - height).
+ * Background object for the level (e.g. landscape or parallax images).
+ * By default it is positioned on the ground (y = 480 - height).
  */
 
 /**
- * Hintergrund-Objekt, das ein Bild lädt und an einer X-Position platziert wird.
+ * Background object that loads an image and is placed at a specific X position.
  * @class
  * @extends MovableObject
  */
@@ -19,9 +21,9 @@ class BackgroundObject extends MovableObject {
   height = 480;
 
   /**
-   * Erstellt ein BackgroundObject.
-   * @param {string} imagePath - Pfad zur Bilddatei.
-   * @param {number} x - X-Position im Level.
+   * Creates a BackgroundObject.
+   * @param {string} imagePath - Path to the image file.
+   * @param {number} x - X position in the level.
    */
   constructor(imagePath, x) {
     super().loadImage(imagePath);
@@ -29,3 +31,5 @@ class BackgroundObject extends MovableObject {
     this.y = 480 - this.height;
   }
 }
+
+//#endregion

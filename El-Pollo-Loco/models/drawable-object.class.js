@@ -1,26 +1,28 @@
+//#region DrawableObject base class
+
 /**
  * @file models/drawable-object.class.js
  * @description
- * Basisklasse für alle Objekte, die auf ein Canvas gezeichnet werden.
- * - Laden von Einzelbildern und Bild-Arrays (mit Cache)
- * - Zeichnen des aktuellen Bildes
- * - Optional: Debug-Frame (transparent) + Kollisionsbox
- * - Globales Asset-Tracking (totalAssets / loadedAssets)
+ * Base class for all objects that are drawn on a canvas.
+ * - Load single images and image arrays (with caching)
+ * - Draw the current image
+ * - Optional: debug frame (transparent) + collision box
+ * - Global asset tracking (totalAssets / loadedAssets)
  */
 
 /**
- * DrawableObject ist die Basis für alle renderbaren Objekte im Spiel.
+ * DrawableObject is the base for all renderable objects in the game.
  * @class
  */
 class DrawableObject {
   /**
-   * Gesamtanzahl aller gestarteten Asset-Ladevorgänge (global).
+   * Total number of started asset load operations (global).
    * @type {number}
    */
   static totalAssets = 0;
 
   /**
-   * Anzahl erfolgreich geladener Assets (global).
+   * Number of successfully loaded assets (global).
    * @type {number}
    */
   static loadedAssets = 0;
@@ -35,19 +37,19 @@ class DrawableObject {
   /** @type {number} */ currentImage = 0;
 
   /**
-   * Lädt ein einzelnes Bild und setzt es als `this.img`.
-   * Erhöht globale Asset-Zähler für Preload/Loading-Check.
-   * @param {string} path - Pfad zur Bilddatei.
+   * Loads a single image and assigns it to `this.img`.
+   * Increments global asset counters for preload/loading checks.
+   * @param {string} path - Path to the image file.
    * @returns {void}
    */
   loadImage(path) {
-    // ✅ Wenn schon vorgeladen, nur setzen (kein neues Image!)
+    // ✅ If it was already preloaded, just reuse it (do not create a new Image).
     if (this.imageCache[path]) {
       this.img = this.imageCache[path];
       return;
     }
 
-    // sonst einmalig laden und in Cache legen
+    // Otherwise, load once and store it in the cache.
     const img = new Image();
     DrawableObject.totalAssets++;
 
@@ -61,9 +63,9 @@ class DrawableObject {
   }
 
   /**
-   * Lädt mehrere Bilder und cached sie in `imageCache`.
-   * Erhöht globale Asset-Zähler für jedes Bild.
-   * @param {string[]} arr - Liste von Bildpfaden.
+   * Loads multiple images and caches them in `imageCache`.
+   * Increments global asset counters for each image.
+   * @param {string[]} arr - List of image paths.
    * @returns {void}
    */
   loadImages(arr) {
@@ -81,9 +83,9 @@ class DrawableObject {
   }
 
   /**
-   * Zeichnet das aktuelle Bild auf das Canvas.
-   * Wichtig: World positioniert/transformiert das Canvas vorher (translate/rotate/scale).
-   * @param {CanvasRenderingContext2D} ctx
+   * Draws the current image to the canvas.
+   * Note: World sets up canvas transforms beforehand (translate/rotate/scale).
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   draw(ctx) {
@@ -92,9 +94,9 @@ class DrawableObject {
   }
 
   /**
-   * Zeichnet einen (transparenten) Debug-Frame um das Objekt bzw. die collisionBox.
-   * Wird nur für bestimmte Klassen aktiviert (shouldDrawFrame()).
-   * @param {CanvasRenderingContext2D} ctx
+   * Draws a (transparent) debug frame around the object or its collisionBox.
+   * Only active for certain classes (see shouldDrawFrame()).
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   drawFrame(ctx) {
@@ -105,7 +107,7 @@ class DrawableObject {
   }
 
   /**
-   * Entscheidet, ob für dieses Objekt ein Debug-Frame gezeichnet wird.
+   * Decides whether a debug frame should be drawn for this object.
    * @returns {boolean}
    */
   shouldDrawFrame() {
@@ -121,8 +123,8 @@ class DrawableObject {
   }
 
   /**
-   * Initialisiert den Zeichenstil für den Debug-Frame.
-   * @param {CanvasRenderingContext2D} ctx
+   * Initializes the drawing style for the debug frame.
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   beginFrame(ctx) {
@@ -132,10 +134,10 @@ class DrawableObject {
   }
 
   /**
-   * Zeichnet die Frame-Rechteck-Geometrie:
-   * - Wenn collisionBox existiert: nutzt collisionBox relativ zum Objekt
-   * - Sonst: Standard-Rect (Bodyguard bekommt oben ein Offset)
-   * @param {CanvasRenderingContext2D} ctx
+   * Draws the frame rectangle geometry:
+   * - If collisionBox exists: uses collisionBox relative to the object
+   * - Otherwise: standard rect (Bodyguard gets a top offset)
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   drawFrameRect(ctx) {
@@ -145,8 +147,8 @@ class DrawableObject {
   }
 
   /**
-   * Zeichnet die collisionBox relativ zur Objektposition.
-   * @param {CanvasRenderingContext2D} ctx
+   * Draws the collisionBox relative to the object position.
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   drawCollisionRect(ctx) {
@@ -155,8 +157,8 @@ class DrawableObject {
   }
 
   /**
-   * Prüft global, ob alle registrierten Assets geladen wurden.
-   * @returns {boolean} True, wenn mindestens 1 Asset existiert und alle geladen sind.
+   * Checks globally whether all registered assets have been loaded.
+   * @returns {boolean} True if at least 1 asset exists and all are loaded.
    */
   static areAllAssetsLoaded() {
     return (
@@ -165,3 +167,5 @@ class DrawableObject {
     );
   }
 }
+
+//#endregion

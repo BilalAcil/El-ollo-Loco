@@ -1,17 +1,19 @@
+//#region StatusBarCoin class
+
 /**
  * @file models/status-bar-coin.class.js
  * @description
- * Statusbar für gesammelte Coins (Icon + Counter).
+ * Status bar for collected coins (icon + counter).
  */
 
 /**
- * Zeigt oben links ein Coin-Icon und die aktuelle Coin-Anzahl an.
+ * Displays a coin icon and the current coin count in the top-left corner.
  * @class
  * @extends DrawableObject
  */
 class StatusBarCoin extends DrawableObject {
   /**
-   * Erstellt die Coin-Statusbar und setzt Standard-Position/Größe.
+   * Creates the coin status bar and sets default position/size.
    */
   constructor() {
     super();
@@ -33,14 +35,14 @@ class StatusBarCoin extends DrawableObject {
     this.y = 10;
 
     /**
-     * Aktuelle Anzahl gesammelter Coins.
+     * Current number of collected coins.
      * @type {number}
      */
     this.coinCount = 0;
   }
 
   /**
-   * Erhöht die Coin-Anzahl um 1.
+   * Increases the coin count by 1.
    * @returns {void}
    */
   addCoin() {
@@ -48,18 +50,20 @@ class StatusBarCoin extends DrawableObject {
   }
 
   /**
-   * Zeichnet das Coin-Icon und den Zähler.
+   * Draws the coin icon and the counter.
    * @override
-   * @param {CanvasRenderingContext2D} ctx - Canvas-2D-Kontext.
+   * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
    * @returns {void}
    */
   draw(ctx) {
-    // Coin-Bild
+    // Coin image
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
 
-    // Zahl daneben
+    // Counter text
     ctx.font = '30px "Comic Sans MS"';
     ctx.fillStyle = '#ffcc03';
     ctx.fillText(` ${this.coinCount}`, this.x + 70, this.y + 65);
   }
 }
+
+//#endregion

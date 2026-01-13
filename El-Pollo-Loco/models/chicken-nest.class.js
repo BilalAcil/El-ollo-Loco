@@ -1,12 +1,14 @@
+//#region ChickenNest class
+
 /**
  * @file models/chicken-nest.class.js
  * @description
- * ChickenNest ist ein statisches Objekt im Endbossbereich.
- * Dient als Deko/Objekt und kann von der World ein-/ausgeblendet werden.
+ * ChickenNest is a static object in the endboss area.
+ * It is used as decoration and can be shown/hidden by the World.
  */
 
 /**
- * ChickenNest (Hühnernest) im Endbossbereich.
+ * ChickenNest (nest) in the endboss area.
  * @class
  * @extends MovableObject
  */
@@ -24,7 +26,7 @@ class ChickenNest extends MovableObject {
   IMAGE = 'img/4_enemie_boss_chicken/6_idle/Chicken-Nest.png';
 
   /**
-   * Erstellt das Hühnernest, lädt das Bild und setzt die Position.
+   * Creates the chicken nest, loads the image, and sets its position.
    */
   constructor() {
     super();
@@ -32,3 +34,5 @@ class ChickenNest extends MovableObject {
     this.x = 4490;
   }
 }
+
+//#endregion

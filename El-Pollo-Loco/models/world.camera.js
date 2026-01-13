@@ -1,14 +1,16 @@
+//#region World camera mixin
+
 /**
  * @file models/world.camera.js
  * @description
- * Kamera- und Boss-Arena-Logik der World:
- * - weiches Kamera-Panning im Endbossbereich
- * - Kamera-Sound beim Panning
- * - Reaktion auf Bodyguard-Tod (Boss + UI einblenden)
+ * Camera and boss-arena logic for the world:
+ * - smooth camera panning in the endboss area
+ * - camera sound while panning
+ * - reaction to bodyguard death (show boss + UI)
  */
 
 /**
- * Mixin: Kamera-Funktionen an {@link World} anhängen.
+ * Mixin: attaches camera functions to {@link World}.
  * @namespace WorldCameraMixin
  */
 Object.assign(World.prototype, {
@@ -20,8 +22,8 @@ Object.assign(World.prototype, {
 });
 
 /**
- * Startet ein weiches Kamera-Panning im Endbossbereich auf eine definierte Zielposition.
- * Wird ignoriert, wenn bereits gepannt wird oder die Zielposition schon erreicht ist.
+ * Starts a smooth camera pan in the endboss area to a defined target position.
+ * Ignored if already panning or the target position has already been reached.
  *
  * @this {World}
  * @returns {void}
@@ -37,8 +39,8 @@ function startEndbossCameraPan() {
 }
 
 /**
- * Startet den Kamera-Bewegungssound (falls vorhanden).
- * Setzt die Wiedergabe auf Anfang zurück.
+ * Starts the camera movement sound (if available).
+ * Resets playback to the beginning.
  *
  * @this {World}
  * @returns {void}
@@ -50,12 +52,12 @@ function playCameraMoveSound() {
     this.cameraMoveSound.currentTime = 0;
     this.cameraMoveSound.play();
   } catch (e) {
-    console.warn('Kamera-Sound konnte nicht abgespielt werden:', e);
+    console.warn('Could not play camera sound:', e);
   }
 }
 
 /**
- * Stoppt den Kamera-Bewegungssound (falls vorhanden) und setzt ihn zurück.
+ * Stops the camera movement sound (if available) and resets it.
  *
  * @this {World}
  * @returns {void}
@@ -67,13 +69,13 @@ function stopCameraMoveSound() {
     this.cameraMoveSound.pause();
     this.cameraMoveSound.currentTime = 0;
   } catch (e) {
-    console.warn('Kamera-Sound konnte nicht gestoppt werden:', e);
+    console.warn('Could not stop camera sound:', e);
   }
 }
 
 /**
- * Startet ein weiches Kamera-Panning zurück zur ursprünglichen Endboss-Kamera-Position.
- * Wird ignoriert, wenn gerade bereits gepannt wird.
+ * Starts a smooth camera pan back to the original endboss camera position.
+ * Ignored if a pan is already in progress.
  *
  * @this {World}
  * @returns {void}
@@ -81,7 +83,7 @@ function stopCameraMoveSound() {
 function startEndbossCameraPanBack() {
   if (this.isCameraPanning) return;
 
-  // ursprüngliche Endboss-Kameraposition: camera_x = -4100 + 100 (= -4000)
+  // Original endboss camera position: camera_x = -4100 + 100 (= -4000)
   this.cameraTargetX = -4100 + 100;
   this.cameraPanSpeed = 2;
   this.isCameraPanning = true;
@@ -90,9 +92,9 @@ function startEndbossCameraPanBack() {
 }
 
 /**
- * Wird aufgerufen, wenn der Bodyguard stirbt.
- * Macht Endboss, Endboss-Statusbar und Nest sichtbar und markiert,
- * dass die Kamera später wieder zurückfahren soll.
+ * Called when the bodyguard dies.
+ * Makes endboss, endboss status bar and nest visible and marks
+ * that the camera should pan back later.
  *
  * @this {World}
  * @returns {void}
@@ -107,3 +109,5 @@ function onBodyguardDeath() {
 
   this.shouldStartCameraPanBack = true;
 }
+
+//#endregion

@@ -1,6 +1,8 @@
+//#region Bodyguard assets
+
 /**
  * @file bodyguard.assets.js
- * @description Asset-Konstanten für Bodyguard (Images).
+ * @description Asset constants for the bodyguard (images).
  */
 
 window.BodyguardAssets = {
@@ -39,3 +41,5 @@ window.BodyguardAssets = {
 
   LAND_STILL: 'img/4_enemie_boss_chicken/3_attack/G13.png'
 };
+
+//#endregion

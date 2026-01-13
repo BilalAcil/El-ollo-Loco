@@ -1,13 +1,15 @@
+//#region World draw system
+
 /**
  * @file models/world.draw.js
  * @description
- * Rendering-/Draw-System der World.
- * Verantwortlich für:
- * - Canvas löschen
- * - Kamera-Transformation (camera_x)
- * - Zeichnen von Background, Clouds, Collectibles, Enemies, Player, UI
- * - Objekt-Transforms (FlipX, Rotation, Alpha)
- * - Frame-Loop via requestAnimationFrame
+ * World rendering/draw system.
+ * Responsible for:
+ * - clearing the canvas
+ * - camera transformation (camera_x)
+ * - drawing background, clouds, collectibles, enemies, player, and UI
+ * - per-object transforms (flipX, rotation, alpha)
+ * - frame loop via requestAnimationFrame
  */
 
 Object.assign(World.prototype, {
@@ -38,9 +40,10 @@ Object.assign(World.prototype, {
 });
 
 /**
- * Setzt Canvas-Schrift und Farbe für den Countdown-Text.
- * (Die eigentliche Ausgabe des Countdowns passiert in {@link Countdown#draw}.)
+ * Sets canvas font and color for countdown text.
+ * (The actual countdown rendering is done in {@link Countdown#draw}.)
  *
+ * @this {World}
  * @returns {void}
  */
 function drawCountdown() {
@@ -49,12 +52,13 @@ function drawCountdown() {
 }
 
 /**
- * Haupt-Render-Funktion (Frame).
- * Zeichnet:
- * 1) Camera-Layer (Level + Figuren)
- * 2) Overlay-UI (Statusbars + Countdown)
- * und scheduled das nächste Frame über {@link scheduleNextFrame}.
+ * Main render function (one frame).
+ * Draws:
+ * 1) camera layer (level + actors)
+ * 2) overlay UI (status bars + countdown)
+ * Then schedules the next frame via {@link scheduleNextFrame}.
  *
+ * @this {World}
  * @returns {void}
  */
 function draw() {
@@ -65,8 +69,9 @@ function draw() {
 }
 
 /**
- * Löscht den kompletten Canvas.
+ * Clears the entire canvas.
  *
+ * @this {World}
  * @returns {void}
  */
 function clearCanvas() {
@@ -74,9 +79,10 @@ function clearCanvas() {
 }
 
 /**
- * Zeichnet alle Objekte, die von der Kamera beeinflusst werden.
- * Die Translation wird in {@link withCamera} gekapselt.
+ * Draws all objects affected by the camera.
+ * The translation is wrapped by {@link withCamera}.
  *
+ * @this {World}
  * @returns {void}
  */
 function drawCameraLayer() {
@@ -90,10 +96,11 @@ function drawCameraLayer() {
 }
 
 /**
- * Führt eine Zeichenfunktion im Kamera-Koordinatensystem aus.
- * Übersetzt den Canvas um {@link World#camera_x}.
+ * Executes a draw callback inside the camera coordinate system.
+ * Translates the canvas by {@link World#camera_x}.
  *
- * @param {Function} fn - Callback, der innerhalb der Kamera-Transformation gerendert wird.
+ * @this {World}
+ * @param {Function} fn - Callback rendered inside the camera transformation.
  * @returns {void}
  */
 function withCamera(fn) {
@@ -104,8 +111,9 @@ function withCamera(fn) {
 }
 
 /**
- * Zeichnet Hintergrund-Objekte und Wolken.
+ * Draws background objects and clouds.
  *
+ * @this {World}
  * @returns {void}
  */
 function drawBackgroundAndClouds() {
@@ -114,8 +122,9 @@ function drawBackgroundAndClouds() {
 }
 
 /**
- * Zeichnet sammelbare Objekte (Coins + Salsa).
+ * Draws collectibles (coins + salsa bottles).
  *
+ * @this {World}
  * @returns {void}
  */
 function drawCollectibles() {
@@ -124,8 +133,9 @@ function drawCollectibles() {
 }
 
 /**
- * Zeichnet "World-Objects" (Bodyguard, ChickenNest + optionale Objekte).
+ * Draws "world objects" (bodyguard, chicken nest + optional objects).
  *
+ * @this {World}
  * @returns {void}
  */
 function drawWorldObjects() {
@@ -135,9 +145,10 @@ function drawWorldObjects() {
 }
 
 /**
- * Zeichnet optionale Objekte, die evtl. null sein können.
- * (Maracas erscheinen z.B. erst nach Endboss-Tod.)
+ * Draws optional objects that may be null.
+ * (Maracas appear only after the endboss dies, for example.)
  *
+ * @this {World}
  * @returns {void}
  */
 function drawOptionalWorldObjects() {
@@ -147,8 +158,9 @@ function drawOptionalWorldObjects() {
 }
 
 /**
- * Zeichnet Player + Gegner.
+ * Draws the player and all enemies.
  *
+ * @this {World}
  * @returns {void}
  */
 function drawActorsAndEnemies() {
@@ -157,8 +169,9 @@ function drawActorsAndEnemies() {
 }
 
 /**
- * Zeichnet alle Wurfobjekte (z.B. SalsaThrow).
+ * Draws all throwable objects (e.g. SalsaThrow).
  *
+ * @this {World}
  * @returns {void}
  */
 function drawThrowableObjects() {
@@ -166,12 +179,13 @@ function drawThrowableObjects() {
 }
 
 /**
- * Zeichnet Overlay-UI (nicht von der Kamera beeinflusst):
- * - Health-Bar
- * - Salsa-Bar
- * - Coin-Bar
- * - Countdown Icon/Text
+ * Draws overlay UI (not affected by the camera):
+ * - health bar
+ * - salsa bar
+ * - coin bar
+ * - countdown icon/text
  *
+ * @this {World}
  * @returns {void}
  */
 function drawOverlayUI() {
@@ -183,8 +197,9 @@ function drawOverlayUI() {
 }
 
 /**
- * Plant das nächste Frame über requestAnimationFrame.
+ * Schedules the next frame using requestAnimationFrame.
  *
+ * @this {World}
  * @returns {void}
  */
 function scheduleNextFrame() {
@@ -192,9 +207,10 @@ function scheduleNextFrame() {
 }
 
 /**
- * Zeichnet mehrere Objekte nacheinander via {@link addToMap}.
+ * Draws multiple objects by calling {@link addToMap}.
  *
- * @param {Array<*>} objects - Liste von Drawable-/Movable-Objekten.
+ * @this {World}
+ * @param {Array<*>} objects - List of drawable/movable objects.
  * @returns {void}
  */
 function addObjectsToMap(objects) {
@@ -202,10 +218,11 @@ function addObjectsToMap(objects) {
 }
 
 /**
- * Zeichnet ein einzelnes Objekt, falls es gerendert werden soll.
- * Behandelt Alpha + Transformationen und ruft dann {@link renderObject} auf.
+ * Draws a single object if it should be rendered.
+ * Handles alpha + transforms and then calls {@link renderObject}.
  *
- * @param {*} mo - Drawable-/Movable-Objekt (muss draw(ctx) unterstützen).
+ * @this {World}
+ * @param {*} mo - Drawable/movable object (must support draw(ctx)).
  * @returns {void}
  */
 function addToMap(mo) {
@@ -219,9 +236,9 @@ function addToMap(mo) {
 }
 
 /**
- * Entscheidet, ob ein Objekt gerendert werden darf:
- * - Objekt existiert
- * - Objekt ist nicht unsichtbar (visible !== false)
+ * Decides whether an object should be rendered:
+ * - object exists
+ * - object is not hidden (visible !== false)
  *
  * @param {*} mo
  * @returns {boolean}
@@ -231,8 +248,9 @@ function shouldRender(mo) {
 }
 
 /**
- * Setzt die globale Transparenz für das Objekt (mo.alpha) oder 1.0 als Default.
+ * Applies global transparency for the object (mo.alpha) or 1.0 by default.
  *
+ * @this {World}
  * @param {*} mo
  * @returns {void}
  */
@@ -241,12 +259,13 @@ function applyAlpha(mo) {
 }
 
 /**
- * Wendet Transformations auf das Objekt an:
- * - Translate zum Mittelpunkt
- * - Optional: Spiegeln bei otherDirection
- * - Optional: Rotation
- * - Translate zurück
+ * Applies transforms to the object:
+ * - translate to object center
+ * - optional: flip horizontally when otherDirection is true
+ * - optional: rotate
+ * - translate back to top-left of the object
  *
+ * @this {World}
  * @param {*} mo
  * @returns {void}
  */
@@ -262,19 +281,20 @@ function applyObjectTransform(mo) {
 }
 
 /**
- * Liefert Rotation in Radiant (falls mo.rotation gesetzt ist).
+ * Returns rotation in radians (if mo.rotation is set).
  *
  * @param {*} mo
- * @returns {number} Radiant
+ * @returns {number} Radians
  */
 function getRotationRadians(mo) {
   return mo.rotation ? (mo.rotation * Math.PI) / 180 : 0;
 }
 
 /**
- * Übersetzt den Canvas-Ursprung auf die Objektmitte.
- * Damit können Flip/Rotation um die Mitte erfolgen.
+ * Translates the canvas origin to the object's center.
+ * This allows flip/rotation around the center.
  *
+ * @this {World}
  * @param {{x:number,y:number,width:number,height:number}} mo
  * @returns {void}
  */
@@ -283,8 +303,9 @@ function translateToCenter(mo) {
 }
 
 /**
- * Übersetzt den Ursprung zurück in die linke obere Ecke des Objekts.
+ * Translates the origin back to the object's top-left corner.
  *
+ * @this {World}
  * @param {{width:number,height:number}} mo
  * @returns {void}
  */
@@ -293,8 +314,9 @@ function translateBack(mo) {
 }
 
 /**
- * Spiegelt das aktuelle Koordinatensystem horizontal.
+ * Flips the current coordinate system horizontally.
  *
+ * @this {World}
  * @returns {void}
  */
 function flipX() {
@@ -302,7 +324,7 @@ function flipX() {
 }
 
 /**
- * Rendert das Objekt und (optional) dessen Debug-Frame.
+ * Renders the object and (optionally) its debug frame.
  *
  * @param {*} mo
  * @returns {void}
@@ -311,3 +333,5 @@ function renderObject(mo) {
   mo.draw(this.ctx);
   mo.drawFrame(this.ctx);
 }
+
+//#endregion

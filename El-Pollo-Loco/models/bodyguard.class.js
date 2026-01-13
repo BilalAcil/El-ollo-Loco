@@ -1,6 +1,8 @@
+//#region Bodyguard class (orchestrator)
+
 /**
  * @file bodyguard.class.js
- * @description Bodyguard-Klasse (Orchestrator). Logik steckt in Mixins.
+ * @description Bodyguard class (orchestrator). The actual logic lives in mixins.
  */
 
 class Bodyguard extends MovableObject {
@@ -19,19 +21,19 @@ class Bodyguard extends MovableObject {
   deathAnimInterval = null;
 
   lastSpeedX = 0;
-  lastDirection = false; // false = rechts, true = links
+  lastDirection = false; // false = right, true = left
 
   constructor() {
     super();
 
-    // Assets (aus bodyguard.assets.js)
+    // Assets (from bodyguard.assets.js)
     Object.assign(this, window.BodyguardAssets);
 
     this.initPosition();
     this.initPhysics();
     this.preloadAssets();
 
-    // Sounds (aus bodyguard.sounds.js)
+    // Sounds (from bodyguard.sounds.js)
     this.initSounds();
   }
 
@@ -75,8 +77,14 @@ class Bodyguard extends MovableObject {
   }
 }
 
-// Mixins anhängen (Reihenfolge egal, solange Methoden existieren)
+//#endregion
+
+//#region Attach mixins
+
+// Attach mixins (order does not matter as long as the methods exist)
 Object.assign(Bodyguard.prototype, window.BodyguardSounds);
 Object.assign(Bodyguard.prototype, window.BodyguardJump);
 Object.assign(Bodyguard.prototype, window.BodyguardAttack);
 Object.assign(Bodyguard.prototype, window.BodyguardDamageDeath);
+
+//#endregion

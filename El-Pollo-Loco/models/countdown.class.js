@@ -1,10 +1,12 @@
+//#region Countdown class (orchestrator)
+
 /**
  * @file models/countdown.class.js
- * @description Countdown-UI (Orchestrator) – Logik steckt in CountdownLogic-Mixin.
+ * @description Countdown UI (orchestrator) – logic lives in the CountdownLogic mixin.
  *
- * Voraussetzungen:
+ * Requirements:
  * - DrawableObject
- * - window.CountdownLogic wurde vorher geladen
+ * - window.CountdownLogic was loaded before this file
  */
 
 class Countdown extends DrawableObject {
@@ -19,10 +21,11 @@ class Countdown extends DrawableObject {
   }
 
   /**
-   * Zeichnet Icon + Zeit. Wenn temporär versteckt, zeichnet es nichts.
-   * Wenn blinkend, wird die Zeit nur in blinkVisible-Phasen angezeigt.
+   * Draws icon + time. If temporarily hidden, draws nothing.
+   * If blinking, the time is only shown during blinkVisible phases.
    * @override
-   * @param {CanvasRenderingContext2D} ctx
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+   * @returns {void}
    */
   draw(ctx) {
     if (this.isTemporarilyHidden) return;
@@ -36,7 +39,7 @@ class Countdown extends DrawableObject {
   }
 
   /**
-   * Formatiert countdownTime als "m:ss".
+   * Formats countdownTime as "m:ss".
    * @returns {string}
    */
   formatTime() {
@@ -46,5 +49,11 @@ class Countdown extends DrawableObject {
   }
 }
 
-// Mixin anhängen
+//#endregion
+
+//#region Attach mixin
+
+// Attach mixin
 Object.assign(Countdown.prototype, window.CountdownLogic);
+
+//#endregion

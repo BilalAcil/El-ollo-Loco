@@ -1,24 +1,30 @@
+//#region Audio Manager (Global Mute Wrapper)
+
 /**
  * @file audio-manager.js
  * @description
- * Globaler Audio-Wrapper: sammelt alle erstellten Audio-Instanzen und ermöglicht
- * ein globales Mute/Unmute über window.setGlobalMute().
+ * Global audio wrapper: collects all created audio instances and enables
+ * a global mute/unmute via window.setGlobalMute().
  *
  * @global
- * @property {boolean} window.isMuted - Globaler Mute-Status.
- * @property {HTMLAudioElement[]} window.allGameAudio - Liste aller Audio-Instanzen im Spiel.
- * @property {function(boolean): void} window.setGlobalMute - Setzt global Mute und wendet es auf alle Audios an.
+ * @property {boolean} window.isMuted - Global mute state.
+ * @property {HTMLAudioElement[]} window.allGameAudio - List of all audio instances in the game.
+ * @property {(muted: boolean) => void} window.setGlobalMute - Sets global mute and applies it to all audio instances.
  */
 
 window.isMuted = false;
 window.allGameAudio = [];
 
+//#endregion
+
 (function () {
   const OriginalAudio = window.Audio;
 
+  //#region Helpers
+
   /**
-   * Setzt den Mute-Status auf alle bekannten Audio-Instanzen.
-   * @param {boolean} muted - True = stumm, false = Ton an.
+   * Applies the mute state to all known audio instances.
+   * @param {boolean} muted - True = muted, false = sound on.
    * @returns {void}
    */
   function applyMuteToAll(muted) {
@@ -27,15 +33,19 @@ window.allGameAudio = [];
     });
   }
 
+  //#endregion
+
+  //#region Audio constructor wrapper
+
   /**
-   * Wrapper um den nativen Audio-Konstruktor:
-   * - erstellt eine Audio-Instanz
-   * - speichert sie in window.allGameAudio
-   * - übernimmt sofort den aktuellen globalen Mute-Status
+   * Wrapper around the native Audio constructor:
+   * - creates an Audio instance
+   * - stores it in window.allGameAudio
+   * - immediately applies the current global mute state
    *
    * @constructor
-   * @param {...any} args - Parameter, die an den originalen Audio-Konstruktor weitergegeben werden.
-   * @returns {HTMLAudioElement} Die neu erstellte Audio-Instanz.
+   * @param {...any} args - Arguments forwarded to the original Audio constructor.
+   * @returns {HTMLAudioElement} The newly created audio instance.
    */
   window.Audio = function (...args) {
     const audio = new OriginalAudio(...args);
@@ -44,17 +54,23 @@ window.allGameAudio = [];
     return audio;
   };
 
-  // Prototyp beibehalten, damit Methoden/Properties wie beim Original funktionieren.
+  // Keep the prototype so methods/properties work like the original Audio object.
   window.Audio.prototype = OriginalAudio.prototype;
 
+  //#endregion
+
+  //#region Public API
+
   /**
-   * Setzt den globalen Mute-Status und wendet ihn auf alle bekannten Audio-Instanzen an.
+   * Sets the global mute state and applies it to all known audio instances.
    * @function window.setGlobalMute
-   * @param {boolean} muted - True = stumm, false = Ton an.
+   * @param {boolean} muted - True = muted, false = sound on.
    * @returns {void}
    */
   window.setGlobalMute = function (muted) {
     window.isMuted = muted;
     applyMuteToAll(muted);
   };
+
+  //#endregion
 })();

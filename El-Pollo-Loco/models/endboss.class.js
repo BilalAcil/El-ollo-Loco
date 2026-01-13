@@ -1,12 +1,14 @@
+//#region Endboss class
+
 /**
  * @file models/endboss.class.js
  * @description
- * Endboss (Boss-Chicken) mit Idle/Hurt/Dead Animation, Aktivierung nach Treffer,
- * Fall-Animation nach Tod sowie World-Interaktionen (Bodyguard töten, Maracas spawnen).
+ * Endboss (boss chicken) with idle/hurt/dead animations, activation on hit,
+ * falling animation after death, and world interactions (kill bodyguard, spawn maracas).
  */
 
 /**
- * Endboss-Gegner.
+ * Endboss enemy.
  * @class
  * @extends MovableObject
  */
@@ -16,34 +18,34 @@ class Endboss extends MovableObject {
   /** @type {number} */ y = 280;
 
   /**
-   * Steuert, ob der Boss kurz in "Hurt/Awake" Animation ist.
+   * Controls whether the boss is briefly in a "hurt/awake" animation state.
    * @type {boolean}
    */
   isActivated = false;
 
-  /** Lebenspunkte des Bosses. @type {number} */
+  /** Boss health points. @type {number} */
   energy = 100;
 
-  /** Ob der Boss tot ist. @type {boolean} */
+  /** Whether the boss is dead. @type {boolean} */
   isDead = false;
 
-  /** Ob der Boss bereits pausiert ist. @type {boolean} */
+  /** Whether the boss is paused. @type {boolean} */
   isPaused = false;
 
-  /** Verhindert doppelte onDeath-Events. @type {boolean} */
+  /** Prevents duplicate onDeath events. @type {boolean} */
   isDeadHandled = false;
 
-  /** Aktuelle Fallgeschwindigkeit (für Fall-Physik). @type {number} */
+  /** Current falling speed (for falling physics). @type {number} */
   fallSpeed = 0;
 
-  /** Interval-Handle für Animation. @type {number|undefined} */
+  /** Interval handle for animation. @type {number|undefined} */
   animationInterval;
 
-  /** Interval-Handle für Fallen. @type {number|undefined} */
+  /** Interval handle for falling. @type {number|undefined} */
   fallInterval;
 
   /**
-   * Bilder für Idle-Animation.
+   * Images for idle animation.
    * @type {string[]}
    */
   IMAGES_IDLE = [
@@ -54,7 +56,7 @@ class Endboss extends MovableObject {
   ];
 
   /**
-   * Bilder für Hurt/Awake-Animation (nach Treffer).
+   * Images for hurt/awake animation (after being hit).
    * @type {string[]}
    */
   IMAGES_HURT = [
@@ -65,7 +67,7 @@ class Endboss extends MovableObject {
   ];
 
   /**
-   * Bilder für Todesanimation.
+   * Images for death animation.
    * @type {string[]}
    */
   IMAGES_DEAD = [
@@ -75,7 +77,7 @@ class Endboss extends MovableObject {
   ];
 
   /**
-   * Erstellt den Endboss, lädt Assets, setzt Startposition und startet Animation.
+   * Creates the endboss, preloads assets, sets the start position, and starts animation.
    */
   constructor() {
     super().loadImage(this.IMAGES_IDLE[0]);
@@ -85,7 +87,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Lädt alle Animation-Assets (Idle/Hurt/Dead) in den Cache.
+   * Preloads all animation assets (idle/hurt/dead) into the cache.
    * @returns {void}
    */
   preloadAssets() {
@@ -95,7 +97,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Setzt Startposition des Endbosses.
+   * Sets the endboss start position.
    * @returns {void}
    */
   initPosition() {
@@ -103,10 +105,10 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Startet die Animationsschleife.
+   * Starts the animation loop.
    * - Dead -> IMAGES_DEAD
    * - Activated -> IMAGES_HURT
-   * - sonst -> IMAGES_IDLE
+   * - Otherwise -> IMAGES_IDLE
    * @returns {void}
    */
   animate() {
@@ -117,7 +119,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Prüft, ob Boss oder World pausiert sind.
+   * Checks whether the boss or the world is paused.
    * @returns {boolean}
    */
   isGamePaused() {
@@ -125,7 +127,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Spielt die passende Animation basierend auf dem Zustand.
+   * Plays the correct animation based on the current state.
    * @returns {void}
    */
   playCurrentAnimation() {
@@ -135,7 +137,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Startet die Fall-Animation nach dem Tod (nur einmal).
+   * Starts the falling animation after death (only once).
    * @returns {void}
    */
   startFallingWhenDead() {
@@ -145,7 +147,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Tick für die Fall-Physik.
+   * Tick for falling physics.
    * @returns {void}
    */
   tickFall() {
@@ -157,7 +159,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Wendet eine Fall-Physik-Stufe an.
+   * Applies one falling physics step.
    * @returns {void}
    */
   applyFallStep() {
@@ -166,7 +168,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Beendet das Fallen und entfernt den Endboss aus der Welt.
+   * Finishes falling and removes the endboss from the world.
    * @returns {void}
    */
   finishFall() {
@@ -176,7 +178,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Entfernt den Endboss aus `world.level.enemies`.
+   * Removes the endboss from `world.level.enemies`.
    * @returns {void}
    */
   removeFromWorld() {
@@ -188,9 +190,9 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Wird beim Tod des Endbosses aufgerufen (nur einmal).
-   * - Tötet optional den Bodyguard
-   * - Lässt Maracas nach kurzer Verzögerung erscheinen
+   * Called when the endboss dies (only once).
+   * - Optionally kills the bodyguard
+   * - Spawns maracas after a short delay
    * @returns {void}
    */
   onDeath() {
@@ -202,7 +204,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Tötet den Bodyguard, falls er existiert und noch lebt.
+   * Kills the bodyguard if it exists and is still alive.
    * @returns {void}
    */
   killBodyguardIfAlive() {
@@ -211,8 +213,8 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Spawnt Maracas, falls noch nicht vorhanden.
-   * @param {number} delayMs - Verzögerung in ms bis zum Spawn.
+   * Spawns maracas if they do not exist yet.
+   * @param {number} delayMs - Delay in ms until spawn.
    * @returns {void}
    */
   spawnMaracasIfMissing(delayMs) {
@@ -223,7 +225,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Aktiviert kurz die Hurt-Animation (z. B. nach Treffer).
+   * Briefly activates the hurt animation (e.g. after being hit).
    * @returns {void}
    */
   activate() {
@@ -233,7 +235,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Kollisionsbox des Endbosses (Hitbox etwas nach unten verschoben).
+   * Endboss collision box (hitbox slightly shifted down).
    * @returns {{x:number,y:number,width:number,height:number}}
    */
   get collisionBox() {
@@ -246,8 +248,8 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Zeichnet optional die Hitbox (hier transparent).
-   * @param {CanvasRenderingContext2D} ctx
+   * Optionally draws the hitbox (transparent here).
+   * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
    * @returns {void}
    */
   drawFrame(ctx) {
@@ -260,7 +262,7 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Pausiert den Endboss (Animation/Fall respektieren `isPaused`).
+   * Pauses the endboss (animation/fall respect `isPaused`).
    * @returns {void}
    */
   pause() {
@@ -268,10 +270,12 @@ class Endboss extends MovableObject {
   }
 
   /**
-   * Setzt Pause zurück.
+   * Clears the paused state.
    * @returns {void}
    */
   resume() {
     this.isPaused = false;
   }
 }
+
+//#endregion

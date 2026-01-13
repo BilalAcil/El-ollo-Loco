@@ -1,18 +1,20 @@
+//#region Character animation mixin
+
 /**
  * @file models/character.animation.js
  * @description
- * Animation- und Idle-System für den Character.
- * Wird per Object.assign an Character.prototype gehängt.
+ * Animation and idle system for the character.
+ * Attached via Object.assign to Character.prototype.
  *
- * Enthält:
- * - Haupt-Animation-Loop (50ms)
- * - Auswahl der richtigen Standing-Animation (hurt/air/walk/idle/long-idle)
- * - Idle- und Long-Idle-Logik inkl. Intervall-Handling
+ * Includes:
+ * - Main animation loop (50ms)
+ * - Selecting the correct standing animation (hurt/air/walk/idle/long-idle)
+ * - Idle and long-idle logic incl. interval handling
  *
- * Voraussetzungen:
- * - Character existiert global (class Character)
- * - Character hat u.a.: world, isPaused, isThrowing, freezeForBodyguard, lastMoveTime,
- *   IMAGES_* Arrays, playAnimation(), loadImage(), isAboveGround(), isHurt(), playDeathAnimation()
+ * Requirements:
+ * - Character exists globally (class Character)
+ * - Character has: world, isPaused, isThrowing, freezeForBodyguard, lastMoveTime,
+ *   IMAGES_* arrays, playAnimation(), loadImage(), isAboveGround(), isHurt(), playDeathAnimation()
  */
 
 Object.assign(Character.prototype, {
@@ -40,8 +42,12 @@ Object.assign(Character.prototype, {
   showNextIdleFrame,
 });
 
+//#endregion
+
+//#region Main animation loop
+
 /**
- * Startet den Animation-Loop für den Character (läuft alle 50ms).
+ * Starts the animation loop for the character (runs every 50ms).
  * @this {Character}
  * @returns {void}
  */
@@ -50,10 +56,10 @@ function startAnimationLoop() {
 }
 
 /**
- * Ein Tick des Animation-Loops.
- * - ignoriert Pause / fehlende World / aktive Wurfanimation
- * - zeigt Freeze-Frame, wenn Bodyguard-Sequenz aktiv ist
- * - ansonsten wählt Standing-Animation anhand Zustand
+ * One tick of the animation loop.
+ * - ignores pause / missing world / active throw animation
+ * - shows a freeze frame while the bodyguard sequence is active
+ * - otherwise selects the standing animation based on the current state
  * @this {Character}
  * @returns {void}
  */
@@ -67,7 +73,7 @@ function tickAnimation() {
 }
 
 /**
- * Zeigt das Freeze-Frame (z.B. während Bodyguard-Landung).
+ * Shows the freeze frame (e.g. during the bodyguard landing).
  * @this {Character}
  * @returns {void}
  */
@@ -75,11 +81,15 @@ function showFreezeFrame() {
   this.loadImage('img/2_character_pepe/3_jump/J-31.png');
 }
 
+//#endregion
+
+//#region Standing animation selection
+
 /**
- * Entscheidet, welche Animation im Stand/Loop gezeigt wird.
- * Reihenfolge: death -> hurt -> air -> walk -> idle/long-idle.
+ * Decides which standing/loop animation should be shown.
+ * Order: death -> hurt -> air -> walk -> idle/long-idle.
  * @this {Character}
- * @param {number} idleMs - Effektive Idle-Zeit in Millisekunden.
+ * @param {number} idleMs - Effective idle time in milliseconds.
  * @returns {void}
  */
 function updateStandingAnimation(idleMs) {
@@ -91,7 +101,7 @@ function updateStandingAnimation(idleMs) {
 }
 
 /**
- * Death-Animation Handling: stoppt Long-Idle und triggert Death-Animation.
+ * Death animation handling: stops long-idle and triggers the death animation.
  * @this {Character}
  * @returns {void}
  */
@@ -101,7 +111,7 @@ function handleDeathAnim() {
 }
 
 /**
- * Hurt-Animation: stoppt Long-Idle und spielt Hurt-Frames.
+ * Hurt animation: stops long-idle and plays hurt frames.
  * @this {Character}
  * @returns {void}
  */
@@ -111,7 +121,7 @@ function playHurtAnim() {
 }
 
 /**
- * Air-Animation: stoppt Long-Idle und spielt Jump/Fall-Frames.
+ * Air animation: stops long-idle and plays jump/fall frames.
  * @this {Character}
  * @returns {void}
  */
@@ -121,16 +131,16 @@ function playAirAnim() {
 }
 
 /**
- * Prüft, ob Character aktuell läuft (Links/Rechts gedrückt).
+ * Checks whether the character is currently walking (left/right pressed).
  * @this {Character}
- * @returns {boolean} True, wenn LEFT oder RIGHT gedrückt ist.
+ * @returns {boolean} True if LEFT or RIGHT is pressed.
  */
 function isWalking() {
   return this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
 }
 
 /**
- * Walk-Animation: stoppt Long-Idle und spielt Walking-Frames.
+ * Walk animation: stops long-idle and plays walking frames.
  * @this {Character}
  * @returns {void}
  */
@@ -140,9 +150,9 @@ function playWalkAnim() {
 }
 
 /**
- * Entscheidet zwischen Idle, Idle-Animation oder Long-Idle-Animation anhand Idle-Zeit.
+ * Chooses between idle, idle animation, or long-idle animation based on idle time.
  * @this {Character}
- * @param {number} idleMs - Effektive Idle-Zeit in Millisekunden.
+ * @param {number} idleMs - Effective idle time in milliseconds.
  * @returns {void}
  */
 function playIdleOrLongIdle(idleMs) {
@@ -153,7 +163,7 @@ function playIdleOrLongIdle(idleMs) {
 }
 
 /**
- * Startet Long-Idle nur, wenn nicht bereits aktiv.
+ * Starts long-idle only if it is not already active.
  * @this {Character}
  * @returns {void}
  */
@@ -162,7 +172,7 @@ function startLongIdleIfNeeded() {
 }
 
 /**
- * Startet Idle-Animation nur, wenn noch nicht gestartet.
+ * Starts idle animation only if it has not been started yet.
  * @this {Character}
  * @returns {void}
  */
@@ -170,8 +180,12 @@ function startIdleIfNeeded() {
   if (!this.idleAnimationStarted) this.playIdleAnimation();
 }
 
+//#endregion
+
+//#region Jump / fall frames
+
 /**
- * Wählt Jump-/Fall-Frame je nach speedY (oben/unten) oder Highest-Point.
+ * Selects the jump/fall frame based on speedY (up/down) or highest point.
  * @this {Character}
  * @returns {void}
  */
@@ -182,7 +196,7 @@ function handleJumpAnimation() {
 }
 
 /**
- * Zeigt ein Jump-Frame anhand des Fortschritts der Sprunggeschwindigkeit.
+ * Shows a jump frame based on the current jump speed progress.
  * @this {Character}
  * @returns {void}
  */
@@ -193,7 +207,7 @@ function showJumpFrame() {
 }
 
 /**
- * Zeigt ein Fall-Frame anhand der Fallgeschwindigkeit.
+ * Shows a fall frame based on the fall speed.
  * @this {Character}
  * @returns {void}
  */
@@ -203,10 +217,14 @@ function showFallFrame() {
   this.loadImage(this.IMAGES_FALLING[i]);
 }
 
+//#endregion
+
+//#region Movement + idle handling
+
 /**
- * Wird aufgerufen, wenn Bewegung stattgefunden hat:
- * - setzt Idle-Timer zurück
- * - stoppt Long-Idle
+ * Called when movement occurred:
+ * - resets the idle timer
+ * - stops long-idle
  * @this {Character}
  * @returns {void}
  */
@@ -217,8 +235,8 @@ function handleMovement() {
 }
 
 /**
- * Startet die Long-Idle-Animation (Loop alle 200ms).
- * Stoppt automatisch, sobald wieder Bewegung erkannt wird.
+ * Starts the long-idle animation (loop every 200ms).
+ * Automatically stops as soon as movement is detected again.
  * @this {Character}
  * @returns {void}
  */
@@ -236,7 +254,7 @@ function startLongIdleAnimation() {
 }
 
 /**
- * Stoppt die Long-Idle-Animation und setzt Flags zurück.
+ * Stops the long-idle animation and resets flags.
  * @this {Character}
  * @returns {void}
  */
@@ -247,7 +265,7 @@ function stopLongIdleAnimation() {
 }
 
 /**
- * Startet die normale Idle-Animation (nur im Idle-Zeitfenster 10–12s).
+ * Starts the normal idle animation (only within the idle time window 10–12s).
  * @this {Character}
  * @returns {void}
  */
@@ -262,9 +280,9 @@ function playIdleAnimation() {
 }
 
 /**
- * Prüft, ob die aktuelle Zeit im Idle-Zeitfenster liegt (10–12 Sekunden).
+ * Checks whether the current time is within the idle time window (10–12 seconds).
  * @this {Character}
- * @returns {boolean} True, wenn im Idle-Fenster.
+ * @returns {boolean} True if within the idle window.
  */
 function isInIdleWindow() {
   const dt = Date.now() - this.lastMoveTime;
@@ -272,9 +290,9 @@ function isInIdleWindow() {
 }
 
 /**
- * Stoppt das Idle-Intervall und setzt Flag zurück.
+ * Stops the idle interval and resets the flag.
  * @this {Character}
- * @param {number} id - Intervall-ID.
+ * @param {number} id - Interval ID.
  * @returns {void}
  */
 function stopIdleInterval(id) {
@@ -283,7 +301,7 @@ function stopIdleInterval(id) {
 }
 
 /**
- * Zeigt das nächste Idle-Frame (clamped auf letztes Bild).
+ * Shows the next idle frame (clamped to the last image).
  * @this {Character}
  * @returns {void}
  */
@@ -292,3 +310,5 @@ function showNextIdleFrame() {
   this.loadImage(this.IMAGES_IDLE[i]);
   this.idleFrame++;
 }
+
+//#endregion
