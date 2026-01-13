@@ -373,7 +373,6 @@ function returnToHome() {
 function exposeHtmlGlobals() {
   window.startGame = startGame;
   window.restartGame = restartGame;
-  window.nextLevel = nextLevel;
   window.returnToHome = returnToHome;
   window.stopGame = stopGame;
 }
