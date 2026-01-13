@@ -163,6 +163,7 @@ button:hover {
 }
 
 .dialog-content {
+  font-family: "Comic Relief", cursive, sans-serif;
   position: relative;
   background: black;
   border-radius: 10px;
