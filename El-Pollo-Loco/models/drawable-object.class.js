@@ -41,14 +41,23 @@ class DrawableObject {
    * @returns {void}
    */
   loadImage(path) {
-    this.img = new Image();
+    // ✅ Wenn schon vorgeladen, nur setzen (kein neues Image!)
+    if (this.imageCache[path]) {
+      this.img = this.imageCache[path];
+      return;
+    }
+
+    // sonst einmalig laden und in Cache legen
+    const img = new Image();
     DrawableObject.totalAssets++;
 
-    this.img.onload = () => {
+    img.onload = () => {
       DrawableObject.loadedAssets++;
     };
 
-    this.img.src = path;
+    img.src = path;
+    this.imageCache[path] = img;
+    this.img = img;
   }
 
   /**

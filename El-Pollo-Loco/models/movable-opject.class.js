@@ -38,17 +38,28 @@ class MovableObject extends DrawableObject {
   /** Letzter Zeitpunkt, an dem Pain-Sound gespielt wurde. @type {number} */
   lastPainSoundTime = 0;
 
+  gravityInterval = null;
+
   /**
    * Startet die Schwerkraft-Schleife.
    * Aktualisiert y-Position und speedY in festen Intervallen.
    * @returns {void}
    */
   applyGravity() {
-    setInterval(() => {
+    if (this.gravityInterval) return; // ✅ schon aktiv
+
+    this.gravityInterval = setInterval(() => {
+      if (this.isPaused) return; // ✅ optional, aber sehr sinnvoll
       if (!this.isAboveGround() && this.speedY <= 0) return;
+
       this.y -= this.speedY;
       this.speedY -= this.acceleration;
     }, 1000 / 25);
+  }
+
+  stopGravity() {
+    clearInterval(this.gravityInterval);
+    this.gravityInterval = null;
   }
 
   /**
