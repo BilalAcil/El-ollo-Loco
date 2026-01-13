@@ -96,6 +96,8 @@ function applyMuteState(muted) {
   applyGlobalMute(muted);
   syncWorldMute(muted);
   saveMuteToStorage(muted);
+  const mb = el('btn-mute');
+  if (mb) updateMobileMuteIcon(mb);
 }
 
 /**
@@ -257,29 +259,20 @@ function statsHtml(stats) {
  * Richtet Mobile Touch Controls ein (Buttons setzen Keyboard-Flags).
  * @returns {void}
  */
-function setupMobileControls() {
-  const btns = getMobileButtons();
-  if (!hasAllMobileButtons(btns)) return;
-
-  getAllButtons(btns).forEach(disableButtonContextAndSelection);
-  bindButtonToKey(btns.left, 'LEFT');
-  bindButtonToKey(btns.right, 'RIGHT');
-  bindButtonToKey(btns.jump, 'SPACE');
-  bindButtonToKey(btns.throw, 'D');
-}
-
-/**
- * Holt Referenzen auf alle Mobile-Buttons.
- * @returns {{left:(HTMLElement|null), right:(HTMLElement|null), jump:(HTMLElement|null), throw:(HTMLElement|null)}}
- */
 function getMobileButtons() {
   return {
     left: el('btn-left'),
     right: el('btn-right'),
     jump: el('btn-jump'),
     throw: el('btn-throw'),
+    mute: el('btn-mute'),
   };
 }
+
+/**
+ * Holt Referenzen auf alle Mobile-Buttons.
+ * @returns {{left:(HTMLElement|null), right:(HTMLElement|null), jump:(HTMLElement|null), throw:(HTMLElement|null)}}
+ */
 
 /**
  * Prüft, ob alle Buttons vorhanden sind.
@@ -293,7 +286,9 @@ function hasAllMobileButtons(b) { return b.left && b.right && b.jump && b.throw;
  * @param {{left:HTMLElement=, right:HTMLElement=, jump:HTMLElement=, throw:HTMLElement=}} b - Button-Refs.
  * @returns {HTMLElement[]} Array aller Buttons.
  */
-function getAllButtons(b) { return [b.left, b.right, b.jump, b.throw]; }
+function getAllButtons(b) {
+  return [b.left, b.right, b.jump, b.throw, b.mute].filter(Boolean);
+}
 
 /**
  * Deaktiviert Contextmenu und Text-Selektion auf einem Button.
@@ -318,6 +313,34 @@ function bindButtonToKey(button, keyName) {
   button.addEventListener('pointerup', e => setKeyFlag(e, keyName, false));
   button.addEventListener('pointerleave', () => (GameState.keyboard[keyName] = false));
   button.addEventListener('pointercancel', () => (GameState.keyboard[keyName] = false));
+}
+
+function setupMobileControls() {
+  const btns = getMobileButtons();
+  if (!hasAllMobileButtons(btns)) return;
+
+  getAllButtons(btns).forEach(disableButtonContextAndSelection);
+
+  bindButtonToKey(btns.left, 'LEFT');
+  bindButtonToKey(btns.right, 'RIGHT');
+  bindButtonToKey(btns.jump, 'SPACE');
+  bindButtonToKey(btns.throw, 'D');
+
+  // NEU: Mute Toggle (Click reicht)
+  if (btns.mute) {
+    updateMobileMuteIcon(btns.mute);
+    btns.mute.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleMute();
+      updateMobileMuteIcon(btns.mute);
+    });
+  }
+}
+
+function updateMobileMuteIcon(btn) {
+  btn.textContent = GameState.isMuted ? '🔇' : '🔊';
+  btn.setAttribute('aria-pressed', String(GameState.isMuted));
+  btn.title = GameState.isMuted ? 'Ton an' : 'Ton aus';
 }
 
 /**
