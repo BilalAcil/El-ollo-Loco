@@ -1,18 +1,12 @@
 //#region World camera mixin
-
 /**
  * @file models/world.camera.js
- * @description
- * Camera and boss-arena logic for the world:
- * - smooth camera panning in the endboss area
- * - camera sound while panning
- * - reaction to bodyguard death (show boss + UI)
+ * Camera + boss arena helpers:
+ * - smooth camera pan into/out of endboss area
+ * - play/stop camera move sound
+ * - reveal boss UI after bodyguard death
  */
 
-/**
- * Mixin: attaches camera functions to {@link World}.
- * @namespace WorldCameraMixin
- */
 Object.assign(World.prototype, {
   startEndbossCameraPan,
   playCameraMoveSound,
@@ -21,33 +15,19 @@ Object.assign(World.prototype, {
   onBodyguardDeath,
 });
 
-/**
- * Starts a smooth camera pan in the endboss area to a defined target position.
- * Ignored if already panning or the target position has already been reached.
- *
- * @this {World}
- * @returns {void}
- */
+/** Pan camera into endboss area (ignored if already there/panning). */
 function startEndbossCameraPan() {
   if (this.isCameraPanning || this.endbossCameraX === -3770) return;
 
   this.cameraTargetX = -3770;
   this.cameraPanSpeed = 2;
   this.isCameraPanning = true;
-
   this.playCameraMoveSound();
 }
 
-/**
- * Starts the camera movement sound (if available).
- * Resets playback to the beginning.
- *
- * @this {World}
- * @returns {void}
- */
+/** Play camera movement sound (safe). */
 function playCameraMoveSound() {
   if (!this.cameraMoveSound) return;
-
   try {
     this.cameraMoveSound.currentTime = 0;
     this.cameraMoveSound.play();
@@ -56,15 +36,9 @@ function playCameraMoveSound() {
   }
 }
 
-/**
- * Stops the camera movement sound (if available) and resets it.
- *
- * @this {World}
- * @returns {void}
- */
+/** Stop camera movement sound (safe). */
 function stopCameraMoveSound() {
   if (!this.cameraMoveSound) return;
-
   try {
     this.cameraMoveSound.pause();
     this.cameraMoveSound.currentTime = 0;
@@ -73,32 +47,18 @@ function stopCameraMoveSound() {
   }
 }
 
-/**
- * Starts a smooth camera pan back to the original endboss camera position.
- * Ignored if a pan is already in progress.
- *
- * @this {World}
- * @returns {void}
- */
+/** Pan camera back to original endboss camera position. */
 function startEndbossCameraPanBack() {
   if (this.isCameraPanning) return;
 
-  // Original endboss camera position: camera_x = -4100 + 100 (= -4000)
+  // original endboss camera position: camera_x = -4100 + 100 (= -4000)
   this.cameraTargetX = -4100 + 100;
   this.cameraPanSpeed = 2;
   this.isCameraPanning = true;
-
   this.playCameraMoveSound();
 }
 
-/**
- * Called when the bodyguard dies.
- * Makes endboss, endboss status bar and nest visible and marks
- * that the camera should pan back later.
- *
- * @this {World}
- * @returns {void}
- */
+/** Bodyguard died -> reveal boss + bar + nest, allow later pan-back. */
 function onBodyguardDeath() {
   if (this.hasBodyguardDied) return;
   this.hasBodyguardDied = true;
@@ -109,5 +69,4 @@ function onBodyguardDeath() {
 
   this.shouldStartCameraPanBack = true;
 }
-
 //#endregion

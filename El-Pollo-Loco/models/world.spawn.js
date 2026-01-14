@@ -1,40 +1,26 @@
 //#region World spawn/utilities system
-
 /**
  * @file models/world.spawn.js
- * @description
- * Spawning + utility functions for the World:
- * - spawn enemies (chickens)
- * - spawn collectibles (coins, salsas)
- * - kill/remove enemies
- * - endGame trigger
- * - pause/play overlay rendering
- * - "shock" effect (small bounce + camera pan)
+ * Spawn + Utils: enemies, collectibles, enemy remove, endGame, overlays, shock-bounce.
  */
 
 Object.assign(World.prototype, {
   generateChickens,
   createEnemies,
-
   killEnemy,
   markEnemyDead,
   setDefaultDeathImage,
   removeEnemySoon,
   removeEnemy,
-
   generateCoins,
   addCoinGroup,
   randomCoinBaseX,
   randomCoinGroupSize,
   createCoin,
   randomCoinY,
-
   generateSalsas,
-
   isActualEnemy,
-
   endGame,
-
   showPauseThenPlaySymbol,
   showPlaySymbol,
   hidePlaySymbol,
@@ -44,7 +30,6 @@ Object.assign(World.prototype, {
   applyOverlayStyle,
   fadeOutThenRemove,
   removeOverlay,
-
   jumpFromShock,
   bounceCharacter,
   bounceEndboss,
@@ -54,36 +39,18 @@ Object.assign(World.prototype, {
   bounceY,
 });
 
-/**
- * Generates all chicken enemies for the level.
- *
- * @this {World}
- * @returns {Array<MovableObject>}
- */
+// ---------- Enemies ----------
+/** Spawn chickens (normal + small). */
 function generateChickens() {
   return [...this.createEnemies(8, Chicken), ...this.createEnemies(4, ChickenSmall)];
 }
 
-/**
- * Creates a number of enemies using a constructor.
- *
- * @template T
- * @this {World}
- * @param {number} count
- * @param {Function} Ctor
- * @returns {T[]}
- */
+/** Create N instances via ctor. */
 function createEnemies(count, Ctor) {
   return Array.from({ length: count }, () => new Ctor());
 }
 
-/**
- * Kills a normal enemy (sets isDead, death image, removes after delay).
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @returns {void}
- */
+/** Kill enemy: flag dead, set death img, remove after delay. */
 function killEnemy(enemy) {
   if (!enemy || enemy.isDead) return;
   this.markEnemyDead(enemy);
@@ -91,151 +58,66 @@ function killEnemy(enemy) {
   this.removeEnemySoon(enemy, 500);
 }
 
-/**
- * Marks an enemy as dead.
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @returns {void}
- */
-function markEnemyDead(enemy) {
-  enemy.isDead = true;
-}
+/** Mark enemy as dead. */
+function markEnemyDead(enemy) { enemy.isDead = true; }
 
-/**
- * Sets default death image for chickens.
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @returns {void}
- */
+/** Default death image for chickens. */
 function setDefaultDeathImage(enemy) {
   if (enemy instanceof Chicken || enemy instanceof ChickenSmall) enemy.loadImage(enemy.IMAGE_DEAD);
 }
 
-/**
- * Removes an enemy from enemies array after a delay.
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @param {number} ms
- * @returns {void}
- */
-function removeEnemySoon(enemy, ms) {
-  setTimeout(() => this.removeEnemy(enemy), ms);
-}
+/** Remove enemy after ms. */
+function removeEnemySoon(enemy, ms) { setTimeout(() => this.removeEnemy(enemy), ms); }
 
-/**
- * Removes an enemy immediately from enemies array.
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @returns {void}
- */
+/** Remove enemy immediately from level.enemies. */
 function removeEnemy(enemy) {
-  const idx = this.level.enemies.indexOf(enemy);
-  if (idx > -1) this.level.enemies.splice(idx, 1);
+  const i = this.level.enemies.indexOf(enemy);
+  if (i > -1) this.level.enemies.splice(i, 1);
 }
 
-/**
- * Generates coin objects in groups (max 10 coins).
- *
- * @this {World}
- * @returns {Coin[]}
- */
+// ---------- Coins ----------
+/** Spawn coin groups until max 10 coins. */
 function generateCoins() {
   const coins = [];
   while (coins.length < 10) this.addCoinGroup(coins, 10);
   return coins;
 }
 
-/**
- * Adds a coin group (1–3 coins) up to the limit.
- *
- * @this {World}
- * @param {Coin[]} coins
- * @param {number} limit
- * @returns {void}
- */
+/** Add 1–3 coins (clamped to limit). */
 function addCoinGroup(coins, limit) {
   const baseX = this.randomCoinBaseX();
-  const groupSize = this.randomCoinGroupSize();
-  for (let i = 0; i < groupSize && coins.length < limit; i++) {
-    coins.push(this.createCoin(baseX, i));
-  }
+  const n = this.randomCoinGroupSize();
+  for (let i = 0; i < n && coins.length < limit; i++) coins.push(this.createCoin(baseX, i));
 }
 
-/**
- * Random base X position for coin groups.
- *
- * @this {World}
- * @returns {number}
- */
-function randomCoinBaseX() {
-  return 300 + Math.random() * 4000;
-}
+/** Random base X for coin group. */
+function randomCoinBaseX() { return 300 + Math.random() * 4000; }
 
-/**
- * Determines group size (1–3).
- *
- * @this {World}
- * @returns {number}
- */
+/** Group size: mostly 1, sometimes 2–3. */
 function randomCoinGroupSize() {
   return Math.random() < 0.4 ? 2 + Math.floor(Math.random() * 2) : 1;
 }
 
-/**
- * Creates a coin relative to group base.
- *
- * @this {World}
- * @param {number} baseX
- * @param {number} index
- * @returns {Coin}
- */
+/** Create coin in group (x offset + random y). */
 function createCoin(baseX, index) {
-  const x = baseX + index * 50;
-  const y = this.randomCoinY();
-  return new Coin(x, y);
+  return new Coin(baseX + index * 50, this.randomCoinY());
 }
 
-/**
- * Random Y position for coins.
- *
- * @this {World}
- * @returns {number}
- */
-function randomCoinY() {
-  return 300 + Math.random() * 50;
-}
+/** Random coin Y. */
+function randomCoinY() { return 300 + Math.random() * 50; }
 
-/**
- * Generates salsa pickups (default 5) spread across the level.
- *
- * @this {World}
- * @returns {Salsa[]}
- */
+// ---------- Salsas ----------
+/** Spawn 5 salsa pickups spread across level. */
 function generateSalsas() {
   const salsas = [];
   for (let i = 0; i < 5; i++) {
-    const x = 500 + Math.random() * 3500;
-    const y = 370 + Math.random() * 20;
-    salsas.push(new Salsa(x, y));
+    salsas.push(new Salsa(500 + Math.random() * 3500, 370 + Math.random() * 20));
   }
   return salsas;
 }
 
-/**
- * Checks if an object counts as a "real enemy" (not UI elements like status bars).
- *
- * NOTE:
- * Bodyguard is handled separately in world.collision.core.js, so we keep this filter
- * limited to normal enemies + endboss.
- *
- * @this {World}
- * @param {*} enemy
- * @returns {boolean}
- */
+// ---------- Filters / Endgame ----------
+/** True if "real enemy" (no UI like EndBossStatusBar; Bodyguard handled elsewhere). */
 function isActualEnemy(enemy) {
   return (
     (enemy instanceof Chicken || enemy instanceof ChickenSmall || enemy instanceof Endboss) &&
@@ -243,27 +125,14 @@ function isActualEnemy(enemy) {
   );
 }
 
-/**
- * Ends the game (win/lose) and shows end screen after a delay.
- * Freezes everything first.
- *
- * @this {World}
- * @param {boolean} [win=false]
- * @returns {void}
- */
+/** Freeze world and show end screen (win faster than lose). */
 function endGame(win = false) {
   this.pauseAllMovements();
-  const delay = win ? 1000 : 3000;
-  setTimeout(() => showEndScreen(win), delay);
+  setTimeout(() => showEndScreen(win), win ? 1000 : 3000);
 }
 
-/**
- * Shows a short pause overlay (⏸), fades it out, then shows the play symbol (▶).
- * Ignored if start screen is visible.
- *
- * @this {World}
- * @returns {void}
- */
+// ---------- Overlays ----------
+/** Show ⏸ briefly then ▶ (ignored on start screen). */
 function showPauseThenPlaySymbol() {
   if (this.isStartScreenVisible()) return;
   const overlay = this.createOverlay("pause-overlay", "⏸");
@@ -272,61 +141,27 @@ function showPauseThenPlaySymbol() {
   this.fadeOutThenRemove(overlay, 200, 500, () => this.showPlaySymbol());
 }
 
-/**
- * Shows the persistent play symbol (▶) centered.
- * Ignored if start screen is visible or already present.
- *
- * @this {World}
- * @returns {void}
- */
+/** Show persistent ▶ (ignored on start screen / if already present). */
 function showPlaySymbol() {
-  if (this.isStartScreenVisible()) return;
-  if (this.isOverlayPresent("play-overlay")) return;
+  if (this.isStartScreenVisible() || this.isOverlayPresent("play-overlay")) return;
   const overlay = this.createOverlay("play-overlay", "▶");
   this.applyOverlayStyle(overlay, 0.4);
   document.body.appendChild(overlay);
 }
 
-/**
- * Removes the play symbol (▶) if present.
- *
- * @this {World}
- * @returns {void}
- */
-function hidePlaySymbol() {
-  this.removeOverlay("play-overlay");
-}
+/** Remove ▶ overlay. */
+function hidePlaySymbol() { this.removeOverlay("play-overlay"); }
 
-/**
- * Returns true if start screen is currently visible.
- *
- * @this {World}
- * @returns {boolean}
- */
+/** Start screen visible? */
 function isStartScreenVisible() {
   const start = document.getElementById("start-screen");
   return start && !start.classList.contains("hidden");
 }
 
-/**
- * Returns true if an overlay element exists by id.
- *
- * @this {World}
- * @param {string} id
- * @returns {boolean}
- */
-function isOverlayPresent(id) {
-  return !!document.getElementById(id);
-}
+/** Overlay exists by id? */
+function isOverlayPresent(id) { return !!document.getElementById(id); }
 
-/**
- * Creates an overlay DIV with a symbol.
- *
- * @this {World}
- * @param {string} id
- * @param {string} symbol
- * @returns {HTMLDivElement}
- */
+/** Build overlay element. */
 function createOverlay(id, symbol) {
   const el = document.createElement("div");
   el.id = id;
@@ -334,14 +169,7 @@ function createOverlay(id, symbol) {
   return el;
 }
 
-/**
- * Applies default styles for overlays (centered, big, semi-transparent).
- *
- * @this {World}
- * @param {HTMLElement} el
- * @param {number} [opacity=0.4]
- * @returns {void}
- */
+/** Apply standard overlay styles. */
 function applyOverlayStyle(el, opacity = 0.4) {
   el.style.cssText =
     "position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" +
@@ -349,48 +177,22 @@ function applyOverlayStyle(el, opacity = 0.4) {
     "user-select:none;transition:opacity .5s ease;z-index:9999;opacity:" + opacity + ";";
 }
 
-/**
- * Fades an element out after a short wait, then removes it.
- *
- * @this {World}
- * @param {HTMLElement} el
- * @param {number} waitMs
- * @param {number} fadeMs
- * @param {Function} [onDone]
- * @returns {void}
- */
+/** Wait -> fade -> remove -> optional callback. */
 function fadeOutThenRemove(el, waitMs, fadeMs, onDone) {
   setTimeout(() => {
     el.style.opacity = "0";
-    setTimeout(() => {
-      el.remove();
-      onDone?.();
-    }, fadeMs);
+    setTimeout(() => { el.remove(); onDone?.(); }, fadeMs);
   }, waitMs);
 }
 
-/**
- * Removes an overlay by id if it exists.
- *
- * @this {World}
- * @param {string} id
- * @returns {void}
- */
+/** Remove overlay by id. */
 function removeOverlay(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
 
-/**
- * Shock effect after the bodyguard landing:
- * - bounce character
- * - bounce endboss
- * - bounce nest + corncob
- * - start camera pan into endboss arena
- *
- * @this {World}
- * @returns {void}
- */
+// ---------- Shock / Bounce ----------
+/** Shock effect: bounce actors/objects + pan camera into arena. */
 function jumpFromShock() {
   this.bounceCharacter();
   this.bounceEndboss();
@@ -399,42 +201,21 @@ function jumpFromShock() {
   this.startEndbossCameraPan();
 }
 
-/**
- * Bounces the character up briefly.
- *
- * @this {World}
- * @returns {void}
- */
+/** Bounce Pepe (extra compensateDown keeps your original look). */
 function bounceCharacter() {
-  if (!this.character) return;
-  this.bounceY(this.character, 2, 4, 30, 8);
+  if (this.character) this.bounceY(this.character, 2, 4, 30, 8);
 }
 
-/**
- * Bounces the endboss up briefly and plays its hurt frames.
- *
- * @this {World}
- * @returns {void}
- */
+/** Bounce endboss + show hurt frames. */
 function bounceEndboss() {
-  if (!this.level?.enemies) return;
-  this.level.enemies.forEach((enemy) => {
-    if (!(enemy instanceof Endboss)) return;
-    enemy.playAnimation(enemy.IMAGES_HURT);
-    this.bounceEnemyToOriginalY(enemy, 3, 4, 30);
+  this.level?.enemies?.forEach((e) => {
+    if (!(e instanceof Endboss)) return;
+    e.playAnimation(e.IMAGES_HURT);
+    this.bounceEnemyToOriginalY(e, 3, 4, 30);
   });
 }
 
-/**
- * Bounces an enemy and then snaps it back exactly to its original Y.
- *
- * @this {World}
- * @param {MovableObject} enemy
- * @param {number} step
- * @param {number} repeats
- * @param {number} intervalMs
- * @returns {void}
- */
+/** Bounce enemy and snap back to original Y (no drift). */
 function bounceEnemyToOriginalY(enemy, step, repeats, intervalMs) {
   const originalY = enemy.y;
   let count = 0;
@@ -446,12 +227,7 @@ function bounceEnemyToOriginalY(enemy, step, repeats, intervalMs) {
   }, intervalMs);
 }
 
-/**
- * Bounces the chicken nest briefly.
- *
- * @this {World}
- * @returns {void}
- */
+/** Quick nest bounce (simple up + reset). */
 function bounceChickenNest() {
   if (!this.chickenNest) return;
   const y = this.chickenNest.y;
@@ -459,33 +235,12 @@ function bounceChickenNest() {
   setTimeout(() => (this.chickenNest.y = y), 150);
 }
 
-/**
- * Bounces the corncob briefly.
- *
- * @this {World}
- * @returns {void}
- */
+/** Bounce corncob. */
 function bounceCorncob() {
-  if (!this.corncob) return;
-  this.bounceY(this.corncob, 2, 4, 30, 0);
+  if (this.corncob) this.bounceY(this.corncob, 2, 4, 30, 0);
 }
 
-/**
- * Generic bounce helper: moves an object up for several ticks and then pushes it back down.
- *
- * NOTE:
- * This uses "add back" at the end (step * repeats + compensateDown). That matches your
- * original behavior, but if you ever see drift with repeated calls, prefer "snap back"
- * to originalY (like bounceEnemyToOriginalY does).
- *
- * @this {World}
- * @param {MovableObject} obj
- * @param {number} step
- * @param {number} repeats
- * @param {number} intervalMs
- * @param {number} compensateDown
- * @returns {void}
- */
+/** Generic bounce (moves up N ticks, then pushes down by same amount + compensateDown). */
 function bounceY(obj, step, repeats, intervalMs, compensateDown) {
   let count = 0;
   const id = setInterval(() => {
@@ -495,5 +250,4 @@ function bounceY(obj, step, repeats, intervalMs, compensateDown) {
     obj.y += step * repeats + compensateDown;
   }, intervalMs);
 }
-
 //#endregion

@@ -1,38 +1,23 @@
 //#region World pause/resume system
-
 /**
  * @file models/world.pause.js
- * @description
- * World pause/resume system.
- * Responsible for:
- * - stopping/resuming movement, enemy/cloud intervals
- * - stopping/restarting collision checks
- * - actor pause (Character/Endboss/Bodyguard)
- * - pausing/resuming countdown + music
- * - optional pause overlay (play/pause symbol)
- * - one-time "start landing animation" on first resume
+ * Pause/Resume: intervals, collisions, actors, countdown/music, overlay, first-resume landing.
  */
 
 Object.assign(World.prototype, {
   pauseAllMovements,
   resumeAllMovements,
   setPaused,
-
   stopCloudIntervals,
   startCloudAnimations,
-
   stopAllEnemyIntervals,
   stopEnemyIntervals,
   startEnemyAnimations,
-
   pauseBodyguard,
   resumeBodyguard,
-
   stopCollisionChecks,
   restartCollisionChecks,
-
   resetKeyboardInputsAll,
-
   pauseGame,
   resumeGame,
   shouldBlockPause,
@@ -40,28 +25,16 @@ Object.assign(World.prototype, {
   resumeActors,
   shouldShowPauseOverlay,
   resumeCountdownSystem,
-
   runFirstStartLandingAnimation,
   setStartFallFrame,
   waitForLandingThenIdle,
   playLandingThenIdle,
   startIdleAfterLanding,
-
   stop,
 });
 
-/**
- * Freezes the whole world:
- * - cloud movement
- * - enemy movement/animation
- * - bodyguard (if it has own loops)
- * - collision checks
- * - reset keyboard inputs
- * - set isPaused
- *
- * @this {World}
- * @returns {void}
- */
+//#region Freeze / Resume
+/** Freeze world: clouds/enemies/bodyguard/collisions + reset inputs + paused=true. */
 function pauseAllMovements() {
   this.stopCloudIntervals();
   this.stopAllEnemyIntervals();
@@ -71,16 +44,7 @@ function pauseAllMovements() {
   this.setPaused(true);
 }
 
-/**
- * Resumes the world:
- * - restart cloud animations
- * - restart enemy animations
- * - resume bodyguard
- * - restart collision checks
- *
- * @this {World}
- * @returns {void}
- */
+/** Resume world: clouds/enemies/bodyguard/collisions + paused=false. */
 function resumeAllMovements() {
   this.setPaused(false);
   this.startCloudAnimations();
@@ -89,154 +53,88 @@ function resumeAllMovements() {
   this.restartCollisionChecks();
 }
 
-/**
- * Sets the world's pause state.
- *
- * @this {World}
- * @param {boolean} value - true = paused, false = running.
- * @returns {void}
- */
+/** Set pause flag. */
 function setPaused(value) {
   this.isPaused = value;
 }
+//#endregion
 
-/**
- * Stops cloud intervals (moveInterval).
- *
- * @this {World}
- * @returns {void}
- */
+//#region Clouds
+/** Stop cloud move intervals. */
 function stopCloudIntervals() {
-  this.level.clouds.forEach((c) => clearInterval(c.moveInterval));
+  this.level.clouds.forEach(c => clearInterval(c.moveInterval));
 }
 
-/**
- * Restarts cloud animations (if animate() exists).
- *
- * @this {World}
- * @returns {void}
- */
+/** Restart cloud animation (if animate exists). */
 function startCloudAnimations() {
-  this.level.clouds.forEach((c) => c.animate?.());
+  this.level.clouds.forEach(c => c.animate?.());
 }
+//#endregion
 
-/**
- * Stops all enemy intervals (move/animation/fall).
- *
- * @this {World}
- * @returns {void}
- */
+//#region Enemies
+/** Stop all enemy intervals (move/anim/fall). */
 function stopAllEnemyIntervals() {
-  this.level.enemies.forEach((e) => this.stopEnemyIntervals(e));
+  this.level.enemies.forEach(e => this.stopEnemyIntervals(e));
 }
 
-/**
- * Stops known interval handles on an enemy object.
- *
- * @this {World}
- * @param {*} e - Enemy object (Chicken, Endboss, Bodyguard, etc.)
- * @returns {void}
- */
+/** Stop known interval handles on one enemy. */
 function stopEnemyIntervals(e) {
   if (e.moveInterval) clearInterval(e.moveInterval);
   if (e.animationInterval) clearInterval(e.animationInterval);
   if (e.fallInterval) clearInterval(e.fallInterval);
 }
 
-/**
- * Restarts enemy animations (if animate() exists).
- *
- * @this {World}
- * @returns {void}
- */
+/** Restart enemy animation (if animate exists). */
 function startEnemyAnimations() {
-  this.level.enemies.forEach((e) => e.animate?.());
+  this.level.enemies.forEach(e => e.animate?.());
 }
+//#endregion
 
-/**
- * Pauses the bodyguard (if pause() exists).
- *
- * @this {World}
- * @returns {void}
- */
+//#region Bodyguard
+/** Pause bodyguard (if supported). */
 function pauseBodyguard() {
   this.bodyguard?.pause?.();
 }
 
-/**
- * Resumes the bodyguard (if resume() exists).
- *
- * @this {World}
- * @returns {void}
- */
+/** Resume bodyguard (if supported). */
 function resumeBodyguard() {
   this.bodyguard?.resume?.();
 }
+//#endregion
 
-/**
- * Stops the collision check loop.
- *
- * @this {World}
- * @returns {void}
- */
+//#region Collisions
+/** Stop collision loop. */
 function stopCollisionChecks() {
   clearInterval(this.collisionInterval);
 }
 
-/**
- * Restarts collision checks (creates a new interval via checkCollisions()).
- *
- * @this {World}
- * @returns {void}
- */
+/** Restart collision loop. */
 function restartCollisionChecks() {
   this.checkCollisions();
 }
+//#endregion
 
-/**
- * Resets all keyboard flags to false (LEFT/RIGHT/SPACE/D, etc.).
- *
- * @this {World}
- * @returns {void}
- */
+//#region Input
+/** Reset all keyboard flags. */
 function resetKeyboardInputsAll() {
-  Object.keys(this.keyboard).forEach((k) => (this.keyboard[k] = false));
+  Object.keys(this.keyboard).forEach(k => (this.keyboard[k] = false));
 }
+//#endregion
 
-/**
- * Officially pauses the game:
- * - blocks pause in certain states (bodyguard jump, freeze, endboss dead, maracas sequence)
- * - pauses movements + actors + countdown/music
- * - optionally shows a pause overlay, then play symbol
- *
- * @this {World}
- * @param {boolean} [showOverlay=true] - Whether to show a pause overlay visually.
- * @returns {void}
- */
+//#region Pause / Resume game
+/** Pause game (blocked during special states). Optional overlay. */
 function pauseGame(showOverlay = true) {
-  if (this.shouldBlockPause()) return;
-  if (this.isPaused) return;
+  if (this.shouldBlockPause() || this.isPaused) return;
 
   this.isPaused = true;
   this.pauseAllMovements();
   this.pauseActors();
-  this.pauseCountdownSystem();
+  this.pauseCountdownSystem?.();
 
-  if (this.shouldShowPauseOverlay(showOverlay)) {
-    // NOTE: expected to exist elsewhere (world.ui / world.overlay)
-    this.showPauseThenPlaySymbol?.();
-  }
+  if (this.shouldShowPauseOverlay(showOverlay)) this.showPauseThenPlaySymbol?.();
 }
 
-/**
- * Resumes the game:
- * - one-time start landing animation (only on the very first resume)
- * - resumes movements + actors + countdown/music
- * - hides play symbol
- *
- * @this {World}
- * @returns {void}
- */
+/** Resume game + one-time landing anim + countdown/music. */
 function resumeGame() {
   if (!this.isPaused) return;
   this.isPaused = false;
@@ -248,12 +146,7 @@ function resumeGame() {
   this.hidePlaySymbol?.();
 }
 
-/**
- * Checks if pausing is currently blocked (during special sequences).
- *
- * @this {World}
- * @returns {boolean}
- */
+/** Block pause during special sequences (jump/freeze/boss dead/maracas). */
 function shouldBlockPause() {
   return (
     (this.bodyguard && this.bodyguard.isJumping) ||
@@ -263,63 +156,36 @@ function shouldBlockPause() {
   );
 }
 
-/**
- * Pauses the key actors (Character, Endboss, Bodyguard) if methods exist.
- *
- * @this {World}
- * @returns {void}
- */
+/** Pause key actors (if supported). */
 function pauseActors() {
   this.character?.pause?.();
   this.endboss?.pause?.();
   this.bodyguard?.pause?.();
 }
 
-/**
- * Resumes the key actors (Character, Endboss, Bodyguard) if methods exist.
- *
- * @this {World}
- * @returns {void}
- */
+/** Resume key actors (if supported). */
 function resumeActors() {
   this.character?.resume?.();
   this.endboss?.resume?.();
   this.bodyguard?.resume?.();
 }
 
-/**
- * Whether a pause overlay should be shown.
- *
- * @this {World}
- * @param {boolean} showOverlay
- * @returns {boolean}
- */
+/** Overlay allowed? */
 function shouldShowPauseOverlay(showOverlay) {
   return showOverlay && this.allowPauseOverlay;
 }
 
-/**
- * Resumes the countdown system:
- * - starts countdown if not started
- * - resumes music + timer
- *
- * @this {World}
- * @returns {void}
- */
+/** Resume countdown system (start if needed). */
 function resumeCountdownSystem() {
   if (!this.countdown) return;
   if (!this.countdown.isStarted) this.countdown.startCountdown();
   this.countdown.resumeAllMusic();
   this.countdown.resumeCountdown();
 }
+//#endregion
 
-/**
- * Runs a small "Pepe landing" animation on the very first resume.
- * Runs only once per World instance (guarded via hasStartedOnce).
- *
- * @this {World}
- * @returns {void}
- */
+//#region First resume landing
+/** First resume only: show fall->land->idle. */
 function runFirstStartLandingAnimation() {
   if (this.hasStartedOnce) return;
   this.hasStartedOnce = true;
@@ -329,23 +195,12 @@ function runFirstStartLandingAnimation() {
   this.waitForLandingThenIdle();
 }
 
-/**
- * Sets the initial "falling" frame (start fall look).
- *
- * @this {World}
- * @returns {void}
- */
+/** Set initial falling frame. */
 function setStartFallFrame() {
   this.character.loadImage("img/2_character_pepe/3_jump/J-37.png");
 }
 
-/**
- * Waits until the character is on the ground (not above ground anymore).
- * Then triggers {@link playLandingThenIdle}.
- *
- * @this {World}
- * @returns {void}
- */
+/** Wait until grounded, then land->idle. */
 function waitForLandingThenIdle() {
   const check = setInterval(() => {
     if (this.character.isAboveGround()) return;
@@ -354,37 +209,28 @@ function waitForLandingThenIdle() {
   }, 50);
 }
 
-/**
- * Shows a short landing frame and then transitions to idle after a small delay.
- *
- * @this {World}
- * @returns {void}
- */
+/** Landing frame, then idle. */
 function playLandingThenIdle() {
   this.character.loadImage("img/2_character_pepe/3_jump/J-38.png");
   setTimeout(() => this.startIdleAfterLanding(), 300);
 }
 
-/**
- * Starts idle after landing animation.
- * Fallback: if playIdleAnimation doesn't exist, uses a standing frame.
- *
- * @this {World}
- * @returns {void}
- */
+/** Go idle; fallback to standing/idle frame. */
 function startIdleAfterLanding() {
-  if (this.character.playIdleAnimation) this.character.playIdleAnimation();
-  else this.character.loadImage(this.character.IMAGES_STANDING?.[0] || this.character.IMAGES_IDLE?.[0] || "");
+  if (this.character.playIdleAnimation) return this.character.playIdleAnimation();
+  const fallback =
+    this.character.IMAGES_STANDING?.[0] ||
+    this.character.IMAGES_IDLE?.[0] ||
+    "";
+  this.character.loadImage(fallback);
 }
+//#endregion
 
-/**
- * Stops the game completely (currently: identical to pauseAllMovements()).
- *
- * @this {World}
- * @returns {void}
- */
+//#region Stop
+/** Hard-stop (currently same as pauseAllMovements). */
 function stop() {
   this.pauseAllMovements();
 }
+//#endregion
 
 //#endregion
