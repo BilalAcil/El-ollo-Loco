@@ -1,0 +1,15 @@
+{
+  "name": "el-pollo-loco",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "docs": "jsdoc -c jsdoc.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "jsdoc": "^4.0.5"
+  }
+}

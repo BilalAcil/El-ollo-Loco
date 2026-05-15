@@ -1,0 +1,4530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: World</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: World</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>World<span class="signature">(canvas, keyboard)</span><span class="type-signature"></span></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    
+    <h4 class="name" id="World"><span class="type-signature"></span>new World<span class="signature">(canvas, keyboard)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Erstellt eine neue World-Instanz, initialisiert Kontext, Sounds, Referenzen und
+setzt das Spiel initial auf Pause (Startscreen/Play-Symbol).</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>canvas</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Canvas, auf der das Spiel gezeichnet wird.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>keyboard</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Keyboard.html">Keyboard</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Keyboard-Instanz für Eingaben.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line123">line 123</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="allowPauseOverlay"><span class="type-signature"></span>allowPauseOverlay<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>Steuert, ob beim Pausieren ein Overlay (⏸/▶) gezeigt werden darf.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line158">line 158</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="bodyguard"><span class="type-signature"></span>bodyguard<span class="type-signature"> :<a href="Bodyguard.html">Bodyguard</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Bodyguard-Gegner (Gatekeeper vor dem Endboss).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Bodyguard.html">Bodyguard</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="bodyguardStatus"><span class="type-signature"></span>bodyguardStatus<span class="type-signature"> :<a href="BodyguardStatusBar.html">BodyguardStatusBar</a>|null</span></h4>
+
+
+
+
+<div class="description">
+    <p>Statusbar für den Bodyguard (wird dynamisch erzeugt).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="BodyguardStatusBar.html">BodyguardStatusBar</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line72">line 72</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="cameraMoveSound"><span class="type-signature"></span>cameraMoveSound<span class="type-signature"> :HTMLAudioElement</span></h4>
+
+
+
+
+<div class="description">
+    <p>Sound beim Kamera-Verschieben.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">HTMLAudioElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line232">line 232</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="cameraPanSpeed"><span class="type-signature"></span>cameraPanSpeed<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Geschwindigkeit des Kamera-Pans.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line220">line 220</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="cameraTargetX"><span class="type-signature"></span>cameraTargetX<span class="type-signature"> :number|null</span></h4>
+
+
+
+
+<div class="description">
+    <p>Zielwert für <a href="World.html#camera_x">World#camera_x</a> während eines Pans.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+|
+
+<span class="param-type">null</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line214">line 214</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="camera_x"><span class="type-signature"></span>camera_x<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Aktuelle Kamera-Translation auf der X-Achse.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="canvas"><span class="type-signature"></span>canvas<span class="type-signature"> :HTMLCanvasElement</span></h4>
+
+
+
+
+<div class="description">
+    <p>Canvas-Element, auf dem gerendert wird.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">HTMLCanvasElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="character"><span class="type-signature"></span>character<span class="type-signature"> :<a href="Character.html">Character</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Der Spieler-Charakter (Pepe).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Character.html">Character</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line12">line 12</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="chickenNest"><span class="type-signature"></span>chickenNest<span class="type-signature"> :<a href="ChickenNest.html">ChickenNest</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Deko-/Objekt im Endbossbereich.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="ChickenNest.html">ChickenNest</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line90">line 90</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="coins"><span class="type-signature"></span>coins<span class="type-signature"> :Array.&lt;<a href="Coin.html">Coin</a>></span></h4>
+
+
+
+
+<div class="description">
+    <p>Sammelbare Coins im Level.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;<a href="Coin.html">Coin</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="corncob"><span class="type-signature"></span>corncob<span class="type-signature"> :<a href="Corncob.html">Corncob</a>|null</span></h4>
+
+
+
+
+<div class="description">
+    <p>Heil-Item (Maiskolben).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Corncob.html">Corncob</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="countdown"><span class="type-signature"></span>countdown<span class="type-signature"> :<a href="Countdown.html">Countdown</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Countdown-System inkl. Musik.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Countdown.html">Countdown</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="ctx"><span class="type-signature"></span>ctx<span class="type-signature"> :CanvasRenderingContext2D</span></h4>
+
+
+
+
+<div class="description">
+    <p>2D-Render-Kontext der Canvas.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">CanvasRenderingContext2D</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="endbossCameraX"><span class="type-signature"></span>endbossCameraX<span class="type-signature"> :number|undefined</span></h4>
+
+
+
+
+<div class="description">
+    <p>Gesperrter Kamera-Wert in der Endboss-Arena (optional gesetzt).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line226">line 226</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="endbossHurtSound"><span class="type-signature"></span>endbossHurtSound<span class="type-signature"> :HTMLAudioElement</span></h4>
+
+
+
+
+<div class="description">
+    <p>Endboss-Hurt-Sound (für Trefferfeedback).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">HTMLAudioElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line251">line 251</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="hasBodyguardDied"><span class="type-signature"></span>hasBodyguardDied<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>True nachdem der Bodyguard tot ist (Boss-Arena wird geöffnet).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line189">line 189</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="healSound"><span class="type-signature"></span>healSound<span class="type-signature"> :HTMLAudioElement</span></h4>
+
+
+
+
+<div class="description">
+    <p>Heilungssound (Maiskolben).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">HTMLAudioElement</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line245">line 245</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isCameraPanning"><span class="type-signature"></span>isCameraPanning<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>True während eines soften Kamera-Pans.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line208">line 208</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isMaracasSequence"><span class="type-signature"></span>isMaracasSequence<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>True während der Maracas-Endsequenz (keine Pause/Eingaben).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line183">line 183</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="isPaused"><span class="type-signature"></span>isPaused<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>True wenn die Welt pausiert ist.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line301">line 301</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="keyboard"><span class="type-signature"></span>keyboard<span class="type-signature"> :<a href="Keyboard.html">Keyboard</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Eingabe-Controller (Keyboard).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Keyboard.html">Keyboard</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="lastEndbossHit"><span class="type-signature"></span>lastEndbossHit<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Timestamp des letzten Kontaktschadens durch Endboss.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line177">line 177</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="lastEnemyHit"><span class="type-signature"></span>lastEnemyHit<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Timestamp des letzten Kontaktschadens durch normale Gegner.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line171">line 171</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="level"><span class="type-signature"></span>level<span class="type-signature"> :<a href="Level.html">Level</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Aktuelles Level-Objekt (z.B. level1).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Level.html">Level</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line18">line 18</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="maracas"><span class="type-signature"></span>maracas<span class="type-signature"> :<a href="Maracas.html">Maracas</a>|null</span></h4>
+
+
+
+
+<div class="description">
+    <p>Maracas-Collectible (erscheint nach Boss/Story-Event).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Maracas.html">Maracas</a></span>
+|
+
+<span class="param-type">null</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line78">line 78</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="salsas"><span class="type-signature"></span>salsas<span class="type-signature"> :Array.&lt;<a href="Salsa.html">Salsa</a>></span></h4>
+
+
+
+
+<div class="description">
+    <p>Sammelbare Salsa-Flaschen im Level.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;<a href="Salsa.html">Salsa</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line108">line 108</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="shouldStartCameraPanBack"><span class="type-signature"></span>shouldStartCameraPanBack<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>Flag, ob nach Bodyguard-Tod die Kamera zurückfahren soll.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line195">line 195</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="statusBar"><span class="type-signature"></span>statusBar<span class="type-signature"> :<a href="StatusBar.html">StatusBar</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Lebensanzeige des Spielers.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="StatusBar.html">StatusBar</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line54">line 54</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="statusBarCoin"><span class="type-signature"></span>statusBarCoin<span class="type-signature"> :<a href="StatusBarCoin.html">StatusBarCoin</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Coin-Statusanzeige.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="StatusBarCoin.html">StatusBarCoin</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line66">line 66</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="statusBarSalsa"><span class="type-signature"></span>statusBarSalsa<span class="type-signature"> :<a href="StatusBarSalsa.html">StatusBarSalsa</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>Salsa-Statusanzeige.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="StatusBarSalsa.html">StatusBarSalsa</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line60">line 60</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="throwableObjects"><span class="type-signature"></span>throwableObjects<span class="type-signature"> :Array.&lt;<a href="MovableObject.html">MovableObject</a>></span></h4>
+
+
+
+
+<div class="description">
+    <p>Geworfene Objekte (z.B. SalsaThrow).</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;<a href="MovableObject.html">MovableObject</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line114">line 114</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="applyBodyguardGate"><span class="type-signature"></span>applyBodyguardGate<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Versteckt Endboss, Endboss-Statusbar und Nest solange der Bodyguard lebt.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line405">line 405</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="createSound"><span class="type-signature"></span>createSound<span class="signature">(src, volume<span class="signature-attributes">opt</span>, loop<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {HTMLAudioElement}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Erstellt ein Audio-Objekt mit Standard-Einstellungen.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>src</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Pfad zur Audiodatei.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>volume</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+
+            <td class="description last"><p>Lautstärke (0.0–1.0).</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>loop</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last"><p>Ob der Sound geloopt werden soll.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line262">line 262</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Fertig initialisiertes Audio-Element.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">HTMLAudioElement</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="generateCollectibles"><span class="type-signature"></span>generateCollectibles<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Erzeugt alle Sammelobjekte (Coins + Salsas).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line353">line 353</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initCamera"><span class="type-signature"></span>initCamera<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert Kamera-Panning-Parameter und den Kamera-Bewegungssound.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line203">line 203</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initContext"><span class="type-signature"></span>initContext<span class="signature">(canvas)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Speichert Canvas + Context für das Rendering.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>canvas</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">HTMLCanvasElement</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Canvas-Element.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initFlags"><span class="type-signature"></span>initFlags<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert Laufzeit-Flags und Hit-Timer.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line166">line 166</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initInput"><span class="type-signature"></span>initInput<span class="signature">(keyboard)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Speichert die Keyboard-Referenz und setzt Pause-Overlay initial aus.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>keyboard</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Keyboard.html">Keyboard</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Keyboard-Instanz.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line151">line 151</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initPauseState"><span class="type-signature"></span>initPauseState<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Setzt die World initial auf Pause, damit beim Laden nichts losläuft,
+bevor der Spieler &quot;Start&quot; klickt.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line296">line 296</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initSounds"><span class="type-signature"></span>initSounds<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert wiederverwendbare Soundeffekte.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line240">line 240</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="initWorldRefs"><span class="type-signature"></span>initWorldRefs<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert World-Referenzen/Subsysteme:</p>
+<ul>
+<li>startet das Rendern</li>
+<li>baut die Level-Objekte zusammen</li>
+<li>setzt World-Referenzen für Bodyguard/Countdown</li>
+<li>startet die Kollisionschecks</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line279">line 279</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="linkWorldRefs"><span class="type-signature"></span>linkWorldRefs<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Verknüpft World-Referenzen in abhängigen Objekten.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line344">line 344</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="pauseCountdownSystem"><span class="type-signature"></span>pauseCountdownSystem<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Pausiert Countdown + Musik (falls vorhanden).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line314">line 314</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="rebuildEnemyList"><span class="type-signature"></span>rebuildEnemyList<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Rekonstruiert die Gegnerliste:</p>
+<ul>
+<li>erzeugt neue Chickens</li>
+<li>behält Endboss + Endboss-Statusbar aus dem Level</li>
+<li>setzt Endboss/EndbossBar Referenzen</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line366">line 366</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setWorld"><span class="type-signature"></span>setWorld<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Baut die World-Inhalte auf:</p>
+<ul>
+<li>World-Ref am Character setzen</li>
+<li>Coins/Salsas generieren</li>
+<li>Gegnerliste neu aufbauen (Chickens + Bodyguard + Endboss/Statusbar)</li>
+<li>Endboss + EndbossBar konfigurieren</li>
+<li>Bodyguard-Gate anwenden (Boss/Bar/Nest verstecken bis Bodyguard tot)</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line330">line 330</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setupEndboss"><span class="type-signature"></span>setupEndboss<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert den Endboss (World-Ref, Energie, Death-State).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line382">line 382</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setupEndbossBar"><span class="type-signature"></span>setupEndbossBar<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Initialisiert die Endboss-Statusbar (World-Ref, 100%).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_world.class.js.html">models/world.class.js</a>, <a href="models_world.class.js.html#line394">line 394</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="WorldCameraMixin.html">WorldCameraMixin</a></li></ul><h3>Classes</h3><ul><li><a href="BackgroundObject.html">BackgroundObject</a></li><li><a href="Bodyguard.html">Bodyguard</a></li><li><a href="BodyguardStatusBar.html">BodyguardStatusBar</a></li><li><a href="Character.html">Character</a></li><li><a href="Chicken.html">Chicken</a></li><li><a href="ChickenNest.html">ChickenNest</a></li><li><a href="ChickenSmall.html">ChickenSmall</a></li><li><a href="Cloud.html">Cloud</a></li><li><a href="Coin.html">Coin</a></li><li><a href="Corncob.html">Corncob</a></li><li><a href="Countdown.html">Countdown</a></li><li><a href="DrawableObject.html">DrawableObject</a></li><li><a href="EndBossStatusBar.html">EndBossStatusBar</a></li><li><a href="Endboss.html">Endboss</a></li><li><a href="Keyboard.html">Keyboard</a></li><li><a href="Level.html">Level</a></li><li><a href="Maracas.html">Maracas</a></li><li><a href="MovableObject.html">MovableObject</a></li><li><a href="Salsa.html">Salsa</a></li><li><a href="SalsaThrow.html">SalsaThrow</a></li><li><a href="StatusBar.html">StatusBar</a></li><li><a href="StatusBarCoin.html">StatusBarCoin</a></li><li><a href="StatusBarSalsa.html">StatusBarSalsa</a></li><li><a href="World.html">World</a></li><li><a href="window.Audio.html">Audio</a></li></ul><h3>Global</h3><ul><li><a href="global.html#KEY_MAP">KEY_MAP</a></li><li><a href="global.html#activateEndbossArea">activateEndbossArea</a></li><li><a href="global.html#addCoinGroup">addCoinGroup</a></li><li><a href="global.html#addObjectsToMap">addObjectsToMap</a></li><li><a href="global.html#addToMap">addToMap</a></li><li><a href="global.html#applyAlpha">applyAlpha</a></li><li><a href="global.html#applyBodyguardBounce">applyBodyguardBounce</a></li><li><a href="global.html#applyBodyguardSideHit">applyBodyguardSideHit</a></li><li><a href="global.html#applyBodyguardStomp">applyBodyguardStomp</a></li><li><a href="global.html#applyEndbossStomp">applyEndbossStomp</a></li><li><a href="global.html#applyGlobalMute">applyGlobalMute</a></li><li><a href="global.html#applyGravity">applyGravity</a></li><li><a href="global.html#applyGravityStep">applyGravityStep</a></li><li><a href="global.html#applyKeyFlag">applyKeyFlag</a></li><li><a href="global.html#applyKnockback">applyKnockback</a></li><li><a href="global.html#applyMuteState">applyMuteState</a></li><li><a href="global.html#applyObjectTransform">applyObjectTransform</a></li><li><a href="global.html#applyOverlayStyle">applyOverlayStyle</a></li><li><a href="global.html#applySalsaDamage">applySalsaDamage</a></li><li><a href="global.html#applySoftBlink">applySoftBlink</a></li><li><a href="global.html#assetsReadyNow">assetsReadyNow</a></li><li><a href="global.html#beginThrow">beginThrow</a></li><li><a href="global.html#bindButtonToKey">bindButtonToKey</a></li><li><a href="global.html#bindCanvasClick">bindCanvasClick</a></li><li><a href="global.html#blinkEnemySoft">blinkEnemySoft</a></li><li><a href="global.html#bounceCharacter">bounceCharacter</a></li><li><a href="global.html#bounceChickenNest">bounceChickenNest</a></li><li><a href="global.html#bounceCorncob">bounceCorncob</a></li><li><a href="global.html#bounceEndboss">bounceEndboss</a></li><li><a href="global.html#bounceEnemyToOriginalY">bounceEnemyToOriginalY</a></li><li><a href="global.html#bounceY">bounceY</a></li><li><a href="global.html#canStartThrow">canStartThrow</a></li><li><a href="global.html#cancelHealing">cancelHealing</a></li><li><a href="global.html#checkCollisions">checkCollisions</a></li><li><a href="global.html#checkEndbossDeath">checkEndbossDeath</a></li><li><a href="global.html#checkEndbossTrigger">checkEndbossTrigger</a></li><li><a href="global.html#clampCharacterToViewport">clampCharacterToViewport</a></li><li><a href="global.html#classesReady">classesReady</a></li><li><a href="global.html#clearCanvas">clearCanvas</a></li><li><a href="global.html#clearEnemyIntervals">clearEnemyIntervals</a></li><li><a href="global.html#closeInstructions">closeInstructions</a></li><li><a href="global.html#collectNormalEnemy">collectNormalEnemy</a></li><li><a href="global.html#createCoin">createCoin</a></li><li><a href="global.html#createCollisionState">createCollisionState</a></li><li><a href="global.html#createEnemies">createEnemies</a></li><li><a href="global.html#createGameWorld">createGameWorld</a></li><li><a href="global.html#createOverlay">createOverlay</a></li><li><a href="global.html#damageCharacterOrDie">damageCharacterOrDie</a></li><li><a href="global.html#damageEndbossBySalsa">damageEndbossBySalsa</a></li><li><a href="global.html#disableButtonContextAndSelection">disableButtonContextAndSelection</a></li><li><a href="global.html#display">display</a></li><li><a href="global.html#draw">draw</a></li><li><a href="global.html#drawActorsAndEnemies">drawActorsAndEnemies</a></li><li><a href="global.html#drawBackgroundAndClouds">drawBackgroundAndClouds</a></li><li><a href="global.html#drawCameraLayer">drawCameraLayer</a></li><li><a href="global.html#drawCollectibles">drawCollectibles</a></li><li><a href="global.html#drawCountdown">drawCountdown</a></li><li><a href="global.html#drawOptionalWorldObjects">drawOptionalWorldObjects</a></li><li><a href="global.html#drawOverlayUI">drawOverlayUI</a></li><li><a href="global.html#drawThrowableObjects">drawThrowableObjects</a></li><li><a href="global.html#drawWorldObjects">drawWorldObjects</a></li><li><a href="global.html#drawableReady">drawableReady</a></li><li><a href="global.html#el">el</a></li><li><a href="global.html#endGame">endGame</a></li><li><a href="global.html#ensureStatsBox">ensureStatsBox</a></li><li><a href="global.html#exposeHtmlGlobals">exposeHtmlGlobals</a></li><li><a href="global.html#fadeOutThenRemove">fadeOutThenRemove</a></li><li><a href="global.html#finishDeathAnim">finishDeathAnim</a></li><li><a href="global.html#finishMaracasEnding">finishMaracasEnding</a></li><li><a href="global.html#finishSoftPanning">finishSoftPanning</a></li><li><a href="global.html#finishThrow">finishThrow</a></li><li><a href="global.html#finishThrowFrames">finishThrowFrames</a></li><li><a href="global.html#flipX">flipX</a></li><li><a href="global.html#followCharacterCamera">followCharacterCamera</a></li><li><a href="global.html#freezeWorldForMaracas">freezeWorldForMaracas</a></li><li><a href="global.html#generateChickens">generateChickens</a></li><li><a href="global.html#generateClouds">generateClouds</a></li><li><a href="global.html#generateCoins">generateCoins</a></li><li><a href="global.html#generateSalsas">generateSalsas</a></li><li><a href="global.html#getAllButtons">getAllButtons</a></li><li><a href="global.html#getBox">getBox</a></li><li><a href="global.html#getEndScreenRefs">getEndScreenRefs</a></li><li><a href="global.html#getEndStats">getEndStats</a></li><li><a href="global.html#getMobileButtons">getMobileButtons</a></li><li><a href="global.html#getRotationRadians">getRotationRadians</a></li><li><a href="global.html#getRunBounds">getRunBounds</a></li><li><a href="global.html#handleCanvasClick">handleCanvasClick</a></li><li><a href="global.html#handleCoinPickups">handleCoinPickups</a></li><li><a href="global.html#handleCollisionTick">handleCollisionTick</a></li><li><a href="global.html#handleCorncobPickup">handleCorncobPickup</a></li><li><a href="global.html#handleDeathAnim">handleDeathAnim</a></li><li><a href="global.html#handleEndbossContactDamage">handleEndbossContactDamage</a></li><li><a href="global.html#handleJumpAnimation">handleJumpAnimation</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#handleKeyUp">handleKeyUp</a></li><li><a href="global.html#handleMaracasPickup">handleMaracasPickup</a></li><li><a href="global.html#handleMovement">handleMovement</a></li><li><a href="global.html#handleNoSalsa">handleNoSalsa</a></li><li><a href="global.html#handleNormalEnemyContactDamage">handleNormalEnemyContactDamage</a></li><li><a href="global.html#handleNormalEnemyStomps">handleNormalEnemyStomps</a></li><li><a href="global.html#handleSalsaPickups">handleSalsaPickups</a></li><li><a href="global.html#handleSoftPanning">handleSoftPanning</a></li><li><a href="global.html#handleThrowableHits">handleThrowableHits</a></li><li><a href="global.html#hasAllMobileButtons">hasAllMobileButtons</a></li><li><a href="global.html#hasSalsa">hasSalsa</a></li><li><a href="global.html#hide">hide</a></li><li><a href="global.html#hideGameCanvasAndTitle">hideGameCanvasAndTitle</a></li><li><a href="global.html#hidePlaySymbol">hidePlaySymbol</a></li><li><a href="global.html#imagesLoaded">imagesLoaded</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#initGameCanvas">initGameCanvas</a></li><li><a href="global.html#isActualEnemy">isActualEnemy</a></li><li><a href="global.html#isGloballyImmune">isGloballyImmune</a></li><li><a href="global.html#isInIdleWindow">isInIdleWindow</a></li><li><a href="global.html#isJumpedOnEnemy">isJumpedOnEnemy</a></li><li><a href="global.html#isMuteKey">isMuteKey</a></li><li><a href="global.html#isOverlayPresent">isOverlayPresent</a></li><li><a href="global.html#isPauseKey">isPauseKey</a></li><li><a href="global.html#isStartScreenVisible">isStartScreenVisible</a></li><li><a href="global.html#isStompFromAbove">isStompFromAbove</a></li><li><a href="global.html#isWalking">isWalking</a></li><li><a href="global.html#jumpFromShock">jumpFromShock</a></li><li><a href="global.html#jumpIfNeeded">jumpIfNeeded</a></li><li><a href="global.html#killChickenBySalsa">killChickenBySalsa</a></li><li><a href="global.html#killEnemy">killEnemy</a></li><li><a href="global.html#knockbackAfterEndbossStomp">knockbackAfterEndbossStomp</a></li><li><a href="global.html#level1">level1</a></li><li><a href="global.html#lockEndbossCamera">lockEndbossCamera</a></li><li><a href="global.html#loseHtml">loseHtml</a></li><li><a href="global.html#maracasJump">maracasJump</a></li><li><a href="global.html#markEnemyDead">markEnemyDead</a></li><li><a href="global.html#markSalsaHit">markSalsaHit</a></li><li><a href="global.html#moveLeftIfNeeded">moveLeftIfNeeded</a></li><li><a href="global.html#moveRightIfNeeded">moveRightIfNeeded</a></li><li><a href="global.html#nextLevel">nextLevel</a></li><li><a href="global.html#onBodyguardDeath">onBodyguardDeath</a></li><li><a href="global.html#onWindowLoad">onWindowLoad</a></li><li><a href="global.html#openInstructions">openInstructions</a></li><li><a href="global.html#pauseActors">pauseActors</a></li><li><a href="global.html#pauseAllMovements">pauseAllMovements</a></li><li><a href="global.html#pauseBodyguard">pauseBodyguard</a></li><li><a href="global.html#pauseGame">pauseGame</a></li><li><a href="global.html#pauseWorldSilently">pauseWorldSilently</a></li><li><a href="global.html#playAirAnim">playAirAnim</a></li><li><a href="global.html#playCameraMoveSound">playCameraMoveSound</a></li><li><a href="global.html#playCoinSound">playCoinSound</a></li><li><a href="global.html#playDeathAnimation">playDeathAnimation</a></li><li><a href="global.html#playDeathSounds">playDeathSounds</a></li><li><a href="global.html#playHealPickupSound">playHealPickupSound</a></li><li><a href="global.html#playHitSound">playHitSound</a></li><li><a href="global.html#playHurtAnim">playHurtAnim</a></li><li><a href="global.html#playIdleAnimation">playIdleAnimation</a></li><li><a href="global.html#playIdleOrLongIdle">playIdleOrLongIdle</a></li><li><a href="global.html#playJumpSound">playJumpSound</a></li><li><a href="global.html#playLandingThenIdle">playLandingThenIdle</a></li><li><a href="global.html#playMaracasSound">playMaracasSound</a></li><li><a href="global.html#playSalsaPickupSound">playSalsaPickupSound</a></li><li><a href="global.html#playThrowFrames">playThrowFrames</a></li><li><a href="global.html#playWalkAnim">playWalkAnim</a></li><li><a href="global.html#pollAssets">pollAssets</a></li><li><a href="global.html#preloadWorld">preloadWorld</a></li><li><a href="global.html#processMovementInputs">processMovementInputs</a></li><li><a href="global.html#randomCoinBaseX">randomCoinBaseX</a></li><li><a href="global.html#randomCoinGroupSize">randomCoinGroupSize</a></li><li><a href="global.html#randomCoinY">randomCoinY</a></li><li><a href="global.html#removeEnemy">removeEnemy</a></li><li><a href="global.html#removeEnemySoon">removeEnemySoon</a></li><li><a href="global.html#removeFromWorld">removeFromWorld</a></li><li><a href="global.html#removeOverlay">removeOverlay</a></li><li><a href="global.html#removeSalsaAfterSplash">removeSalsaAfterSplash</a></li><li><a href="global.html#renderEndScreen">renderEndScreen</a></li><li><a href="global.html#renderObject">renderObject</a></li><li><a href="global.html#resetKeyboardInputs">resetKeyboardInputs</a></li><li><a href="global.html#resetKeyboardInputsAll">resetKeyboardInputsAll</a></li><li><a href="global.html#resetStatsBox">resetStatsBox</a></li><li><a href="global.html#resetWorldForRestart">resetWorldForRestart</a></li><li><a href="global.html#restartCollisionChecks">restartCollisionChecks</a></li><li><a href="global.html#restartGame">restartGame</a></li><li><a href="global.html#restoreMuteFromStorage">restoreMuteFromStorage</a></li><li><a href="global.html#resumeActors">resumeActors</a></li><li><a href="global.html#resumeAllMovements">resumeAllMovements</a></li><li><a href="global.html#resumeBodyguard">resumeBodyguard</a></li><li><a href="global.html#resumeCountdownSystem">resumeCountdownSystem</a></li><li><a href="global.html#resumeGame">resumeGame</a></li><li><a href="global.html#resumeWorld">resumeWorld</a></li><li><a href="global.html#resumeWorldAfterDelay">resumeWorldAfterDelay</a></li><li><a href="global.html#returnToHome">returnToHome</a></li><li><a href="global.html#runFirstStartLandingAnimation">runFirstStartLandingAnimation</a></li><li><a href="global.html#runMaracasChoreo">runMaracasChoreo</a></li><li><a href="global.html#saveMuteToStorage">saveMuteToStorage</a></li><li><a href="global.html#scanBodyguard">scanBodyguard</a></li><li><a href="global.html#scanEndboss">scanEndboss</a></li><li><a href="global.html#scanEnemyCollisions">scanEnemyCollisions</a></li><li><a href="global.html#scheduleDeathSounds">scheduleDeathSounds</a></li><li><a href="global.html#scheduleNextFrame">scheduleNextFrame</a></li><li><a href="global.html#setAlpha">setAlpha</a></li><li><a href="global.html#setDefaultDeathImage">setDefaultDeathImage</a></li><li><a href="global.html#setKeyFlag">setKeyFlag</a></li><li><a href="global.html#setPaused">setPaused</a></li><li><a href="global.html#setSalsaDeathImage">setSalsaDeathImage</a></li><li><a href="global.html#setStartFallFrame">setStartFallFrame</a></li><li><a href="global.html#setupMobileControls">setupMobileControls</a></li><li><a href="global.html#setupStartButton">setupStartButton</a></li><li><a href="global.html#shouldBlockPause">shouldBlockPause</a></li><li><a href="global.html#shouldFinishDeathAnim">shouldFinishDeathAnim</a></li><li><a href="global.html#shouldIgnoreCanvasClick">shouldIgnoreCanvasClick</a></li><li><a href="global.html#shouldRender">shouldRender</a></li><li><a href="global.html#shouldShowPauseOverlay">shouldShowPauseOverlay</a></li><li><a href="global.html#shouldSkipGravity">shouldSkipGravity</a></li><li><a href="global.html#shouldSkipMovementTick">shouldSkipMovementTick</a></li><li><a href="global.html#shouldStartPanBackNow">shouldStartPanBackNow</a></li><li><a href="global.html#show">show</a></li><li><a href="global.html#showEndScreen">showEndScreen</a></li><li><a href="global.html#showFallFrame">showFallFrame</a></li><li><a href="global.html#showFreezeFrame">showFreezeFrame</a></li><li><a href="global.html#showGameUIForRestart">showGameUIForRestart</a></li><li><a href="global.html#showJumpFrame">showJumpFrame</a></li><li><a href="global.html#showNextIdleFrame">showNextIdleFrame</a></li><li><a href="global.html#showPauseThenPlaySymbol">showPauseThenPlaySymbol</a></li><li><a href="global.html#showPlaySymbol">showPlaySymbol</a></li><li><a href="global.html#snapToGroundIfNeeded">snapToGroundIfNeeded</a></li><li><a href="global.html#spawnSalsaAndFinish">spawnSalsaAndFinish</a></li><li><a href="global.html#spawnSalsaThrow">spawnSalsaThrow</a></li><li><a href="global.html#startAnimationLoop">startAnimationLoop</a></li><li><a href="global.html#startCloudAnimations">startCloudAnimations</a></li><li><a href="global.html#startDeathFallAnim">startDeathFallAnim</a></li><li><a href="global.html#startDeathState">startDeathState</a></li><li><a href="global.html#startEndbossCameraPan">startEndbossCameraPan</a></li><li><a href="global.html#startEndbossCameraPanBack">startEndbossCameraPanBack</a></li><li><a href="global.html#startEnemyAnimations">startEnemyAnimations</a></li><li><a href="global.html#startFallingWhenDead">startFallingWhenDead</a></li><li><a href="global.html#startGame">startGame</a></li><li><a href="global.html#startGameLogic">startGameLogic</a></li><li><a href="global.html#startIdleAfterLanding">startIdleAfterLanding</a></li><li><a href="global.html#startIdleIfNeeded">startIdleIfNeeded</a></li><li><a href="global.html#startLongIdleAnimation">startLongIdleAnimation</a></li><li><a href="global.html#startLongIdleIfNeeded">startLongIdleIfNeeded</a></li><li><a href="global.html#startMaracasSequence">startMaracasSequence</a></li><li><a href="global.html#startMaracasWalkOff">startMaracasWalkOff</a></li><li><a href="global.html#startMovementLoop">startMovementLoop</a></li><li><a href="global.html#startPanBackOnce">startPanBackOnce</a></li><li><a href="global.html#statsHtml">statsHtml</a></li><li><a href="global.html#stepDeathFallAnim">stepDeathFallAnim</a></li><li><a href="global.html#stepDeathFallPhysics">stepDeathFallPhysics</a></li><li><a href="global.html#stepDeathFrames">stepDeathFrames</a></li><li><a href="global.html#stop">stop</a></li><li><a href="global.html#stopAllEnemyIntervals">stopAllEnemyIntervals</a></li><li><a href="global.html#stopCameraMoveSound">stopCameraMoveSound</a></li><li><a href="global.html#stopCloudIntervals">stopCloudIntervals</a></li><li><a href="global.html#stopCollisionChecks">stopCollisionChecks</a></li><li><a href="global.html#stopEnemyIntervals">stopEnemyIntervals</a></li><li><a href="global.html#stopGame">stopGame</a></li><li><a href="global.html#stopGameIfAvailable">stopGameIfAvailable</a></li><li><a href="global.html#stopIdleInterval">stopIdleInterval</a></li><li><a href="global.html#stopLongIdleAnimation">stopLongIdleAnimation</a></li><li><a href="global.html#switchToIdleIfNeeded">switchToIdleIfNeeded</a></li><li><a href="global.html#syncWorldMute">syncWorldMute</a></li><li><a href="global.html#throwAnimation">throwAnimation</a></li><li><a href="global.html#throwIfNeeded">throwIfNeeded</a></li><li><a href="global.html#tickAnimation">tickAnimation</a></li><li><a href="global.html#tickMovement">tickMovement</a></li><li><a href="global.html#toggleMobileControlsForStart">toggleMobileControlsForStart</a></li><li><a href="global.html#toggleMute">toggleMute</a></li><li><a href="global.html#togglePause">togglePause</a></li><li><a href="global.html#translateBack">translateBack</a></li><li><a href="global.html#translateToCenter">translateToCenter</a></li><li><a href="global.html#triggerBodyguardJump">triggerBodyguardJump</a></li><li><a href="global.html#tryEndbossContactHit">tryEndbossContactHit</a></li><li><a href="global.html#tryNormalEnemyContactHit">tryNormalEnemyContactHit</a></li><li><a href="global.html#trySalsaHit">trySalsaHit</a></li><li><a href="global.html#updateCamera">updateCamera</a></li><li><a href="global.html#updateMuteButtonText">updateMuteButtonText</a></li><li><a href="global.html#updateScreenForGameStart">updateScreenForGameStart</a></li><li><a href="global.html#updateStandingAnimation">updateStandingAnimation</a></li><li><a href="global.html#waitForGameAssets">waitForGameAssets</a></li><li><a href="global.html#waitForLandingThenIdle">waitForLandingThenIdle</a></li><li><a href="global.html#winHtml">winHtml</a></li><li><a href="global.html#withCamera">withCamera</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Jan 09 2026 10:39:41 GMT+0100 (Mitteleuropäische Normalzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

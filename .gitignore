@@ -1,0 +1,34 @@
+# Abhängigkeiten (falls du irgendwann Node-Tools nutzt)
+node_modules/
+
+# Build- / Ausgabe-Ordner (falls du bundlest oder baust)
+dist/
+build/
+out/
+.tmp/
+.temp/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# System-Dateien
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+
+# Cache & Coverage
+.cache/
+coverage/
+
+# Umgebungsvariablen (falls später genutzt)
+.env
+.env.local
+.env.*.local

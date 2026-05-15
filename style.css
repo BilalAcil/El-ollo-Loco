@@ -1,0 +1,494 @@
+@font-face {
+  font-family: 'Pistol Grip Pump';
+  src: url('img/fonts/PistolGripPump.ttf') format('truetype');
+}
+
+body {
+  font-family: 'Pistol Grip Pump', sans-serif;
+  font-size: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  position: relative;
+  z-index: 0;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('img/10_wallpaper/4272099.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  z-index: -1;
+}
+
+:root {
+  --canvas-max: 720px;
+  /* Default: so wie jetzt */
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --canvas-max: 1100px;
+    /* iPad Pro / Laptop */
+  }
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --canvas-max: 1300px;
+    /* sehr große Laptops/Monitore */
+  }
+}
+
+canvas {
+  border: 1px solid black;
+  background-color: #000000;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+
+  aspect-ratio: 3 / 2;
+
+  /* Maximalgröße wird je nach Screen größer */
+  max-width: var(--canvas-max);
+  max-height: calc(var(--canvas-max) / 1.5);
+  /* 3:2 -> Höhe = Breite / 1.5 */
+
+  /* bleibt responsiv wie vorher */
+  width: min(90vw, 90vh * 1.5, var(--canvas-max));
+
+  display: block;
+}
+
+h1 {
+  margin: 10px;
+}
+
+/* Allgemeine Overlays */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  color: rgb(255, 204, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 10;
+}
+
+h2 {
+  font-weight: 500;
+}
+
+.menu-box {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgb(253, 164, 7);
+  border-radius: 12px;
+  padding: 20px 40px;
+  text-align: center;
+}
+
+button {
+  background: #ffcc00;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  width: 156px;
+  margin: 24px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+  line-height: 1;
+  /* verhindert Text-Verschiebung */
+  height: 48px;
+  /* feste Höhe – gleiche Größe bei allen Texten */
+  display: inline-flex;
+  /* Text perfekt zentrieren */
+  align-items: center;
+  /* vertikal mittig */
+  justify-content: center;
+  /* horizontal mittig */
+  text-align: center;
+}
+
+button:hover {
+  background: #ffd633;
+}
+
+/* Dialog */
+.dialog {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.dialog-close-button {
+  position: sticky;
+  top: 0px;
+  float: right;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: solid 2px #ffcc00;
+  border-radius: 8px;
+  cursor: pointer;
+  background: black;
+  /* damit es über Text liegt */
+  z-index: 5;
+}
+
+.dialog-content {
+  font-family: "Comic Relief", cursive, sans-serif;
+  position: relative;
+  background: black;
+  border-radius: 10px;
+  padding: 20px 30px;
+  text-align: center;
+  width: 80%;
+  height: 80%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbalken zuerst unsichtbar */
+.dialog-content::-webkit-scrollbar {
+  width: 8px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Wenn aktiv (scrolling), sichtbar */
+.dialog-content.show-scroll::-webkit-scrollbar {
+  opacity: 1;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: #ffcc00;
+  border-radius: 8px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #ffd633;
+}
+
+.yellow {
+  color: #ffcc00;
+  letter-spacing: 2px;
+}
+
+p {
+  margin: 0;
+  color: wheat;
+}
+
+
+h3 {
+  margin: 5px 0 0 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.menu-img {
+  height: 100px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.boss {
+  height: 80px;
+}
+
+.marakas {
+  height: 25px;
+  transform: rotate(-30deg);
+}
+
+.marakas-div {
+  align-items: flex-end;
+}
+
+/* --- Button blinkt während Ladezeit --- */
+#start-btn.loading {
+  animation: blink 1.2s infinite;
+  opacity: 0.6;
+  background: #888;
+  cursor: not-allowed;
+  border: none;
+}
+
+/* Wenn Spiel geladen ist */
+#start-btn:not(.loading) {
+  animation: none;
+  opacity: 1;
+  background: #ffcc00;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Hovereffekt – exakt wie die anderen Buttons */
+#start-btn:not(.loading):hover {
+  background: #ffd633;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+#end-screen {
+  background: rgba(0, 0, 0, 0.85);
+  /* etwas dunkler als Startscreen */
+  color: #ffcc00;
+  z-index: 20;
+  /* über allem anderen */
+  text-align: center;
+}
+
+#end-screen h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+#end-screen button {
+  background: #ffcc00;
+  color: black;
+  font-weight: bold;
+  width: 190px;
+  margin: 10px;
+  padding: 0;
+  ;
+  transition: 0.2s;
+}
+
+#end-screen button:hover {
+  background: #ffd633;
+  transform: scale(1.05);
+}
+
+#end-screen button.btn-wip {
+  position: relative;
+}
+
+#end-screen button.btn-wip:hover {
+  color: transparent;
+  /* originalen Text unsichtbar machen */
+}
+
+#end-screen button.btn-wip:hover::after {
+  content: attr(data-hover);
+  color: black;
+  /* Textfarbe für Hover-Text */
+  position: absolute;
+  inset: 0;
+  /* füllt den Button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#stats-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  font-size: 1.2rem;
+  border: 2px solid #ffcc00;
+}
+
+#stats-box b {
+  color: #ffcc00;
+  font-size: 1.5rem;
+}
+
+.stats-coin {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 1.7rem;
+  color: gold;
+  text-shadow: 0 0 8px gold;
+}
+
+.stats-salsa {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 1.7rem;
+  color: gold;
+  text-shadow: 0 0 8px gold;
+}
+
+.legal-links {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+}
+
+.legal-links a {
+  color: #fff;
+  font-size: 20px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+body.legal-page {
+  font-family: Arial, system-ui, sans-serif;
+  /* andere Schrift nur für diese Seiten */
+  font-size: 16px;
+}
+
+/* Text in der Box linksbündig, Überschrift zentriert */
+body.legal-page .dialog-content {
+  text-align: left;
+}
+
+body.legal-page .dialog-content h3 {
+  text-align: center;
+}
+
+/* Bessere Lesbarkeit */
+body.legal-page p {
+  line-height: 1.5;
+}
+
+/* ================================ */
+/* 📱 Nur Querformat auf Mobile     */
+/* ================================ */
+
+/* Standard: Hinweis-Overlay ausblenden */
+#rotate-device-overlay {
+  display: none;
+  z-index: 30;
+  /* über allen anderen Overlays */
+}
+
+/* Auf kleineren Geräten im HOCHFORMAT anzeigen */
+@media screen and (max-width: 1024px) and (orientation: portrait) {
+  #rotate-device-overlay {
+    display: flex;
+    /* .overlay sorgt für Zentrierung etc. */
+  }
+
+  /* Spieloberflächen ausblenden, solange Hochformat aktiv ist */
+  #canvas,
+  #start-screen,
+  #end-screen,
+  #instructions {
+    display: none !important;
+  }
+}
+
+/* Auf kleineren Geräten im QUERFORMAT: Spiel sichtbar, Hinweis weg */
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  #rotate-device-overlay {
+    display: none;
+  }
+
+  /* Falls du willst, kannst du hier explizit wieder aktivieren,
+     aber eigentlich reicht dein bisheriges JS / HTML-Handling */
+}
+
+/* Basis: Mobile-Controls grundsätzlich verstecken */
+.mobile-controls {
+  position: absolute;
+  bottom: 10px;
+  width: 96%;
+  display: none;
+  justify-content: space-around;
+  gap: 12px;
+  z-index: 15;
+}
+
+/* Buttons darin dürfen ruhig etwas größer sein */
+.mobile-controls button {
+  background: rgba(255, 255, 255, 0.193);
+  margin: 0;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.4rem;
+
+  /* Optional: Komfort für Touch-Geräte */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Nur auf Handy/Tablet im QUERFORMAT zeigen – UND nur wenn aktiv */
+@media screen and (max-width: 1400px) and (orientation: landscape) {
+  .mobile-controls.active {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.button-left {
+  display: flex;
+  gap: 20px;
+}
+
+/* 🔠 Überschrift "EL POLLO LOCO" auf kleineren Geräten ausblenden */
+@media screen and (max-width: 1024px) {
+  #game-name {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 665px) {
+  h1 {
+    margin-top: 0;
+    font-size: 1.7rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .menu-box button {
+    width: 120px;
+    font-size: 0.7rem;
+    padding: 8px 16px;
+  }
+}

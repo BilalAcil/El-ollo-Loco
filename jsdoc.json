@@ -1,0 +1,19 @@
+{
+  "source": {
+    "include": [
+      "./js",
+      "./models"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(^|\\\\|/)(node_modules|docs|out)(\\\\|/)"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "encoding": "utf8",
+    "template": "templates/default"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ]
+}

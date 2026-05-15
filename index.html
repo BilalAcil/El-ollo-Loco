@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Pollo Loco</title>
+
+  <link rel="icon" type="image/x-icon" href="img/favicon/pngtree-aesthetic-cactus-png-image_9001658.png">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <h1 id="game-name">EL POLLO LOCO</h1>
+  <canvas id="canvas" width="720" height="480"></canvas>
+
+  <div class="mobile-controls">
+    <div class="button-left">
+      <button id="btn-left">⬅</button>
+      <button id="btn-jump">⏫</button>
+      <button id="btn-throw">🌶️</button>
+    </div>
+    <div>
+      <button id="btn-mute" aria-label="Ton aus/an" title="Ton aus/an">🔊</button>
+    </div>
+    <div>
+      <button id="btn-right">➡</button>
+    </div>
+  </div>
+
+  <!-- STARTSCREEN -->
+  <div id="start-screen" class="overlay">
+    <h1>EL POLLO LOCO</h1>
+    <div class="menu-box">
+      <h2>Das Huhn wartet, Amigo. <br>Befreie deine große Liebe Sofia!</h2>
+      <button id="start-btn" class="loading" disabled>Bitte warten...</button>
+      <button onclick="openInstructions()">ℹ️ Anleitung</button>
+      <button id="mute-btn" onclick="toggleMute()">🔊 Ton aus</button>
+    </div>
+
+    <!-- Impressum-Link -->
+    <div class="legal-links">
+      <a href="impressum.html">Impressum</a>
+      &nbsp;|&nbsp;
+      <a href="datenschutz.html">Datenschutz</a>
+    </div>
+
+  </div>
+
+  <!-- ANLEITUNG -->
+  <div id="instructions" class="dialog hidden">
+    <div class="dialog-content">
+      <div class="dialog-close-button" onclick="closeInstructions()">❌</div>
+      <h3 class="yellow">Spielerklärung</h3>
+      <p>
+        Pepe ist ein leidenschaftlicher Musiker – und seine große Liebe Sofia ❤️ wurde vom verrückten Boss-Huhn
+        entführt! 🐔💔<br><br>
+
+        <b class="yellow">Dein Ziel:</b><br>
+        Rette Sofia! Dafür muss Pepe erst Bodyguards 🛡️🐔 und Junior-Bosse 🐔👑 besiegen und seine Instrumente
+        zurückholen.<br><br>
+
+        <b>Level 1️⃣:</b> Finde und hole deine Maracas 🪇 zurück!<br>
+        <b>Level 2️⃣:</b> Hol dir deine Gitarre 🎸 zurück!<br>
+        <b>Level 3️⃣:</b> Befreie Sofia 💃 und zeigt dem Boss-Huhn, was wahre Liebe ist!<br><br>
+
+        <b class="yellow">Tastenbelegung</b><br>
+        ⬅️ / ➡️ Bewegung<br>
+        🦶 Leertaste – Springen<br>
+        🍅 D – Salsa werfen<br>
+        🔈 M – Ton an/aus<br>
+        ⏸️ P – Pause / Fortsetzen
+      </p>
+    </div>
+  </div>
+
+  <!-- ENDSCREEN -->
+  <div id="end-screen" class="overlay hidden">
+    <div class="menu-box">
+      <h2 id="end-message"></h2>
+
+      <!-- 🟢 HIER wird die Statistik eingefügt -->
+      <div id="stats-box" class="hidden"></div>
+
+      <button onclick="restartGame()"></button>
+      <button onclick="returnToHome()"></button>
+    </div>
+  </div>
+
+  <!-- 📱 Gerät drehen Hinweis -->
+  <div id="rotate-device-overlay" class="overlay">
+    <div class="menu-box">
+      <h2>Turn your device to play</h2>
+      <p>Bitte drehe dein Gerät ins Querformat, um El Pollo Loco zu spielen.</p>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="./js/audio-manager.js"></script>
+
+  <!-- Basis-Klassen -->
+  <script src="./models/drawable-object.class.js"></script>
+  <script src="./models/movable-opject.class.js"></script>
+
+  <!-- alle Objekte -->
+  <script src="./models/character.assets.js"></script>
+  <script src="./models/character.class.js"></script>
+  <script src="./models/character.movement.js"></script>
+  <script src="./models/character.animation.js"></script>
+  <script src="./models/character.combat.js"></script>
+  <script src="./models/character.gravity.js"></script>
+  <script src="./models/cloud.class.js"></script>
+  <script src="./models/chicken.class.js"></script>
+  <script src="./models/chicken-small-class.js"></script>
+  <script src="./models/background-object.class.js"></script>
+  <script src="./models/status-bar.class.js"></script>
+  <script src="./models/status-bar-salsa.class.js"></script>
+  <script src="./models/status-bar-coin.class.js"></script>
+  <script src="./models/endboss-stastus-bar.class.js"></script>
+  <script src="./models/countdown.logic.js"></script>
+  <script src="./models/countdown.class.js"></script>
+  <script src="./models/corncob.class.js"></script>
+  <script src="./models/coin.class.js"></script>
+  <script src="./models/chicken-nest.class.js"></script>
+  <script src="./models/salsa.class.js"></script>
+  <script src="./models/salsa-throw.class.js"></script>
+  <script src="./models/maracas.class.js"></script>
+  <script src="./models/endboss.class.js"></script>
+  <script src="./models/bodyguard.assets.js"></script>
+  <script src="./models/bodyguard.sounds.js"></script>
+  <script src="./models/bodyguard.jump.js"></script>
+  <script src="./models/bodyguard.attack.js"></script>
+  <script src="./models/bodyguard.damage-death.js"></script>
+  <script src="./models/bodyguard.class.js"></script>
+  <script src="./models/bodyguard-statusbar.class.js"></script>
+
+  <!-- Level und World -->
+  <script src="./models/level.class.js"></script>
+  <script src="./js/levels/level1.js"></script>
+
+  <script src="./models/world.class.js"></script>
+  <script src="./models/world.spawn.js"></script>
+  <script src="./models/world.camera.js"></script>
+  <script src="./models/world.pause.js"></script>
+  <script src="./models/world.draw.js"></script>
+  <script src="./models/world.collision.pickups.js"></script>
+  <script src="./models/world.collision.core.js"></script>
+
+  <!-- Steuerung + Spielstart -->
+  <script src="./models/keyboard.class.js"></script>
+
+  <script src="./js/ui.js"></script>
+  <script src="./js/game.js"></script>
+</body>
+
+</html>
